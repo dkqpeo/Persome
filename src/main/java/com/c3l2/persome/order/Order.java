@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -23,7 +25,10 @@ public class Order {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_coupon_id",unique=true)
-    private UserCoupon userCoupon; // 사용자 쿠폰 참조
+    private UserCoupon userCoupon;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "receive_type", nullable = false, length = 20)
@@ -33,7 +38,7 @@ public class Order {
     @Column(name = "order_status", nullable = false, length = 30)
     private OrderStatus orderStatus; //배송 상태
 
-    @Column(name = "order_date", nullable = false)
+    @Column(name = "order_date", nullable = false, columnDefinition = "DATETIME(0)")
     private LocalDateTime orderDate; //주문 일자
 
     @Column(name = "shipping_fee", nullable = false)
@@ -57,10 +62,10 @@ public class Order {
     @Column(name = "request_message", length = 255)
     private String requestMessage; //요청사항
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME(0)")
     private LocalDateTime createdAt; //생성일
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
     private LocalDateTime updatedAt; //수정일
 
     @PrePersist
