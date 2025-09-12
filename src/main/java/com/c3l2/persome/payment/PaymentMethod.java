@@ -1,4 +1,4 @@
-package com.c3l2.persome.order;
+package com.c3l2.persome.payment;
 
 public enum PaymentMethod {
     CARD,        //신용/체크카드
