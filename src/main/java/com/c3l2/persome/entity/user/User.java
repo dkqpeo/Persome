@@ -1,20 +1,25 @@
 package com.c3l2.persome.entity.user;
 
+import com.c3l2.persome.entity.cart.Cart;
+import com.c3l2.persome.entity.coupon.UserCoupon;
 import com.c3l2.persome.entity.membership.MembershipHistory;
 import com.c3l2.persome.entity.membership.MembershipLevel;
+import com.c3l2.persome.entity.order.Order;
+import com.c3l2.persome.entity.point.PointTransaction;
+import com.c3l2.persome.entity.point.UserPoint;
+import com.c3l2.persome.entity.review.Review;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name = "user")
 @Entity
 public class User {
@@ -27,12 +32,15 @@ public class User {
     private MembershipLevel membershipLevel;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<MembershipHistory> membershipHistories = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<UserAddress> userAddresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<UserConsent> userConsents = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -42,21 +50,26 @@ public class User {
     private Cart cart;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Wishlist> wishlists = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<UserCoupon> userCoupons = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserPoint userPoint;
 
     @OneToMany(mappedBy = "user",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PointTransaction> pointTransactions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "user",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
     @Column(name = "login_id", unique = true, nullable = false, length = 50)

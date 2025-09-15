@@ -53,12 +53,15 @@ public class Product {
     private Brand brand;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ProductOption> productOptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ProductImg> productImgs = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ProductPrice> productPrices = new ArrayList<>();
 
     @PrePersist

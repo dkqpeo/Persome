@@ -52,11 +52,14 @@ public class Event {
     private EventStatus status; // 이벤트 유형(DRAFT/SCHEDULED/ACTIVE/ENDED?INACTIVE)
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<EventImg> eventImgs = new ArrayList<>();
 
     @OneToMany(mappedBy = "event",  cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Promotion> promotion = new ArrayList<>();
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Coupon> coupons = new ArrayList<>();
 }

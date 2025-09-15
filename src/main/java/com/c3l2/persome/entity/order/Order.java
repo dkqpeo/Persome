@@ -1,5 +1,7 @@
 package com.c3l2.persome.entity.order;
 
+import com.c3l2.persome.entity.coupon.UserCoupon;
+import com.c3l2.persome.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,6 +30,7 @@ public class Order {
     private UserCoupon userCoupon;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

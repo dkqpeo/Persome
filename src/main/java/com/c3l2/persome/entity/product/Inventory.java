@@ -1,6 +1,7 @@
 package com.c3l2.persome.entity.product;
 
 import com.c3l2.persome.entity.product.constant.StockStatus;
+import com.c3l2.persome.entity.store.Store;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +36,7 @@ public class Inventory {
     @JoinColumn(name = "product_option_id")
     private ProductOption productOption;
 
-    @@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
 

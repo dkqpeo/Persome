@@ -2,6 +2,7 @@ package com.c3l2.persome.entity.coupon;
 
 import com.c3l2.persome.entity.coupon.constant.CouponStatus;
 import com.c3l2.persome.entity.coupon.constant.UserCouponStatus;
+import com.c3l2.persome.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,15 +38,13 @@ public class UserCoupon {
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
 
-    @Column(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "coupon_id",  nullable = false)
     private Coupon coupon;
-
-    @OneToMany(mappedBy = "",cascade = CascadeType.ALL)
-    private List<User> user= new ArrayList<>();
 
     @PrePersist
     public void prePersist(){
