@@ -1,14 +1,12 @@
 package com.c3l2.persome.order;
 
 import com.c3l2.persome.common.ApiResponse;
-import com.c3l2.persome.order.dto.OrderDetailDto;
-import com.c3l2.persome.order.dto.OrderRequestDto;
-import com.c3l2.persome.order.dto.OrderResponseDto;
-import com.c3l2.persome.order.dto.OrderSummaryDto;
+import com.c3l2.persome.order.dto.response.OrderResponseDto;
+import com.c3l2.persome.order.dto.request.OrderRequestDto;
+import com.c3l2.persome.order.dto.response.OrderSummaryDto;
 import com.c3l2.persome.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +39,8 @@ public class OrderController {
 
     //주문 상세 조회
     @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<OrderDetailDto>> getOrderDetail(@PathVariable Long orderId) {
-        OrderDetailDto orderDetail = orderService.getOrderDetail(orderId);
+    public ResponseEntity<ApiResponse<OrderResponseDto>> getOrderDetail(@PathVariable Long orderId) {
+        OrderResponseDto orderDetail = orderService.getOrderDetail(orderId);
         return ApiResponse.ok("주문 상세 조회 성공", orderDetail);
     }
 

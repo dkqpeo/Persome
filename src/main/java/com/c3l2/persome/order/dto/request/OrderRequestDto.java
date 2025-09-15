@@ -1,4 +1,4 @@
-package com.c3l2.persome.order.dto;
+package com.c3l2.persome.order.dto.request;
 
 import com.c3l2.persome.entity.order.Order;
 import com.c3l2.persome.entity.order.OrderStatus;

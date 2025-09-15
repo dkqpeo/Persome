@@ -1,4 +1,4 @@
-package com.c3l2.persome.order.dto;
+package com.c3l2.persome.order.dto.response;
 
 import com.c3l2.persome.entity.order.Order;
 import lombok.*;

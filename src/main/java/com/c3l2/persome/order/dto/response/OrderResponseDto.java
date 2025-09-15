@@ -1,4 +1,4 @@
-package com.c3l2.persome.order.dto;
+package com.c3l2.persome.order.dto.response;
 
 import com.c3l2.persome.delivery.dto.DeliverySnapshotDto;
 import com.c3l2.persome.entity.order.Order;
@@ -18,8 +18,8 @@ public class OrderResponseDto {
     private LocalDateTime orderDate;
     private BigDecimal totalPrice;
     private String orderStatus;
-    private DeliverySnapshotDto deliveryInfo;      //배송 스냅샷 DTO
-    private List<OrderItemResponseDto> items;      //주문 상품 DTO 리스트
+    private DeliverySnapshotDto deliveryInfo;   // 배송 스냅샷
+    private List<OrderItemDto> items;           // 주문 상품 목록
 
     public static OrderResponseDto fromEntity(Order order) {
         return OrderResponseDto.builder()
@@ -27,10 +27,12 @@ public class OrderResponseDto {
                 .userId(order.getUser().getId())
                 .orderDate(order.getOrderDate())
                 .totalPrice(order.getOrderTotalAmount())
-                .orderStatus(String.valueOf(order.getOrderStatus()))
-                .deliveryInfo(DeliverySnapshotDto.fromEntity(order.getDelivery().getDeliverySnapshot()))
+                .orderStatus(order.getOrderStatus().name())
+                .deliveryInfo(order.getDelivery() != null
+                        ? DeliverySnapshotDto.fromEntity(order.getDelivery().getDeliverySnapshot())
+                        : null)
                 .items(order.getOrderItems().stream()
-                        .map(OrderItemResponseDto::fromEntity)
+                        .map(OrderItemDto::fromEntity)
                         .toList())
                 .build();
     }

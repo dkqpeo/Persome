@@ -10,6 +10,9 @@ import com.c3l2.persome.entity.product.Product;
 import com.c3l2.persome.entity.product.ProductOption;
 import com.c3l2.persome.entity.user.User;
 import com.c3l2.persome.order.dto.*;
+import com.c3l2.persome.order.dto.response.OrderResponseDto;
+import com.c3l2.persome.order.dto.request.OrderRequestDto;
+import com.c3l2.persome.order.dto.response.OrderSummaryDto;
 import com.c3l2.persome.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -121,10 +124,10 @@ public class OrderService {
 
     //주문 상세 조회
     @Transactional(readOnly = true)
-    public OrderDetailDto getOrderDetail(Long orderId) {
+    public OrderResponseDto getOrderDetail(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
-        return OrderDetailDto.fromEntity(order);
+        return OrderResponseDto.fromEntity(order);
     }
 
     //배송비 계산
