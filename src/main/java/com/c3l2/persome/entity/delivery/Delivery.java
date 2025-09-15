@@ -1,6 +1,6 @@
-package com.c3l2.persome.pickup;
+package com.c3l2.persome.entity.delivery;
 
-import com.c3l2.persome.order.Order;
+import com.c3l2.persome.entity.order.Order;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "pickup")
+@Table(name = "delivery")
 @Entity
-public class Pickup {
+public class Delivery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,16 +22,20 @@ public class Pickup {
     private Order order;
 
     @Enumerated(EnumType.STRING)
-    private PickupStatus pickupStatus; //픽업 상태
+    @Column(name = "delivery_status", nullable = false, length = 20)
+    private DeliveryStatus deliveryStatus;
 
-    @Column(name = "ready_at")
-    private LocalDateTime readyAt; //픽업 가능 시간
+    @Column(name = "tracking_no", length = 64)
+    private String trackingNo; //운송장 번호
 
-    @Column(name = "expire_at")
-    private LocalDateTime expireAt; //픽업 만료 시간
+    @Column(name = "carrier", length = 50)
+    private String carrier; //택배사
 
-    @Column(name = "picked_at")
-    private LocalDateTime pickedAt; //수령 완료 시간
+    @Column(name = "shipped_at")
+    private LocalDateTime shippedAt; //배송일
+
+    @Column(name = "delivered_at")
+    private LocalDateTime deliveredAt; //도착일
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt; //생성일
@@ -40,5 +44,4 @@ public class Pickup {
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
 }

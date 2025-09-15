@@ -1,4 +1,4 @@
-package com.c3l2.persome.order;
+package com.c3l2.persome.entity.order;
 
 import jakarta.persistence.*;
 import lombok.*;

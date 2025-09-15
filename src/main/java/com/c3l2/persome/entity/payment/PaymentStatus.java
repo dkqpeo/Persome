@@ -1,4 +1,4 @@
-package com.c3l2.persome.payment;
+package com.c3l2.persome.entity.payment;
 
 public enum PaymentStatus {
     PENDING,   //결제대기

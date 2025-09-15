@@ -1,6 +1,6 @@
-package com.c3l2.persome.payment;
+package com.c3l2.persome.entity.payment;
 
-import com.c3l2.persome.order.Order;
+import com.c3l2.persome.entity.order.Order;
 import jakarta.persistence.*;
 import lombok.*;
 
