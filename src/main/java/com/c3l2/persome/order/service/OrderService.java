@@ -13,8 +13,6 @@ import com.c3l2.persome.entity.user.User;
 import com.c3l2.persome.order.dto.OrderRequestDto;
 import com.c3l2.persome.order.dto.OrderResponseDto;
 import com.c3l2.persome.order.dto.PriceCalculationResult;
-import com.c3l2.persome.order.repository.delivery.DeliverySnapshotRepository;
-import com.c3l2.persome.order.repository.order.OrderItemRepository;
 import com.c3l2.persome.order.repository.order.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
