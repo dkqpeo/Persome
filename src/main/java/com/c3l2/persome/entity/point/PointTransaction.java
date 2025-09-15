@@ -42,14 +42,4 @@ public class PointTransaction {
         }
     }
 
-    // 생성자 대신 팩토리 메서드
-    public static PointTransaction create(UserPoint user, int amount, TransactionType type, Long orderId, LocalDateTime expiredAt) {
-        PointTransaction tx = new PointTransaction();
-        tx.user = user;
-        tx.amount = amount;
-        tx.type = type;
-        tx.orderId = orderId;
-        tx.expiredAt = expiredAt;
-        return tx;
-    }
 }
