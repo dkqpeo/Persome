@@ -24,9 +24,6 @@ public class Pickup {
     @Enumerated(EnumType.STRING)
     private PickupStatus pickupStatus; //픽업 상태
 
-    @Column(name = "ready_at")
-    private LocalDateTime readyAt; //픽업 가능 시간
-
     @Column(name = "expire_at")
     private LocalDateTime expireAt; //픽업 만료 시간
 
