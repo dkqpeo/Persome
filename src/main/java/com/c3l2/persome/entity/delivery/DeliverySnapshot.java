@@ -24,10 +24,10 @@ public class DeliverySnapshot {
     private String zipCode; //우편번호
 
     @Column(name = "addr1", nullable = false, length = 200)
-    private String addr1; //주소
+    private String address; //주소
 
     @Column(name = "addr2", length = 200)
-    private String addr2; //상세 주소
+    private String addressDetail; //상세 주소
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_id", nullable = false, unique = true)

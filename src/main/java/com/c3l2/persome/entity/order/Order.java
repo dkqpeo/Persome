@@ -1,6 +1,7 @@
 package com.c3l2.persome.entity.order;
 
 import com.c3l2.persome.entity.coupon.UserCoupon;
+import com.c3l2.persome.entity.delivery.Delivery;
 import com.c3l2.persome.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,10 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "order")
+@Table(name = "`order`")
 @Entity
 public class Order {
     @Id
@@ -57,7 +59,7 @@ public class Order {
     private BigDecimal originalPrice; //할인 전 총액
 
     @Column(name = "coupon_discount_amount", precision = 15, scale = 2, nullable = false)
-    private BigDecimal cuponDiscountAmount; //쿠폰 할인 금액
+    private BigDecimal couponDiscountAmount; //쿠폰 할인 금액
 
     @Column(name = "point_used_amount", precision = 15, scale = 2, nullable = false)
     private BigDecimal pointUsedAmount; //포인트 할인 금액
@@ -70,6 +72,9 @@ public class Order {
 
     @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
     private LocalDateTime updatedAt; //수정일
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Delivery delivery;
 
     @PrePersist
     protected void onCreate() {
