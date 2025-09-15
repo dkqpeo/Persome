@@ -1,5 +1,6 @@
 package com.c3l2.persome.entity.point;
 
+import com.c3l2.persome.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +36,7 @@ public class PointTransaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserPoint user;
+    private User user;
 
     @Column(name = "order_id")
     private Long orderId;

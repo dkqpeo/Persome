@@ -1,10 +1,14 @@
 package com.c3l2.persome.entity.store;
 
+import com.c3l2.persome.entity.product.Inventory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -34,6 +38,7 @@ public class Store {
     private StoreStatus status;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StoreInventory> inventories = new ArrayList<>();
+    @Builder.Default
+    private List<Inventory> inventories = new ArrayList<>();
 
 }

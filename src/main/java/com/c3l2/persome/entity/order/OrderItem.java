@@ -1,5 +1,7 @@
 package com.c3l2.persome.entity.order;
 
+import com.c3l2.persome.entity.product.Product;
+import com.c3l2.persome.entity.product.ProductOption;
 import jakarta.persistence.*;
 import lombok.*;
 

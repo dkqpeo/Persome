@@ -1,5 +1,6 @@
 package com.c3l2.persome.entity.point;
 
+import com.c3l2.persome.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,9 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 public class UserPoint {
 
+    // 1:1
     @Id
-    @Column(name = "user_id")
-    private Long userId;
+    @OneToOne(fetch = FetchType.EAGER)
+    private User user;
 
     @Column(name = "balance")
     private Integer balance;
@@ -26,9 +28,6 @@ public class UserPoint {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 1:N
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PointTransaction> transactions = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

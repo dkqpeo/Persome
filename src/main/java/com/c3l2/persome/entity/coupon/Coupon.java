@@ -75,6 +75,7 @@ public class Coupon {
     private Event event;
 
     @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<UserCoupon> userCouponList = new ArrayList<>();
 
     @PrePersist

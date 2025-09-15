@@ -46,14 +46,12 @@ public class Promotion {
     @Column(name = "created_at", columnDefinition = "DATETIME(0)", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name= "event_id", nullable = false)
-    private Long eventId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
 
     @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PromotionTarget> promotionTarget = new ArrayList<>();
 
     @PrePersist

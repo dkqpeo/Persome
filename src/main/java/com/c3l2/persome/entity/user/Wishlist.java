@@ -1,5 +1,6 @@
 package com.c3l2.persome.entity.user;
 
+import com.c3l2.persome.entity.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,5 +1,7 @@
 package com.c3l2.persome.entity.review;
 
+import com.c3l2.persome.entity.order.OrderItem;
+import com.c3l2.persome.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,15 +35,16 @@ public class Review {
     private LocalDate createdAt;
 
     // TODO : user, Order Entity 연결
-    /*@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;*/
+    private User user;
 
-    /*@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "order_item_id", nullable = false)
-    private OrderItem orderItem;*/
+    private OrderItem orderItem;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ReviewMedia> reviewMedias = new ArrayList<>();
 
     @PrePersist
