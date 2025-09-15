@@ -1,16 +1,19 @@
 package com.c3l2.persome.entity.point;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Table(name = "user_point")
-@Getter @Setter
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserPoint {
 
     @Id
@@ -41,10 +44,4 @@ public class UserPoint {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // 편의 메서드
-    public void addTransaction(PointTransaction tx) {
-        transactions.add(tx);
-        tx.setUser(this);
-        this.balance += tx.getAmount();
-    }
 }
