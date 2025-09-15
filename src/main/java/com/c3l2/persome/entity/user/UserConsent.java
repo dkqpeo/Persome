@@ -27,10 +27,6 @@ public class UserConsent {
     @Column(name = "policy_code")
     private PolicyCode policyCode;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "policy_name")
-    private PolicyName policyName;
-
     @Column(name = "is_agreed", nullable = false)
     private boolean isAgreed;
 

@@ -24,9 +24,6 @@ public class MembershipHistory {
     @JoinColumn(name = "user_id",  nullable = false)
     private User user;
 
-    @Column(name = "previous_level_id")
-    private Long previousLevelId;   // 변경 전 등급
-
     @Column(name = "new_level_id", nullable = false)
     private Long newLevelId;    // 변경 후 등급
 
