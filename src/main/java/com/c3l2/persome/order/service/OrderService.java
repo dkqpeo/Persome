@@ -5,21 +5,23 @@ import com.c3l2.persome.entity.delivery.DeliverySnapshot;
 import com.c3l2.persome.entity.delivery.DeliveryStatus;
 import com.c3l2.persome.entity.order.Order;
 import com.c3l2.persome.entity.order.OrderItem;
-import com.c3l2.persome.entity.order.OrderStatus;
 import com.c3l2.persome.entity.order.ReceiveType;
 import com.c3l2.persome.entity.product.Product;
 import com.c3l2.persome.entity.product.ProductOption;
 import com.c3l2.persome.entity.user.User;
 import com.c3l2.persome.order.dto.OrderRequestDto;
 import com.c3l2.persome.order.dto.OrderResponseDto;
+import com.c3l2.persome.order.dto.OrderSummaryDto;
 import com.c3l2.persome.order.dto.PriceCalculationResult;
 import com.c3l2.persome.order.repository.order.OrderRepository;
-import jakarta.transaction.Transactional;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -36,19 +38,7 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
         //1. 주문 생성
-        Order order = Order.builder()
-                .user(user)
-                .orderDate(LocalDateTime.now())
-                .receiveType(request.getReceiveType())   // 배송 / 픽업
-                .orderStatus(OrderStatus.PENDING)
-                .shippingFee(0)
-                .couponDiscountAmount(BigDecimal.ZERO)
-                .pointUsedAmount(BigDecimal.ZERO)
-                .orderTotalAmount(BigDecimal.ZERO)
-                .originalPrice(BigDecimal.ZERO)
-                .orderTotalQty(0)
-                .requestMessage(request.getRequestMessage())
-                .build();
+        Order order = request.toEntity(user);
 
         //2. 주문 상품 생성 + 가격 계산
         BigDecimal originalPrice = BigDecimal.ZERO;
@@ -120,6 +110,20 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
         return OrderResponseDto.fromEntity(savedOrder);
     }
+
+    //주문 목록 조회
+    @Transactional(readOnly = true)
+    public List<OrderSummaryDto> getUserOrders(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+
+        List<Order> orders = orderRepository.findByUserId(userId);
+
+        return orders.stream()
+                .map(OrderSummaryDto::fromEntity)
+                .toList();
+    }
+
 
     //배송비 계산
     private int calculateShippingFee(BigDecimal itemsTotal, ReceiveType receiveType) {
