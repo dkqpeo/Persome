@@ -1,4 +1,4 @@
-package com.c3l2.persome.order.repository.delivery;
+package com.c3l2.persome.delivery.repository;
 
 import com.c3l2.persome.entity.delivery.DeliverySnapshot;
 import org.springframework.data.jpa.repository.JpaRepository;

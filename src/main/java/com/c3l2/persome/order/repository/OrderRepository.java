@@ -1,4 +1,4 @@
-package com.c3l2.persome.order.repository.order;
+package com.c3l2.persome.order.repository;
 
 import com.c3l2.persome.entity.order.Order;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.c3l2.persome.order.dto;
+package com.c3l2.persome.delivery.dto;
 
 import com.c3l2.persome.entity.delivery.DeliverySnapshot;
 import lombok.*;

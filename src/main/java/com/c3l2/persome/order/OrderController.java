@@ -1,6 +1,7 @@
 package com.c3l2.persome.order;
 
 import com.c3l2.persome.common.ApiResponse;
+import com.c3l2.persome.order.dto.OrderDetailDto;
 import com.c3l2.persome.order.dto.OrderRequestDto;
 import com.c3l2.persome.order.dto.OrderResponseDto;
 import com.c3l2.persome.order.dto.OrderSummaryDto;
@@ -10,19 +11,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
 
     //주문 생성
-    @PostMapping("/orders")
+    @PostMapping
     public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto request, HttpSession session) {
         // 세션에서 userId 가져오기
         Long userId = getUserIdOrThrow(session);
@@ -32,11 +32,18 @@ public class OrderController {
     }
 
     //주문 목록 조회
-    @PostMapping("users/{id}/orders")
-    public ResponseEntity<ApiResponse<List<OrderSummaryDto>>> getOders(HttpSession session){
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<List<OrderSummaryDto>>> getOrders(HttpSession session){
         Long userId = getUserIdOrThrow(session);
         List<OrderSummaryDto> orders = orderService.getUserOrders(userId);
         return ApiResponse.ok("주문 내역 조회 성공.",orders);
+    }
+
+    //주문 상세 조회
+    @GetMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<OrderDetailDto>> getOrderDetail(@PathVariable Long orderId) {
+        OrderDetailDto orderDetail = orderService.getOrderDetail(orderId);
+        return ApiResponse.ok("주문 상세 조회 성공", orderDetail);
     }
 
     //세션에서 Id 가져오기

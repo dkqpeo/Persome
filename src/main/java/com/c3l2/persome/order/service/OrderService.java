@@ -9,18 +9,13 @@ import com.c3l2.persome.entity.order.ReceiveType;
 import com.c3l2.persome.entity.product.Product;
 import com.c3l2.persome.entity.product.ProductOption;
 import com.c3l2.persome.entity.user.User;
-import com.c3l2.persome.order.dto.OrderRequestDto;
-import com.c3l2.persome.order.dto.OrderResponseDto;
-import com.c3l2.persome.order.dto.OrderSummaryDto;
-import com.c3l2.persome.order.dto.PriceCalculationResult;
-import com.c3l2.persome.order.repository.order.OrderRepository;
-import jakarta.servlet.http.HttpSession;
+import com.c3l2.persome.order.dto.*;
+import com.c3l2.persome.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -124,6 +119,13 @@ public class OrderService {
                 .toList();
     }
 
+    //주문 상세 조회
+    @Transactional(readOnly = true)
+    public OrderDetailDto getOrderDetail(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+        return OrderDetailDto.fromEntity(order);
+    }
 
     //배송비 계산
     private int calculateShippingFee(BigDecimal itemsTotal, ReceiveType receiveType) {

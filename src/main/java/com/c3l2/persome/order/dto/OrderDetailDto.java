@@ -12,23 +12,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderResponseDto {
+public class OrderDetailDto {
     private Long orderId;
-    private Long userId;
     private LocalDateTime orderDate;
     private BigDecimal totalPrice;
     private String orderStatus;
-    private DeliverySnapshotDto deliveryInfo;      //배송 스냅샷 DTO
-    private List<OrderItemResponseDto> items;      //주문 상품 DTO 리스트
+    private DeliverySnapshotDto deliveryInfo;
+    private List<OrderItemResponseDto> items;
 
-    public static OrderResponseDto fromEntity(Order order) {
-        return OrderResponseDto.builder()
+    public static OrderDetailDto fromEntity(Order order) {
+        return OrderDetailDto.builder()
                 .orderId(order.getId())
-                .userId(order.getUser().getId())
                 .orderDate(order.getOrderDate())
                 .totalPrice(order.getOrderTotalAmount())
-                .orderStatus(String.valueOf(order.getOrderStatus()))
-                .deliveryInfo(DeliverySnapshotDto.fromEntity(order.getDelivery().getDeliverySnapshot()))
+                .orderStatus(order.getOrderStatus().name())
+                .deliveryInfo(order.getDelivery() != null
+                        ? DeliverySnapshotDto.fromEntity(order.getDelivery().getDeliverySnapshot())
+                        : null)
                 .items(order.getOrderItems().stream()
                         .map(OrderItemResponseDto::fromEntity)
                         .toList())
