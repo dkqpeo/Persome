@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "order")
+@Table(name = "`order`")
 @Entity
 public class Order {
     @Id
