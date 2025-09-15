@@ -1,4 +1,4 @@
-package com.c3l2.persome.pickup;
+package com.c3l2.persome.entity.pickup;
 
 public enum PickupStatus {
     PREPARING,  //준비중

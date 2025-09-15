@@ -1,4 +1,4 @@
-package com.c3l2.persome.pickup;
+package com.c3l2.persome.entity.pickup;
 
 import jakarta.persistence.*;
 import lombok.*;
