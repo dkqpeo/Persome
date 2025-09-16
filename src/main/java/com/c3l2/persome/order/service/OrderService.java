@@ -73,6 +73,7 @@ public class OrderService {
             //할인 내역 누적
             order.setCouponDiscountAmount(order.getCouponDiscountAmount().add(calc.getCouponDiscount()));
             order.setPointUsedAmount(order.getPointUsedAmount().add(calc.getPointDiscount()));
+            order.setPromoDiscountAmount(order.getPromoDiscountAmount().add(calc.getPromoDiscount()));
         }
 
         order.setOriginalPrice(originalPrice);

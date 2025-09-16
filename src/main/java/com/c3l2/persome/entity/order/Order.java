@@ -64,6 +64,9 @@ public class Order {
     @Column(name = "point_used_amount", precision = 15, scale = 2, nullable = false)
     private BigDecimal pointUsedAmount; //포인트 할인 금액
 
+    @Column(name = "promo_discount_amount", precision = 15, scale = 2)
+    private BigDecimal promoDiscountAmount; //프로모션 할인 금액
+
     @Column(name = "request_message", length = 255)
     private String requestMessage; //요청사항
 

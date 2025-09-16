@@ -18,6 +18,10 @@ public class OrderResponseDto {
     private LocalDateTime orderDate;
     private BigDecimal totalPrice;
     private String orderStatus;
+    private BigDecimal couponDiscountAmount;   // 쿠폰 할인액
+    private BigDecimal pointUsedAmount;        // 포인트 할인액
+    private BigDecimal promoDiscountAmount;    // 프로모션 할인액
+    private BigDecimal originalPrice;          // 할인 전 총액
     private DeliverySnapshotDto deliveryInfo;   // 배송 스냅샷
     private List<OrderItemDto> items;           // 주문 상품 목록
 
@@ -28,6 +32,10 @@ public class OrderResponseDto {
                 .orderDate(order.getOrderDate())
                 .totalPrice(order.getOrderTotalAmount())
                 .orderStatus(order.getOrderStatus().name())
+                .couponDiscountAmount(order.getCouponDiscountAmount())
+                .pointUsedAmount(order.getPointUsedAmount())
+                .promoDiscountAmount(order.getPromoDiscountAmount())
+                .originalPrice(order.getOriginalPrice())
                 .deliveryInfo(order.getDelivery() != null
                         ? DeliverySnapshotDto.fromEntity(order.getDelivery().getDeliverySnapshot())
                         : null)
