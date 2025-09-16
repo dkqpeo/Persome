@@ -83,30 +83,28 @@ public class OrderService {
 
         }
 
-        order.setOriginalPrice(originalPrice);
-        order.setPromoDiscountAmount(promoDiscountTotal);
-        order.setOrderTotalQty(totalQty);
+        order.applyPricing(originalPrice, promoDiscountTotal, totalQty);
 
         //3. 쿠폰 할인 적용
         UserCoupon userCoupon = null;
         if (request.getUserCouponId() != null) {
             userCoupon = userCouponRepository.findById(request.getUserCouponId())
                     .orElseThrow(() -> new IllegalArgumentException("선택한 쿠폰을 찾을 수 없습니다."));
-            order.setUserCoupon(userCoupon);
+            order.assignUserCoupon(userCoupon);
         }
         BigDecimal afterCoupon = applyCoupon(userCoupon, promoAppliedTotal);
-        order.setCouponDiscountAmount(promoAppliedTotal.subtract(afterCoupon));
+        order.applyCouponDiscount(promoAppliedTotal.subtract(afterCoupon));
 
         //4. 포인트 할인 적용
         BigDecimal afterPoint = applyPoint(user, request.getUsePointAmount(), afterCoupon);
-        order.setPointUsedAmount(afterCoupon.subtract(afterPoint));
+        order.applyPointDiscount(afterCoupon.subtract(afterPoint));
 
         //5. 배송비 계산
         int shippingFee = calculateShippingFee(promoAppliedTotal,request.getReceiveType());
-        order.setShippingFee(shippingFee);
+        order.applyShippingFee(shippingFee);
 
         //6. 최종 주문 금액 (포인트 할인 후 금액 + 배송비)
-        order.setOrderTotalAmount(afterPoint.add(BigDecimal.valueOf(shippingFee)));
+        order.calculateFinalAmount(afterPoint, shippingFee);
 
         //7. 배송 스냅샷 저장
         if (request.getReceiveType() == ReceiveType.DELIVERY) {
@@ -116,14 +114,7 @@ public class OrderService {
                     .address(request.getAddress())
                     .addressDetail(request.getAddressDetail())
                     .build();
-
-            Delivery delivery = Delivery.builder()
-                    .order(order)
-                    .deliveryStatus(DeliveryStatus.READY)
-                    .deliverySnapshot(snapshot)
-                    .build();
-
-            order.setDelivery(delivery);
+            order.registerDelivery(snapshot);
         }
 
         //8. 저장 & 응답
@@ -182,13 +173,13 @@ public class OrderService {
         if (order.getPointUsedAmount() != null && order.getPointUsedAmount().compareTo(BigDecimal.ZERO) > 0) {
             int refundPoints = order.getPointUsedAmount().intValue();
             User user = order.getUser();
-            user.getUserPoint().setBalance(user.getUserPoint().getBalance() + refundPoints);
+            user.getUserPoint().addPoints(refundPoints);
 
             // 포인트 이력 남기기 나중에 추가
         }
 
         //3. 상태 변경
-        order.setOrderStatus(OrderStatus.CANCELED);
+        order.cancel();
 
         orderRepository.save(order);
     }
@@ -247,7 +238,7 @@ public class OrderService {
         BigDecimal discountedPrice = currentPrice.subtract(BigDecimal.valueOf(applicablePoints));
 
         // 유저 포인트 차감
-        user.getUserPoint().setBalance(availablePoints - applicablePoints);
+        user.getUserPoint().usePoints(applicablePoints);
 
         return discountedPrice;
     }
