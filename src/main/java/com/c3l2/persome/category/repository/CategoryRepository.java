@@ -22,4 +22,24 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     
     // 이름으로 카테고리 찾기
     Optional<Category> findByName(String name);
+    
+    // 2차 카테고리들 조회 (1차 카테고리를 부모로 하는 카테고리들)
+    @Query("SELECT c FROM Category c WHERE c.parent.parent IS NULL AND c.parent IS NOT NULL")
+    List<Category> findSecondCategories();
+
+    // 2차 카테고리 조회 (1차 카테고리를 부모로 하는 카테고리들)
+    @Query("SELECT c FROM Category c WHERE c.name = :name AND c.parent.parent IS NULL AND c.parent IS NOT NULL")
+    Optional<Category> findSecondCategoryByName(String name);
+    
+    // 특정 2차 카테고리의 3차 카테고리들 조회
+    @Query("SELECT c FROM Category c WHERE c.parent = :secondCategory")
+    List<Category> findThirdCategoriesBySecondCategory(Category secondCategory);
+
+    // N+1 문제 해결을 위한 최적화된 조회: 2차 카테고리와 1차 카테고리를 join fetch로 한번에 조회
+    @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.parent WHERE c.parent.parent IS NULL AND c.parent IS NOT NULL")
+    List<Category> findSecondCategoriesWithParent();
+
+    // 모든 3차 카테고리를 2차 카테고리와 함께 조회 (N+1 방지)
+    @Query("SELECT c FROM Category c JOIN FETCH c.parent p WHERE p.parent.parent IS NULL AND p.parent IS NOT NULL")
+    List<Category> findAllThirdCategoriesWithParent();
 }

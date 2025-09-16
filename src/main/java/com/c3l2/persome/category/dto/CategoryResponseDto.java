@@ -6,23 +6,47 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryResponseDto {
 
-    private Long parentId;
-    private String parentName;
-    private Long categoryId;
-    private String categoryName;
+    private Long firstCategoryId;
+    private String firstCategoryName;
+    private Long secondCategoryId;
+    private String secondCategoryName;
+    private List<ThirdCategory> thirdCategories;
 
-    public static CategoryResponseDto from(Category category) {
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static public class ThirdCategory {
+        private Long thirdCategoryId;
+        private String thirdCategoryName;
+    }
+
+
+    public static CategoryResponseDto from(Category secondCategory, List<Category> thirdCategoryList) {
+
+        Category firstCategory = secondCategory.getParent();
+        
+        List<ThirdCategory> thirdCategories = thirdCategoryList.stream()
+                .map(thirdCat -> ThirdCategory.builder()
+                        .thirdCategoryId(thirdCat.getId())
+                        .thirdCategoryName(thirdCat.getName())
+                        .build())
+                .toList();
+
         return CategoryResponseDto.builder()
-                .parentId(category.getParent() != null ? category.getParent().getId() : null)
-                .parentName(category.getParent() != null ? category.getParent().getName() : null)
-                .categoryId(category.getId())
-                .categoryName(category.getName())
+                .firstCategoryId(firstCategory != null ? firstCategory.getId() : null)
+                .firstCategoryName(firstCategory != null ? firstCategory.getName() : null)
+                .secondCategoryId(secondCategory.getId())
+                .secondCategoryName(secondCategory.getName())
+                .thirdCategories(thirdCategories)
                 .build();
     }
 }
