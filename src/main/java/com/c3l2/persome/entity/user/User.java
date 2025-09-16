@@ -8,6 +8,7 @@ import com.c3l2.persome.entity.order.Order;
 import com.c3l2.persome.entity.point.PointTransaction;
 import com.c3l2.persome.entity.point.UserPoint;
 import com.c3l2.persome.entity.review.Review;
+import com.c3l2.persome.user.dto.UserUpdateDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -98,8 +99,8 @@ public class User {
     @Column(name = "status")
     private Status status;
 
-    @Column(name = "is_admin")
-    private Boolean isAdmin;
+    @Column(name = "is_admin", nullable = false)
+    private boolean isAdmin = false;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -120,5 +121,33 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.now();
+    }
+
+    public void changeStatus(Status newStatus) {
+        this.status = newStatus;
+    }
+
+    public void addUserNotification(UserNotification notification) {
+        this.userNotification = notification;
+    }
+
+    public void updateFromDto(UserUpdateDto dto) {
+        if (dto.getName() != null) this.name = dto.getName();
+        if (dto.getBirthDate() != null) this.birthDate = dto.getBirthDate();
+        if (dto.getEmail() != null) this.email = dto.getEmail();
+        if (dto.getPhone() != null) this.phone = dto.getPhone();
+        if (dto.getGender() != null) this.gender = Gender.valueOf(dto.getGender());
+
+        if (dto.getEmailEnabled() != null) this.userNotification.updateEmail(dto.getEmailEnabled());
+        if (dto.getSmsEnabled() != null) this.userNotification.updateSms(dto.getSmsEnabled());
+        if (dto.getPushEnabled() != null) this.userNotification.updatePush(dto.getPushEnabled());
+    }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }
