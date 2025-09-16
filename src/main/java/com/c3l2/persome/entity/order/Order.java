@@ -1,6 +1,9 @@
 package com.c3l2.persome.entity.order;
 
 import com.c3l2.persome.entity.coupon.UserCoupon;
+import com.c3l2.persome.entity.delivery.Delivery;
+import com.c3l2.persome.entity.delivery.DeliverySnapshot;
+import com.c3l2.persome.entity.delivery.DeliveryStatus;
 import com.c3l2.persome.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,10 +60,13 @@ public class Order {
     private BigDecimal originalPrice; //할인 전 총액
 
     @Column(name = "coupon_discount_amount", precision = 15, scale = 2, nullable = false)
-    private BigDecimal cuponDiscountAmount; //쿠폰 할인 금액
+    private BigDecimal couponDiscountAmount; //쿠폰 할인 금액
 
     @Column(name = "point_used_amount", precision = 15, scale = 2, nullable = false)
     private BigDecimal pointUsedAmount; //포인트 할인 금액
+
+    @Column(name = "promo_discount_amount", precision = 15, scale = 2)
+    private BigDecimal promoDiscountAmount; //프로모션 할인 금액
 
     @Column(name = "request_message", length = 255)
     private String requestMessage; //요청사항
@@ -70,6 +76,9 @@ public class Order {
 
     @Column(name = "updated_at", columnDefinition = "DATETIME(0)")
     private LocalDateTime updatedAt; //수정일
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Delivery delivery;
 
     @PrePersist
     protected void onCreate() {
@@ -82,4 +91,31 @@ public class Order {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    //유저쿠폰 추가
+    public void assignUserCoupon(UserCoupon userCoupon) {this.userCoupon = userCoupon;}
+    //가격 적용
+    public void applyPricing(BigDecimal originalPrice, BigDecimal promoDiscount, int totalQty) {
+        this.originalPrice = originalPrice;
+        this.promoDiscountAmount = promoDiscount;
+        this.orderTotalQty = totalQty;
+    }
+    //쿠폰 할인 적용
+    public void applyCouponDiscount(BigDecimal discountAmount) {this.couponDiscountAmount = discountAmount;}
+    //포인트 할인 적용
+    public void applyPointDiscount(BigDecimal pointAmount) {this.pointUsedAmount = pointAmount;}
+    //배송비 설정
+    public void applyShippingFee(int shippingFee) {this.shippingFee = shippingFee;}
+    //최종 결제 금액
+    public void calculateFinalAmount(BigDecimal afterPoint, int shippingFee) {this.orderTotalAmount = afterPoint.add(BigDecimal.valueOf(shippingFee));}
+    // 배송 스냅샷 등록
+    public void registerDelivery(DeliverySnapshot snapshot) {
+        this.delivery = Delivery.builder()
+                .order(this)
+                .deliveryStatus(DeliveryStatus.READY)
+                .deliverySnapshot(snapshot)
+                .build();
+    }
+    // 주문 취소
+    public void cancel() {this.orderStatus = OrderStatus.CANCELED;}
 }
