@@ -3,7 +3,6 @@ package com.c3l2.persome.category.controller;
 import com.c3l2.persome.category.dto.CategoryResponseDto;
 import com.c3l2.persome.category.service.CategoryService;
 import com.c3l2.persome.entity.product.Category;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,6 +34,25 @@ public class CategoryController {
         return new ResponseEntity<> (responseDtos,HttpStatus.OK);
     }
 
+    /**
+     * 2차 카테고리의 하위 카테고리 조회
+     * @param secondCategory
+     * @return
+     */
+    @GetMapping("/getThirdCategory")
+    public ResponseEntity<CategoryResponseDto> getCategoryList(@RequestParam String secondCategory) {
+
+        CategoryResponseDto thirdCategory = categoryService.getThirdCategory(secondCategory);
+
+        return new ResponseEntity<>(thirdCategory, HttpStatus.OK);
+    }
+
+    /**
+     * @param firstCategory
+     * 1차 카테고리 + 하위 카테고리의 상품 리스트를 조회.
+     * @param secondCategory
+     * 2차 카테고리 + 하위 카테고리의 상품 리스트를 조회.
+     */
     @GetMapping("/products")
     public void getProductForCategory(@RequestParam String firstCategory,
                                       @RequestParam(defaultValue = "none") String secondCategory) {
