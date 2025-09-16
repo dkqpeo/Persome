@@ -39,8 +39,7 @@ public class PaymentController {
 
     //사용자 결제 내역 목록 조회
     @GetMapping("/users/{userId}/payments")
-    public ResponseEntity<ApiResponse<List<PaymentResponseDto>>> getPaymentByUserId(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+    public ResponseEntity<ApiResponse<List<PaymentResponseDto>>> getPaymentByUserId(@PathVariable Long userId) {
         List<PaymentResponseDto> response = paymentService.getUserPayments(userId);
         return  ApiResponse.ok("사용자 결제 내역 목록 조회 성공", response);
     }
