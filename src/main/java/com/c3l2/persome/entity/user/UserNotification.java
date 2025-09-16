@@ -45,4 +45,16 @@ public class UserNotification {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateEmail(boolean enabled) {
+        this.emailEnabled = enabled;
+    }
+
+    public void updateSms(boolean enabled) {
+        this.smsEnabled = enabled;
+    }
+
+    public void updatePush(boolean enabled) {
+        this.pushEnabled = enabled;
+    }
 }
