@@ -22,6 +22,7 @@ import com.c3l2.persome.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.c3l2.persome.entity.order.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -151,6 +152,47 @@ public class OrderService {
         return OrderResponseDto.fromEntity(order);
     }
 
+    //주문 취소
+    @Transactional
+    public void cancelOrder(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+
+        //주문자가 맞는지 확인
+        if (!order.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("본인의 주문만 취소할 수 있습니다.");
+        }
+
+        //취소 가능 상태만 허용
+        if (!(order.getOrderStatus() == OrderStatus.PENDING
+                || order.getOrderStatus() == OrderStatus.PAID
+                || order.getOrderStatus() == OrderStatus.PROCESSING)) {
+            throw new IllegalStateException("현재 상태에서는 주문을 취소할 수 없습니다.");
+        }
+
+        //1. 쿠폰 복구
+        UserCoupon userCoupon = order.getUserCoupon();
+        if (userCoupon != null && userCoupon.getStatus() == UserCouponStatus.USED) {
+            userCoupon.setStatus(UserCouponStatus.ISSUED);
+            userCoupon.setUsedAt(null);
+            userCouponRepository.save(userCoupon);
+        }
+
+        //2. 포인트 복구
+        if (order.getPointUsedAmount() != null && order.getPointUsedAmount().compareTo(BigDecimal.ZERO) > 0) {
+            int refundPoints = order.getPointUsedAmount().intValue();
+            User user = order.getUser();
+            user.getUserPoint().setBalance(user.getUserPoint().getBalance() + refundPoints);
+
+            // 포인트 이력 남기기 나중에 추가
+        }
+
+        //3. 상태 변경
+        order.setOrderStatus(OrderStatus.CANCELED);
+
+        orderRepository.save(order);
+    }
+
     //쿠폰 할인 - 주문 전체 금액 기준(배송비 제외)
     private BigDecimal applyCoupon(UserCoupon userCoupon, BigDecimal orderPrice) {
         if (userCoupon == null || userCoupon.getStatus() != UserCouponStatus.ISSUED) {
@@ -209,7 +251,6 @@ public class OrderService {
 
         return discountedPrice;
     }
-
 
     //배송비 계산
     private int calculateShippingFee(BigDecimal itemsTotal, ReceiveType receiveType) {

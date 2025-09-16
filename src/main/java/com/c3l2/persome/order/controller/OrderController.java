@@ -1,4 +1,4 @@
-package com.c3l2.persome.order;
+package com.c3l2.persome.order.controller;
 
 import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.order.dto.response.OrderResponseDto;
@@ -42,6 +42,14 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponseDto>> getOrderDetail(@PathVariable Long orderId) {
         OrderResponseDto orderDetail = orderService.getOrderDetail(orderId);
         return ApiResponse.ok("주문 상세 조회 성공", orderDetail);
+    }
+
+    //주문 취소
+    @PatchMapping("/{orderId}/cancel")
+    public ResponseEntity<String> cancelOrder(@PathVariable Long orderId, HttpSession session){
+        Long userId = getUserIdOrThrow(session);
+        orderService.cancelOrder(orderId, userId);
+        return ResponseEntity.ok("주문이 성공적으로 취소되었습니다.");
     }
 
     //세션에서 Id 가져오기
