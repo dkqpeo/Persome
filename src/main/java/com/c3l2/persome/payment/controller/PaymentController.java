@@ -1,12 +1,10 @@
 package com.c3l2.persome.payment.controller;
 
 import com.c3l2.persome.common.ApiResponse;
-import com.c3l2.persome.entity.payment.Payment;
 import com.c3l2.persome.entity.payment.PaymentMethod;
 import com.c3l2.persome.payment.dto.PaymentRequestDto;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import com.c3l2.persome.payment.service.PaymentService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
