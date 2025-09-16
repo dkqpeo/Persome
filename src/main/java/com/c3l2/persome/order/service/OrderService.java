@@ -46,7 +46,9 @@ public class OrderService {
         Order order = request.toEntity(user);
 
         //2. 주문 상품 생성 + 가격 계산
-        BigDecimal originalPrice = BigDecimal.ZERO;
+        BigDecimal originalPrice = BigDecimal.ZERO;   // 프로모션 적용 전 총액
+        BigDecimal promoDiscountTotal = BigDecimal.ZERO; // 프로모션 할인 총액
+        BigDecimal promoAppliedTotal = BigDecimal.ZERO;    // 프로모션 적용 후 총액
         int totalQty = 0;
 
         for (OrderRequestDto.OrderProductDto productDto : request.getProducts()) {
@@ -68,27 +70,22 @@ public class OrderService {
                     .productOption(option)
                     .quantity(productDto.getQuantity())
                     .unitPrice(calc.getUnitPrice())
-                    .totalPrice(calc.getTotalPrice())
+                    .totalPrice(calc.getFinalPrice())
                     .build();
-
             order.getOrderItems().add(orderItem);
 
-            originalPrice = originalPrice.add(calc.getUnitPrice()
-                    .multiply(BigDecimal.valueOf(productDto.getQuantity())));
+            // 합계 누적
+            originalPrice = originalPrice.add(calc.getTotalPrice());      // 프로모션 전 총액
+            promoDiscountTotal = promoDiscountTotal.add(calc.getPromoDiscount()); // 프로모션 할인 총액
+            promoAppliedTotal = promoAppliedTotal.add(calc.getFinalPrice());     // 프로모션 적용 후 합계
             totalQty += productDto.getQuantity();
 
-            //할인 내역 누적
-            order.setPointUsedAmount(order.getPointUsedAmount().add(calc.getPointDiscount()));
-            order.setPromoDiscountAmount(order.getPromoDiscountAmount().add(calc.getPromoDiscount()));
         }
 
         order.setOriginalPrice(originalPrice);
+        order.setPromoDiscountAmount(promoDiscountTotal);
         order.setOrderTotalQty(totalQty);
 
-        //상품 총액
-        BigDecimal itemsTotal = order.getOrderItems().stream()
-                .map(OrderItem::getTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
         //3. 쿠폰 할인 적용
         UserCoupon userCoupon = null;
         if (request.getUserCouponId() != null) {
@@ -96,17 +93,21 @@ public class OrderService {
                     .orElseThrow(() -> new IllegalArgumentException("선택한 쿠폰을 찾을 수 없습니다."));
             order.setUserCoupon(userCoupon);
         }
-        BigDecimal afterCoupon = applyCoupon(userCoupon, itemsTotal);
-        order.setCouponDiscountAmount(itemsTotal.subtract(afterCoupon));
+        BigDecimal afterCoupon = applyCoupon(userCoupon, promoAppliedTotal);
+        order.setCouponDiscountAmount(promoAppliedTotal.subtract(afterCoupon));
 
-        //4. 배송비 계산
-        int shippingFee = calculateShippingFee(afterCoupon,request.getReceiveType());
+        //4. 포인트 할인 적용
+        BigDecimal afterPoint = applyPoint(user, request.getUsePointAmount(), afterCoupon);
+        order.setPointUsedAmount(afterCoupon.subtract(afterPoint));
+
+        //5. 배송비 계산
+        int shippingFee = calculateShippingFee(promoAppliedTotal,request.getReceiveType());
         order.setShippingFee(shippingFee);
 
-        //5. 최종 주문 금액 (쿠폰 할인 후 금액 + 배송비)
-        order.setOrderTotalAmount(afterCoupon.add(BigDecimal.valueOf(shippingFee)));
+        //6. 최종 주문 금액 (포인트 할인 후 금액 + 배송비)
+        order.setOrderTotalAmount(afterPoint.add(BigDecimal.valueOf(shippingFee)));
 
-        //6. 배송 스냅샷 저장
+        //7. 배송 스냅샷 저장
         if (request.getReceiveType() == ReceiveType.DELIVERY) {
             DeliverySnapshot snapshot = DeliverySnapshot.builder()
                     .receiverName(request.getReceiverName())
@@ -123,7 +124,8 @@ public class OrderService {
 
             order.setDelivery(delivery);
         }
-        //7. 저장 & 응답
+
+        //8. 저장 & 응답
         Order savedOrder = orderRepository.save(order);
         return OrderResponseDto.fromEntity(savedOrder);
     }
@@ -179,7 +181,7 @@ public class OrderService {
             discount = discount.min(coupon.getMaxDiscountPrice());
         }
 
-        //최종 금액 (0원 밑으로는 안 내려가도록 보장)
+        //최종 금액
         BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
 
         //쿠폰 사용 처리
@@ -189,6 +191,25 @@ public class OrderService {
 
         return discountedPrice;
     }
+
+    // 포인트 할인 - 주문 전체 금액 + 쿠폰 할인 후 기준(배송비 제외)
+    private BigDecimal applyPoint(User user, Integer usePointAmount, BigDecimal currentPrice) {
+        if (usePointAmount == null || usePointAmount <= 0) {return currentPrice;}
+
+        int availablePoints = user.getUserPoint().getBalance(); // 유저 보유 포인트
+
+        // 실제 사용할 포인트 = min(요청포인트, 보유포인트, 결제금액)
+        int applicablePoints = Math.min(usePointAmount, Math.min(availablePoints, currentPrice.intValue()));
+
+        // 차감된 결제 금액
+        BigDecimal discountedPrice = currentPrice.subtract(BigDecimal.valueOf(applicablePoints));
+
+        // 유저 포인트 차감
+        user.getUserPoint().setBalance(availablePoints - applicablePoints);
+
+        return discountedPrice;
+    }
+
 
     //배송비 계산
     private int calculateShippingFee(BigDecimal itemsTotal, ReceiveType receiveType) {

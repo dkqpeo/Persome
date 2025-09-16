@@ -27,7 +27,7 @@ public class OrderRequestDto {
     private String requestMessage;
 
     private Long userCouponId;
-    private BigDecimal usePointAmount;
+    private Integer usePointAmount;
 
     public Order toEntity(User user) {
         return Order.builder()

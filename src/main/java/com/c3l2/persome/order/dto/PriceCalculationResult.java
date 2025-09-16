@@ -9,9 +9,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PriceCalculationResult {
     private BigDecimal unitPrice;            // 단가(원가/세일가) + 옵션
-    private BigDecimal totalPrice;           // 수량 × 단가 +프로모션 할인 적용
-    private BigDecimal couponDiscount;       // 쿠폰 할인액
-    private BigDecimal pointDiscount;        // 포인트 사용액
+    private BigDecimal totalPrice;           // unitPrice * 수량 (프로모션 적용 전)
     private BigDecimal promoDiscount;        // 프로모션 할인액
-    private BigDecimal finalPrice;           // 최종 결제금액
+    private BigDecimal finalPrice;           // 프로모션 할인 적용 금액
 }

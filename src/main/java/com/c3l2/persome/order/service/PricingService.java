@@ -1,7 +1,5 @@
 package com.c3l2.persome.order.service;
 
-import com.c3l2.persome.entity.coupon.UserCoupon;
-import com.c3l2.persome.entity.coupon.constant.UserCouponStatus;
 import com.c3l2.persome.entity.event.Promotion;
 import com.c3l2.persome.entity.event.constant.PromotionStatus;
 import com.c3l2.persome.entity.product.Product;
@@ -21,10 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PricingService {
-
-    // private final EventRepository eventRepository;
      private final PromotionRepository promotionRepository;
-    // private final CouponRepository couponRepository;
 
 
     //최종 가격 계산
@@ -32,25 +27,13 @@ public class PricingService {
         BigDecimal unitPrice = getBasePrice(product)
                 .add(BigDecimal.valueOf(option.getAdditionalAmount())); //단가(기본가격or세일가격 + 옵션 추가금)
 
-        BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(qty)); //단가*수량
-
-        BigDecimal couponDiscount = BigDecimal.ZERO; //쿠폰 할인액
-        BigDecimal pointDiscount = BigDecimal.ZERO; //포인트 사용액
-        BigDecimal price = totalPrice;
+        BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(qty)); //단가*수량 (프로모션 전 총액)
 
         //프로모션 할인
-        BigDecimal promoAppliedPrice = applyPromotion(product, qty, totalPrice);
-        BigDecimal promoDiscount = totalPrice.subtract(promoAppliedPrice);
-        totalPrice = promoAppliedPrice;
+        BigDecimal finalPrice = applyPromotion(product, qty, totalPrice); //최종 금액 - 프로모션 적용 후
+        BigDecimal promoDiscount = totalPrice.subtract(finalPrice);
 
-        // 포인트 차감
-        BigDecimal pointAppliedPrice = applyPointUsage(user, price);
-        if (pointAppliedPrice.compareTo(price) < 0) {
-            pointDiscount = price.subtract(pointAppliedPrice);
-            price = pointAppliedPrice;
-        }
-
-        return new PriceCalculationResult(unitPrice, totalPrice, couponDiscount, pointDiscount, promoDiscount, price);
+        return new PriceCalculationResult(unitPrice, totalPrice, promoDiscount, finalPrice);
     }
 
 
@@ -101,23 +84,6 @@ public class PricingService {
                 }
             }
         }
-        return price;
-    }
-
-    //쿠폰 할인 적용
-    private BigDecimal applyCoupon(UserCoupon userCoupon, Product product, BigDecimal price) {
-        //보유 쿠폰 조회
-        if (userCoupon == null || !UserCouponStatus.ISSUED.equals(userCoupon.getStatus())) {
-            return price; // 발급되지 않았거나 이미 사용된/만료된 경우
-        }
-        // price = price.subtract(discountAmount);
-        return price;
-    }
-
-    //포인트 사용 적용
-    private BigDecimal applyPointUsage(User user, BigDecimal price) {
-        // user의 보유 포인트 확인 후 차감
-        // price = price.subtract(BigDecimal.valueOf(usedPoint));
         return price;
     }
 }
