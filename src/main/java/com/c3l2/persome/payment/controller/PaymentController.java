@@ -7,10 +7,7 @@ import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import com.c3l2.persome.payment.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,4 +29,10 @@ public class PaymentController {
         return ResponseEntity.ok(Arrays.asList(PaymentMethod.values()));
     }
 
+    //특정 주문의 결제 조회
+    @GetMapping("/{orderId}/payment")
+    public ResponseEntity<ApiResponse<PaymentResponseDto>> getPaymentByOrderId(@PathVariable Long orderId){
+        PaymentResponseDto response = paymentService.getPaymentByOrderId(orderId);
+        return ApiResponse.ok("결제 내역 조회 성공.", response);
+    }
 }

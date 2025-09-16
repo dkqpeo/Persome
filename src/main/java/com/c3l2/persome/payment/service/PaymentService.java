@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,5 +42,21 @@ public class PaymentService {
         order.setOrderStatus(OrderStatus.PAID);
 
         return PaymentResponseDto.fromEntity(saved);
+    }
+
+    //사용자 결제 내역 조회 - 전부
+    @Transactional(readOnly = true)
+    public List<PaymentResponseDto> getUserPayments(Long userId) {
+        return paymentRepository.findByOrder_User_Id(userId).stream()
+                .map(PaymentResponseDto::fromEntity)
+                .toList();
+    }
+
+    //특정 주문 결제 내역 조회
+    @Transactional(readOnly = true)
+    public PaymentResponseDto getPaymentByOrderId(Long orderId) {
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문에 대한 결제를 찾을 수 없습니다."));
+        return PaymentResponseDto.fromEntity(payment);
     }
 }
