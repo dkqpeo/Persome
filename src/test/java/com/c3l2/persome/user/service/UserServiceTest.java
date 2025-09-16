@@ -1,4 +1,4 @@
-package com.c3l2.persome;
+package com.c3l2.persome.user.service;
 
 import com.c3l2.persome.entity.user.Status;
 import com.c3l2.persome.entity.user.User;
@@ -6,7 +6,6 @@ import com.c3l2.persome.user.dto.UserLoginDto;
 import com.c3l2.persome.user.dto.UserPasswordUpdateDto;
 import com.c3l2.persome.user.dto.UserRegisterDto;
 import com.c3l2.persome.user.repository.UserRepository;
-import com.c3l2.persome.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
