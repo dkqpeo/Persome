@@ -1,5 +1,7 @@
 package com.c3l2.persome.order.service;
 
+import com.c3l2.persome.entity.coupon.UserCoupon;
+import com.c3l2.persome.entity.coupon.constant.UserCouponStatus;
 import com.c3l2.persome.entity.event.Promotion;
 import com.c3l2.persome.entity.event.constant.PromotionStatus;
 import com.c3l2.persome.entity.product.Product;
@@ -40,13 +42,6 @@ public class PricingService {
         BigDecimal promoAppliedPrice = applyPromotion(product, qty, totalPrice);
         BigDecimal promoDiscount = totalPrice.subtract(promoAppliedPrice);
         totalPrice = promoAppliedPrice;
-
-        // 쿠폰 할인
-        BigDecimal couponAppliedPrice = applyCoupon(user, product, price);
-        if (couponAppliedPrice.compareTo(price) < 0) {
-            couponDiscount = price.subtract(couponAppliedPrice);
-            price = couponAppliedPrice;
-        }
 
         // 포인트 차감
         BigDecimal pointAppliedPrice = applyPointUsage(user, price);
@@ -110,8 +105,11 @@ public class PricingService {
     }
 
     //쿠폰 할인 적용
-    private BigDecimal applyCoupon(User user, Product product, BigDecimal price) {
-        // user의 보유 쿠폰 조회 후 적용 가능 여부 체크
+    private BigDecimal applyCoupon(UserCoupon userCoupon, Product product, BigDecimal price) {
+        //보유 쿠폰 조회
+        if (userCoupon == null || !UserCouponStatus.ISSUED.equals(userCoupon.getStatus())) {
+            return price; // 발급되지 않았거나 이미 사용된/만료된 경우
+        }
         // price = price.subtract(discountAmount);
         return price;
     }

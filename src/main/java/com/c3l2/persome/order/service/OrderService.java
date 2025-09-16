@@ -1,5 +1,10 @@
 package com.c3l2.persome.order.service;
 
+import com.c3l2.persome.coupon.repository.UserCouponRepository;
+import com.c3l2.persome.entity.coupon.Coupon;
+import com.c3l2.persome.entity.coupon.UserCoupon;
+import com.c3l2.persome.entity.coupon.constant.DiscountType;
+import com.c3l2.persome.entity.coupon.constant.UserCouponStatus;
 import com.c3l2.persome.entity.delivery.Delivery;
 import com.c3l2.persome.entity.delivery.DeliverySnapshot;
 import com.c3l2.persome.entity.delivery.DeliveryStatus;
@@ -19,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -27,6 +33,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductOptionRepository productOptionRepository;
+    private final UserCouponRepository userCouponRepository;
     private final PricingService pricingService;
 
     //주문 생성
@@ -71,7 +78,6 @@ public class OrderService {
             totalQty += productDto.getQuantity();
 
             //할인 내역 누적
-            order.setCouponDiscountAmount(order.getCouponDiscountAmount().add(calc.getCouponDiscount()));
             order.setPointUsedAmount(order.getPointUsedAmount().add(calc.getPointDiscount()));
             order.setPromoDiscountAmount(order.getPromoDiscountAmount().add(calc.getPromoDiscount()));
         }
@@ -79,16 +85,28 @@ public class OrderService {
         order.setOriginalPrice(originalPrice);
         order.setOrderTotalQty(totalQty);
 
-        //3. 배송비 + 총 결제 금액
+        //상품 총액
         BigDecimal itemsTotal = order.getOrderItems().stream()
                 .map(OrderItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        //3. 쿠폰 할인 적용
+        UserCoupon userCoupon = null;
+        if (request.getUserCouponId() != null) {
+            userCoupon = userCouponRepository.findById(request.getUserCouponId())
+                    .orElseThrow(() -> new IllegalArgumentException("선택한 쿠폰을 찾을 수 없습니다."));
+            order.setUserCoupon(userCoupon);
+        }
+        BigDecimal afterCoupon = applyCoupon(userCoupon, itemsTotal);
+        order.setCouponDiscountAmount(itemsTotal.subtract(afterCoupon));
 
-        int shippingFee = calculateShippingFee(itemsTotal,request.getReceiveType());
+        //4. 배송비 계산
+        int shippingFee = calculateShippingFee(afterCoupon,request.getReceiveType());
         order.setShippingFee(shippingFee);
-        order.setOrderTotalAmount(itemsTotal.add(BigDecimal.valueOf(shippingFee)));
 
-        //4. 배송 스냅샷 저장
+        //5. 최종 주문 금액 (쿠폰 할인 후 금액 + 배송비)
+        order.setOrderTotalAmount(afterCoupon.add(BigDecimal.valueOf(shippingFee)));
+
+        //6. 배송 스냅샷 저장
         if (request.getReceiveType() == ReceiveType.DELIVERY) {
             DeliverySnapshot snapshot = DeliverySnapshot.builder()
                     .receiverName(request.getReceiverName())
@@ -105,7 +123,7 @@ public class OrderService {
 
             order.setDelivery(delivery);
         }
-        //5. 저장 & 응답
+        //7. 저장 & 응답
         Order savedOrder = orderRepository.save(order);
         return OrderResponseDto.fromEntity(savedOrder);
     }
@@ -129,6 +147,47 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
         return OrderResponseDto.fromEntity(order);
+    }
+
+    //쿠폰 할인 - 주문 전체 금액 기준(배송비 제외)
+    private BigDecimal applyCoupon(UserCoupon userCoupon, BigDecimal orderPrice) {
+        if (userCoupon == null || userCoupon.getStatus() != UserCouponStatus.ISSUED) {
+            return orderPrice;
+        }
+
+        Coupon coupon = userCoupon.getCoupon();
+        LocalDateTime now = LocalDateTime.now();
+
+        //유효기간 체크
+        if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) {return orderPrice;}
+        if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) {return orderPrice;}
+
+        //최소 주문 금액 조건 체크
+        if (coupon.getMinOrderPrice() != null && orderPrice.compareTo(coupon.getMinOrderPrice()) < 0) {return orderPrice;}
+
+        //할인 금액 계산
+        BigDecimal discount = BigDecimal.ZERO;
+        if (coupon.getDiscountType() == DiscountType.FIXED) {
+            discount = coupon.getDiscountValue();
+        } else if (coupon.getDiscountType() == DiscountType.RATE) {
+            BigDecimal rate = coupon.getDiscountValue().divide(BigDecimal.valueOf(100));
+            discount = orderPrice.multiply(rate);
+        }
+
+        //최대 할인 금액 제한
+        if (coupon.getMaxDiscountPrice() != null) {
+            discount = discount.min(coupon.getMaxDiscountPrice());
+        }
+
+        //최종 금액 (0원 밑으로는 안 내려가도록 보장)
+        BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
+
+        //쿠폰 사용 처리
+        userCoupon.setStatus(UserCouponStatus.USED);
+        userCoupon.setUsedAt(now);
+        userCouponRepository.save(userCoupon);
+
+        return discountedPrice;
     }
 
     //배송비 계산
