@@ -2,16 +2,18 @@ package com.c3l2.persome.user.service;
 
 import com.c3l2.persome.entity.membership.MembershipLevel;
 import com.c3l2.persome.entity.membership.Name;
+import com.c3l2.persome.entity.point.UserPoint;
 import com.c3l2.persome.entity.user.Status;
 import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.entity.user.UserAddress;
 import com.c3l2.persome.entity.user.UserNotification;
 import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.dto.*;
 import com.c3l2.persome.user.exception.DormantAccountException;
 import com.c3l2.persome.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -74,8 +76,34 @@ public class UserService {
         MembershipLevel defaultLevel = membershipLevelRepository.findByName(Name.BABY)
                 .orElseThrow(() -> new IllegalStateException("기본 등급(BABY)이 존재하지 않습니다."));
 
-
         User user = dto.toEntity(passwordEncoder, defaultLevel);
+
+        // 주소 초기화
+        UserAddress address = UserAddress.builder()
+                .user(user)
+                .zip(dto.getZip())
+                .roadAddr(dto.getRoadAddr())
+                .addrDetail(dto.getAddrDetail())
+                .defaultShipping(true)
+                .build();
+        user.getUserAddresses().add(address);
+
+        // 알림 설정 초기화
+        UserNotification notification = UserNotification.builder()
+                .user(user)
+                .emailEnabled(Boolean.TRUE.equals(dto.getEmailEnabled()))
+                .smsEnabled(Boolean.TRUE.equals(dto.getSmsEnabled()))
+                .pushEnabled(Boolean.TRUE.equals(dto.getPushEnabled()))
+                .build();
+        user.addUserNotification(notification);
+
+        // 포인트 초기화
+        UserPoint userPoint = UserPoint.builder()
+                .user(user)
+                .balance(0)
+                .build();
+        user.initUserPoint(userPoint);
+
         userRepository.save(user);
     }
 
