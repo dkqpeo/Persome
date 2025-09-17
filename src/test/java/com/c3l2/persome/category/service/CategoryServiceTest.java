@@ -19,52 +19,30 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class CategoryServiceTest {
 
-    @MockitoBean
+    @Autowired
     private CategoryService categoryService;
 
     @Test
     void getList() {
 
-        List<Category> categories = new ArrayList<>();
+        List<CategoryResponseDto> responseDtos = categoryService.getList();
+        Assertions.assertNotNull(responseDtos);
 
-        Category category = Category.builder()
-                .id(2L)
-                .name("로션")
-                .parent(Category.builder().id(1L).name("스킨케어").build())
-                .build();
-
-        Category category1 = Category.builder()
-                .id(2L)
-                .name("로션")
-                .parent(Category.builder().id(1L).name("스킨케어").build())
-                .build();
-
-        categories.add(category);
-        categories.add(category1);
-
-        List<CategoryResponseDto> resultData = categories.stream()
-                .map(CategoryResponseDto::from)
-                .toList();
-
-        Mockito.when(categoryService.getList()).thenReturn(resultData);
-
-        Assertions.assertEquals(resultData, categoryService.getList());
     }
 
     @Test
     void getCategory() {
 
-        String first = "스킨케어";
-        String second = "none";
+        Category category = categoryService.getCategory("스킨케어", "스킨/토너", "스킨/토너");
+        Assertions.assertNotNull(category);
 
-        Category result = Category.builder()
-                .id(2L)
-                .name("로션")
-                .parent(Category.builder().id(1L).name("스킨케어").build())
-                .build();
-
-        Mockito.when(categoryService.getCategory(first, second)).thenReturn(result);
-
-        Assertions.assertEquals(result, categoryService.getCategory(first, second));
     }
+
+    void getThirdCategory() {
+
+        CategoryResponseDto thirdCategory = categoryService.getThirdCategory("스킨/토너");
+        Assertions.assertNotNull(thirdCategory);
+
+    }
+
 }

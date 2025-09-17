@@ -75,30 +75,10 @@ public class CategoryService {
     }
 
     /**
-     * 기존 방식 (호환성을 위해 유지)
+     * 2차 카테고리의 이름으로 하위 3차 카테고리 리스트 조회.
+     * @param secondCategory
+     * @return
      */
-    public Category getCategoryLegacy(String firstCategory, String secondCategory, String thirdCategory) {
-
-        Category firstCategoryResult = categoryRepository.findByParentCategory(firstCategory)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 1차 카테고리입니다." + firstCategory));
-
-        if(!secondCategory.equals("none")){
-            Category secondCategoryResult = categoryRepository.findByChildCategory(secondCategory, firstCategoryResult)
-                            .orElseThrow(() -> new RuntimeException("존재하지 않는 2차 카테고리입니다." + secondCategory));
-
-            if(!thirdCategory.equals("none")){
-                Category thirdCategoryResult = categoryRepository.findByChildCategory(thirdCategory, secondCategoryResult)
-                        .orElseThrow(() -> new RuntimeException("존재하지 않는 3차 카테고리입니다." + thirdCategory));
-
-                return thirdCategoryResult;
-            }
-
-            return secondCategoryResult;
-        }
-
-        return firstCategoryResult;
-    }
-
     public CategoryResponseDto getThirdCategory(String secondCategory) {
 
         Category category = categoryRepository.findSecondCategoryByName(secondCategory)
