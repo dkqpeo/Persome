@@ -22,7 +22,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     /**
-     * 전체 카테고리 목록 조회 (1,2,3차 카테고리 구조) - N+1 문제 해결
+     * 전체 카테고리 목록 조회 (1,2,3차 카테고리 구조)
      * @return
      */
     public List<CategoryResponseDto> getList() {
@@ -53,24 +53,50 @@ public class CategoryService {
     }
 
     /**
-     * 카테고리 이름으로 카테고리 엔티티 조회(단일)
-     * @param firstCategory
-     * @param secondCategory
-     * @return
+     * 카테고리 이름으로 카테고리 엔티티 조회(단일) - 최적화된 버전
+     * @param firstCategory 1차 카테고리명
+     * @param secondCategory 2차 카테고리명 (없으면 "none")
+     * @param thirdCategory 3차 카테고리명 (없으면 "none")
+     * @return 조회된 카테고리 엔티티
      */
-    public Category getCategory(String firstCategory, String secondCategory) {
+    public Category getCategory(String firstCategory, String secondCategory, String thirdCategory) {
+        
+        // 한 번의 쿼리로 계층 구조를 모두 조회
+        return categoryRepository.findCategoryWithHierarchy(firstCategory, secondCategory, thirdCategory)
+                .orElseThrow(() -> {
+                    if (!thirdCategory.equals("none")) {
+                        return new RuntimeException("존재하지 않는 3차 카테고리입니다: " + thirdCategory);
+                    } else if (!secondCategory.equals("none")) {
+                        return new RuntimeException("존재하지 않는 2차 카테고리입니다: " + secondCategory);
+                    } else {
+                        return new RuntimeException("존재하지 않는 1차 카테고리입니다: " + firstCategory);
+                    }
+                });
+    }
 
-        Category parentCategory = categoryRepository.findByParentCategory(firstCategory)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 카테고리입니다."));
+    /**
+     * 기존 방식 (호환성을 위해 유지)
+     */
+    public Category getCategoryLegacy(String firstCategory, String secondCategory, String thirdCategory) {
+
+        Category firstCategoryResult = categoryRepository.findByParentCategory(firstCategory)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 1차 카테고리입니다." + firstCategory));
 
         if(!secondCategory.equals("none")){
-            Category childCategory = categoryRepository.findByChildCategory(secondCategory, parentCategory)
-                            .orElseThrow(() -> new RuntimeException("존재하지 않는 카테고리입니다."));
+            Category secondCategoryResult = categoryRepository.findByChildCategory(secondCategory, firstCategoryResult)
+                            .orElseThrow(() -> new RuntimeException("존재하지 않는 2차 카테고리입니다." + secondCategory));
 
-            return childCategory;
+            if(!thirdCategory.equals("none")){
+                Category thirdCategoryResult = categoryRepository.findByChildCategory(thirdCategory, secondCategoryResult)
+                        .orElseThrow(() -> new RuntimeException("존재하지 않는 3차 카테고리입니다." + thirdCategory));
+
+                return thirdCategoryResult;
+            }
+
+            return secondCategoryResult;
         }
 
-        return parentCategory;
+        return firstCategoryResult;
     }
 
     public CategoryResponseDto getThirdCategory(String secondCategory) {
