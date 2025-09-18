@@ -98,8 +98,15 @@ public class OrderService {
         BigDecimal afterCoupon = applyCoupon(userCoupon, promoAppliedTotal);
         order.applyCouponDiscount(promoAppliedTotal.subtract(afterCoupon));
 
-        //4. 포인트 할인 적용
-        BigDecimal afterPoint = afterCoupon;
+        //4. 배송비 계산
+        int shippingFee = calculateShippingFee(promoAppliedTotal,request.getReceiveType());
+        order.applyShippingFee(shippingFee);
+
+        // 배송비 반영된 결제 금액 (쿠폰 적용 후 + 배송비)
+        BigDecimal priceWithShipping = afterCoupon.add(BigDecimal.valueOf(shippingFee));
+
+        //5. 포인트 할인 적용
+        BigDecimal afterPoint = priceWithShipping;
         if (request.getUsePointAmount() != null && request.getUsePointAmount() > 0) {
             //포인트 사용
             PointChangeRequestDto useDto = PointChangeRequestDto.builder()
@@ -118,15 +125,11 @@ public class OrderService {
             order.applyPointDiscount(BigDecimal.valueOf(pointResponse.getChangedPoints()));
 
             // 결제 금액 계산용
-            afterPoint = afterCoupon.subtract(BigDecimal.valueOf(pointResponse.getChangedPoints()));
+            afterPoint = priceWithShipping.subtract(BigDecimal.valueOf(pointResponse.getChangedPoints()));
         }
 
-        //5. 배송비 계산
-        int shippingFee = calculateShippingFee(promoAppliedTotal,request.getReceiveType());
-        order.applyShippingFee(shippingFee);
-
-        //6. 최종 주문 금액 (포인트 할인 후 금액 + 배송비)
-        order.calculateFinalAmount(afterPoint, shippingFee);
+        //6. 최종 주문 금액
+        order.calculateFinalAmount(afterPoint);
 
         //7. 배송 스냅샷 저장
         if (request.getReceiveType() == ReceiveType.DELIVERY) {
@@ -245,24 +248,6 @@ public class OrderService {
         userCoupon.setStatus(UserCouponStatus.USED);
         userCoupon.setUsedAt(now);
         userCouponRepository.save(userCoupon);
-
-        return discountedPrice;
-    }
-
-    // 포인트 할인 - 주문 전체 금액 + 쿠폰 할인 후 기준(배송비 제외)
-    private BigDecimal applyPoint(User user, Integer usePointAmount, BigDecimal currentPrice) {
-        if (usePointAmount == null || usePointAmount <= 0) {return currentPrice;}
-
-        int availablePoints = user.getUserPoint().getBalance(); // 유저 보유 포인트
-
-        // 실제 사용할 포인트 = min(요청포인트, 보유포인트, 결제금액)
-        int applicablePoints = Math.min(usePointAmount, Math.min(availablePoints, currentPrice.intValue()));
-
-        // 차감된 결제 금액
-        BigDecimal discountedPrice = currentPrice.subtract(BigDecimal.valueOf(applicablePoints));
-
-        // 유저 포인트 차감
-        user.getUserPoint().usePoints(applicablePoints);
 
         return discountedPrice;
     }

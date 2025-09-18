@@ -117,7 +117,7 @@ public class Order {
     //배송비 설정
     public void applyShippingFee(int shippingFee) {this.shippingFee = shippingFee;}
     //최종 결제 금액
-    public void calculateFinalAmount(BigDecimal afterPoint, int shippingFee) {this.orderTotalAmount = afterPoint.add(BigDecimal.valueOf(shippingFee));}
+    public void calculateFinalAmount(BigDecimal finalPrice) {this.orderTotalAmount = finalPrice;}
     //배송 스냅샷 등록
     public void registerDelivery(DeliverySnapshot snapshot) {
         this.delivery = Delivery.builder()
