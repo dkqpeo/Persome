@@ -1,4 +1,4 @@
-package com.c3l2.persome.event.entity;
+package com.c3l2.persome.promotion.entity;
 
 import com.c3l2.persome.event.entity.constant.TargetType;
 import jakarta.persistence.*;

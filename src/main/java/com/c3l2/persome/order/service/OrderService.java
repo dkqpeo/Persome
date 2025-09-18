@@ -1,15 +1,14 @@
 package com.c3l2.persome.order.service;
 
-import com.c3l2.persome.coupon.repository.UserCouponRepository;
-import com.c3l2.persome.coupon.entity.Coupon;
-import com.c3l2.persome.coupon.entity.UserCoupon;
-import com.c3l2.persome.coupon.entity.constant.DiscountType;
-import com.c3l2.persome.coupon.entity.constant.UserCouponStatus;
+import com.c3l2.persome.coupon.service.UserCouponService;
 import com.c3l2.persome.delivery.entity.DeliverySnapshot;
 import com.c3l2.persome.order.entity.Order;
 import com.c3l2.persome.order.entity.OrderItem;
 import com.c3l2.persome.order.entity.ReceiveType;
+import com.c3l2.persome.point.dto.PointChangeRequestDto;
+import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.entity.TransactionType;
+import com.c3l2.persome.point.service.UserPointService;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
 import com.c3l2.persome.user.entity.User;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c3l2.persome.order.entity.OrderStatus;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -34,9 +32,9 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductOptionRepository productOptionRepository;
-    private final UserCouponRepository userCouponRepository;
     private final PricingService pricingService;
     private final UserPointService userPointService;
+    private final UserCouponService userCouponService;
 
     //주문 생성
     @Transactional
@@ -77,7 +75,7 @@ public class OrderService {
             order.getOrderItems().add(orderItem);
 
             // 합계 누적
-            originalPrice = originalPrice.add(calc.getTotalPrice());      // 프로모션 전 총액
+            originalPrice = originalPrice.add(calc.getTotalPrice());               // 프로모션 전 총액
             promoDiscountTotal = promoDiscountTotal.add(calc.getPromoDiscount()); // 프로모션 할인 총액
             promoAppliedTotal = promoAppliedTotal.add(calc.getFinalPrice());     // 프로모션 적용 후 합계
             totalQty += productDto.getQuantity();
@@ -87,14 +85,11 @@ public class OrderService {
         order.applyPricing(originalPrice, promoDiscountTotal, totalQty);
 
         //3. 쿠폰 할인 적용
-        UserCoupon userCoupon = null;
+        BigDecimal afterCoupon = promoAppliedTotal;
         if (request.getUserCouponId() != null) {
-            userCoupon = userCouponRepository.findById(request.getUserCouponId())
-                    .orElseThrow(() -> new IllegalArgumentException("선택한 쿠폰을 찾을 수 없습니다."));
-            order.assignUserCoupon(userCoupon);
+            afterCoupon = userCouponService.applyCoupon(request.getUserCouponId(), promoAppliedTotal);
+            order.applyCouponDiscount(promoAppliedTotal.subtract(afterCoupon));
         }
-        BigDecimal afterCoupon = applyCoupon(userCoupon, promoAppliedTotal);
-        order.applyCouponDiscount(promoAppliedTotal.subtract(afterCoupon));
 
         //4. 배송비 계산
         int shippingFee = calculateShippingFee(promoAppliedTotal,request.getReceiveType());
@@ -148,9 +143,6 @@ public class OrderService {
     //주문 목록 조회
     @Transactional(readOnly = true)
     public List<OrderSummaryDto> getUserOrders(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
-
         List<Order> orders = orderRepository.findByUserId(userId);
 
         return orders.stream()
@@ -185,12 +177,7 @@ public class OrderService {
         }
 
         //1. 쿠폰 복구
-        UserCoupon userCoupon = order.getUserCoupon();
-        if (userCoupon != null && userCoupon.getStatus() == UserCouponStatus.USED) {
-            userCoupon.setStatus(UserCouponStatus.ISSUED);
-            userCoupon.setUsedAt(null);
-            userCouponRepository.save(userCoupon);
-        }
+        userCouponService.restoreCoupon(order.getUserCoupon());
 
         //2. 포인트 복구
         if (order.getPointUsedAmount() != null && order.getPointUsedAmount().compareTo(BigDecimal.ZERO) > 0) {
@@ -207,47 +194,6 @@ public class OrderService {
         order.cancel();
 
         orderRepository.save(order);
-    }
-
-    //쿠폰 할인 - 주문 전체 금액 기준(배송비 제외)
-    private BigDecimal applyCoupon(UserCoupon userCoupon, BigDecimal orderPrice) {
-        if (userCoupon == null || userCoupon.getStatus() != UserCouponStatus.ISSUED) {
-            return orderPrice;
-        }
-
-        Coupon coupon = userCoupon.getCoupon();
-        LocalDateTime now = LocalDateTime.now();
-
-        //유효기간 체크
-        if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) {return orderPrice;}
-        if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) {return orderPrice;}
-
-        //최소 주문 금액 조건 체크
-        if (coupon.getMinOrderPrice() != null && orderPrice.compareTo(coupon.getMinOrderPrice()) < 0) {return orderPrice;}
-
-        //할인 금액 계산
-        BigDecimal discount = BigDecimal.ZERO;
-        if (coupon.getDiscountType() == DiscountType.FIXED) {
-            discount = coupon.getDiscountValue();
-        } else if (coupon.getDiscountType() == DiscountType.RATE) {
-            BigDecimal rate = coupon.getDiscountValue().divide(BigDecimal.valueOf(100));
-            discount = orderPrice.multiply(rate);
-        }
-
-        //최대 할인 금액 제한
-        if (coupon.getMaxDiscountPrice() != null) {
-            discount = discount.min(coupon.getMaxDiscountPrice());
-        }
-
-        //최종 금액
-        BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
-
-        //쿠폰 사용 처리
-        userCoupon.setStatus(UserCouponStatus.USED);
-        userCoupon.setUsedAt(now);
-        userCouponRepository.save(userCoupon);
-
-        return discountedPrice;
     }
 
     //배송비 계산

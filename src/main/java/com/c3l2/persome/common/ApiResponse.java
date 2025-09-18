@@ -1,6 +1,5 @@
 package com.c3l2.persome.common;
 
-import com.c3l2.persome.config.error.ErrorResult;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

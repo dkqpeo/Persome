@@ -1,7 +1,6 @@
-package com.c3l2.persome.event.entity;
+package com.c3l2.persome.promotion.entity;
 
-import com.c3l2.persome.event.entity.constant.DiscountType;
-import com.c3l2.persome.event.entity.constant.PromotionStatus;
+import com.c3l2.persome.event.entity.Event;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,6 @@
 package com.c3l2.persome.payment.service;
 
 import com.c3l2.persome.order.entity.Order;
-import com.c3l2.persome.order.entity.OrderStatus;
 import com.c3l2.persome.payment.entity.Payment;
 import com.c3l2.persome.payment.entity.PaymentStatus;
 import com.c3l2.persome.order.repository.OrderRepository;
@@ -39,7 +38,7 @@ public class PaymentService {
         Payment saved = paymentRepository.save(payment);
 
         // 주문 상태 변경
-        order.setOrderStatus(OrderStatus.PAID);
+        order.paid();
 
         return PaymentResponseDto.fromEntity(saved);
     }
