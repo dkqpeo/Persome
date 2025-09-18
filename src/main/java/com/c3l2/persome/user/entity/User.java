@@ -9,6 +9,7 @@ import com.c3l2.persome.point.entity.PointTransaction;
 import com.c3l2.persome.point.entity.UserPoint;
 import com.c3l2.persome.review.entity.Review;
 import com.c3l2.persome.user.dto.UserUpdateDto;
+import com.c3l2.persome.wishlist.entity.Wishlist;
 import jakarta.persistence.*;
 import lombok.*;
 
