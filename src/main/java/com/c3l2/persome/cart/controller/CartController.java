@@ -4,7 +4,7 @@ import com.c3l2.persome.cart.dto.CartItemRequest;
 import com.c3l2.persome.cart.dto.CartItemUpdateQuantity;
 import com.c3l2.persome.cart.dto.CartResponseDto;
 import com.c3l2.persome.cart.service.CartService;
-import com.c3l2.persome.entity.cart.CartItem;
+import com.c3l2.persome.cart.entity.CartItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

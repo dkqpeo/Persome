@@ -1,7 +1,9 @@
 package com.c3l2.persome.user.dto;
 
-import com.c3l2.persome.entity.membership.MembershipLevel;
-import com.c3l2.persome.entity.user.*;
+import com.c3l2.persome.membership.entity.MembershipLevel;
+import com.c3l2.persome.user.entity.Gender;
+import com.c3l2.persome.user.entity.Status;
+import com.c3l2.persome.user.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

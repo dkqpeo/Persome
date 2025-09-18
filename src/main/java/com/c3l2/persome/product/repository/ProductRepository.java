@@ -1,7 +1,7 @@
 package com.c3l2.persome.product.repository;
 
-import com.c3l2.persome.entity.product.Category;
-import com.c3l2.persome.entity.product.Product;
+import com.c3l2.persome.product.entity.Category;
+import com.c3l2.persome.product.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

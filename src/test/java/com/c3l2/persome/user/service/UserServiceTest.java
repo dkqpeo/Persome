@@ -1,10 +1,11 @@
 package com.c3l2.persome.user.service;
 
-import com.c3l2.persome.entity.user.Status;
-import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.user.entity.Status;
+import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.user.dto.UserLoginDto;
 import com.c3l2.persome.user.dto.UserPasswordUpdateDto;
 import com.c3l2.persome.user.dto.UserRegisterDto;
+import com.c3l2.persome.user.entity.Gender;
 import com.c3l2.persome.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class UserServiceTest {
                 .email("test@test.com")
                 .phone("01012345678")
                 .birthDate(LocalDate.of(2000,1,1))
-                .gender(com.c3l2.persome.entity.user.Gender.M)
+                .gender(Gender.M)
                 .zip("12345")
                 .roadAddr("서울시 강남구 테헤란로")
                 .addrDetail("101호")
@@ -68,7 +69,7 @@ class UserServiceTest {
                 .email("login@test.com")
                 .phone("01098765432")
                 .birthDate(LocalDate.of(1995,5,5))
-                .gender(com.c3l2.persome.entity.user.Gender.F)
+                .gender(Gender.F)
                 .zip("54321")
                 .roadAddr("서울시 송파구 올림픽로")
                 .addrDetail("202호")
@@ -94,7 +95,7 @@ class UserServiceTest {
                 .email("pw@test.com")
                 .phone("01022223333")
                 .birthDate(LocalDate.of(1999,9,9))
-                .gender(com.c3l2.persome.entity.user.Gender.M)
+                .gender(Gender.M)
                 .zip("11111")
                 .roadAddr("서울시 마포구 월드컵로")
                 .addrDetail("303호")
@@ -123,7 +124,7 @@ class UserServiceTest {
                 .email("delete@test.com")
                 .phone("01044445555")
                 .birthDate(LocalDate.of(1990,12,12))
-                .gender(com.c3l2.persome.entity.user.Gender.F)
+                .gender(Gender.F)
                 .zip("22222")
                 .roadAddr("서울시 강서구 화곡로")
                 .addrDetail("404호")

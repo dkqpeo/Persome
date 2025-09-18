@@ -1,7 +1,7 @@
 package com.c3l2.persome.user.repository;
 
-import com.c3l2.persome.entity.user.Status;
-import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.user.entity.Status;
+import com.c3l2.persome.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,7 +1,7 @@
 package com.c3l2.persome.point.dto;
 
-import com.c3l2.persome.entity.point.UserPoint;
-import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.point.entity.UserPoint;
+import com.c3l2.persome.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

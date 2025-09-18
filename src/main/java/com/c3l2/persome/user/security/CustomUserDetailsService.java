@@ -1,7 +1,6 @@
 package com.c3l2.persome.user.security;
 
-import com.c3l2.persome.entity.user.User;
-import com.c3l2.persome.user.repository.UserRepository;
+import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

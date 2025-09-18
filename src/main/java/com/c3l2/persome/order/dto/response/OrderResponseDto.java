@@ -1,7 +1,7 @@
 package com.c3l2.persome.order.dto.response;
 
 import com.c3l2.persome.delivery.dto.DeliverySnapshotDto;
-import com.c3l2.persome.entity.order.Order;
+import com.c3l2.persome.order.entity.Order;
 import lombok.*;
 
 import java.math.BigDecimal;

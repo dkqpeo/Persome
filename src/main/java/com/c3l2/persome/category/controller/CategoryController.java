@@ -2,7 +2,7 @@ package com.c3l2.persome.category.controller;
 
 import com.c3l2.persome.category.dto.CategoryResponseDto;
 import com.c3l2.persome.category.service.CategoryService;
-import com.c3l2.persome.entity.product.Category;
+import com.c3l2.persome.product.entity.Category;
 import com.c3l2.persome.product.dto.OrderSearchDto;
 import com.c3l2.persome.product.dto.PageProductAllResponse;
 import com.c3l2.persome.product.service.ProductService;

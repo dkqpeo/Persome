@@ -1,9 +1,9 @@
 package com.c3l2.persome.point.service;
 
-import com.c3l2.persome.entity.point.PointTransaction;
-import com.c3l2.persome.entity.point.TransactionType;
-import com.c3l2.persome.entity.point.UserPoint;
-import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.point.entity.PointTransaction;
+import com.c3l2.persome.point.entity.TransactionType;
+import com.c3l2.persome.point.entity.UserPoint;
+import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.point.dto.PointChangeRequestDto;
 import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.dto.UserPointResponseDto;

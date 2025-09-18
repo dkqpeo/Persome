@@ -1,6 +1,6 @@
 package com.c3l2.persome.payment.dto;
 
-import com.c3l2.persome.entity.payment.PaymentMethod;
+import com.c3l2.persome.payment.entity.PaymentMethod;
 import lombok.*;
 
 import java.math.BigDecimal;

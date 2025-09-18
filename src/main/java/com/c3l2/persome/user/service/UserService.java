@@ -1,12 +1,12 @@
 package com.c3l2.persome.user.service;
 
-import com.c3l2.persome.entity.membership.MembershipLevel;
-import com.c3l2.persome.entity.membership.Name;
-import com.c3l2.persome.entity.point.UserPoint;
-import com.c3l2.persome.entity.user.Status;
-import com.c3l2.persome.entity.user.User;
-import com.c3l2.persome.entity.user.UserAddress;
-import com.c3l2.persome.entity.user.UserNotification;
+import com.c3l2.persome.membership.entity.MembershipLevel;
+import com.c3l2.persome.membership.entity.Name;
+import com.c3l2.persome.point.entity.UserPoint;
+import com.c3l2.persome.user.entity.Status;
+import com.c3l2.persome.user.entity.User;
+import com.c3l2.persome.user.entity.UserAddress;
+import com.c3l2.persome.user.entity.UserNotification;
 import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.dto.*;
 import com.c3l2.persome.user.exception.DormantAccountException;

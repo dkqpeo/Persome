@@ -1,6 +1,6 @@
 package com.c3l2.persome.user.security;
 
-import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,6 +1,6 @@
 package com.c3l2.persome.cart.dto;
 
-import com.c3l2.persome.entity.cart.CartItem;
+import com.c3l2.persome.cart.entity.CartItem;
 import lombok.Builder;
 import lombok.Getter;
 

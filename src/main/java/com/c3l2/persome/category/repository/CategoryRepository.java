@@ -1,7 +1,6 @@
 package com.c3l2.persome.category.repository;
 
-import com.c3l2.persome.entity.cart.Cart;
-import com.c3l2.persome.entity.product.Category;
+import com.c3l2.persome.product.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

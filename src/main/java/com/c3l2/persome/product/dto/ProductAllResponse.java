@@ -1,16 +1,13 @@
 package com.c3l2.persome.product.dto;
 
-import com.c3l2.persome.entity.product.Product;
-import com.c3l2.persome.entity.product.ProductImg;
-import com.c3l2.persome.entity.product.ProductPrice;
-import com.c3l2.persome.entity.product.constant.ProductStatus;
-import com.c3l2.persome.entity.product.constant.ProductType;
-import lombok.AllArgsConstructor;
+import com.c3l2.persome.product.entity.Product;
+import com.c3l2.persome.product.entity.ProductImg;
+import com.c3l2.persome.product.entity.ProductPrice;
+import com.c3l2.persome.product.entity.constant.ProductStatus;
+import com.c3l2.persome.product.entity.constant.ProductType;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 

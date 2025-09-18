@@ -1,6 +1,6 @@
 package com.c3l2.persome.order.dto.response;
 
-import com.c3l2.persome.entity.order.OrderItem;
+import com.c3l2.persome.order.entity.OrderItem;
 import lombok.*;
 import java.math.BigDecimal;
 

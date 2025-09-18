@@ -1,7 +1,7 @@
 package com.c3l2.persome.payment.controller;
 
 import com.c3l2.persome.common.ApiResponse;
-import com.c3l2.persome.entity.payment.PaymentMethod;
+import com.c3l2.persome.payment.entity.PaymentMethod;
 import com.c3l2.persome.payment.dto.PaymentRequestDto;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import com.c3l2.persome.payment.service.PaymentService;

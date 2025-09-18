@@ -1,6 +1,6 @@
 package com.c3l2.persome.cart.dto;
 
-import com.c3l2.persome.entity.cart.Cart;
+import com.c3l2.persome.cart.entity.Cart;
 import lombok.*;
 import java.util.List;
 import java.util.ArrayList;

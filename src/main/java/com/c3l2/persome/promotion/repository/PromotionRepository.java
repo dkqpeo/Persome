@@ -1,7 +1,7 @@
 package com.c3l2.persome.promotion.repository;
 
-import com.c3l2.persome.entity.event.Promotion;
-import com.c3l2.persome.entity.event.constant.PromotionStatus;
+import com.c3l2.persome.event.entity.Promotion;
+import com.c3l2.persome.event.entity.constant.PromotionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,7 +1,7 @@
 package com.c3l2.persome.order.scheduler;
 
-import com.c3l2.persome.entity.order.Order;
-import com.c3l2.persome.entity.order.OrderStatus;
+import com.c3l2.persome.order.entity.Order;
+import com.c3l2.persome.order.entity.OrderStatus;
 import com.c3l2.persome.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

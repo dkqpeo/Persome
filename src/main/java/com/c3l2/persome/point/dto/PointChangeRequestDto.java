@@ -1,6 +1,6 @@
 package com.c3l2.persome.point.dto;
 
-import com.c3l2.persome.entity.point.TransactionType;
+import com.c3l2.persome.point.entity.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

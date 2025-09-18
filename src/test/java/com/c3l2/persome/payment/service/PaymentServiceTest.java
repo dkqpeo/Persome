@@ -1,9 +1,9 @@
 package com.c3l2.persome.payment.service;
 
-import com.c3l2.persome.entity.order.Order;
-import com.c3l2.persome.entity.payment.Payment;
-import com.c3l2.persome.entity.payment.PaymentMethod;
-import com.c3l2.persome.entity.payment.PaymentStatus;
+import com.c3l2.persome.order.entity.Order;
+import com.c3l2.persome.payment.entity.Payment;
+import com.c3l2.persome.payment.entity.PaymentMethod;
+import com.c3l2.persome.payment.entity.PaymentStatus;
 import com.c3l2.persome.order.repository.OrderRepository;
 import com.c3l2.persome.payment.dto.PaymentRequestDto;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;

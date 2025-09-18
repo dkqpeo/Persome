@@ -1,6 +1,6 @@
 package com.c3l2.persome.payment.repository;
 
-import com.c3l2.persome.entity.payment.Payment;
+import com.c3l2.persome.payment.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

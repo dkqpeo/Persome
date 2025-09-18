@@ -1,6 +1,6 @@
 package com.c3l2.persome.product.dto;
 
-import com.c3l2.persome.entity.product.Product;
+import com.c3l2.persome.product.entity.Product;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;

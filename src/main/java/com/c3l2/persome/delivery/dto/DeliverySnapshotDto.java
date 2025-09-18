@@ -1,6 +1,6 @@
 package com.c3l2.persome.delivery.dto;
 
-import com.c3l2.persome.entity.delivery.DeliverySnapshot;
+import com.c3l2.persome.delivery.entity.DeliverySnapshot;
 import lombok.*;
 @Getter
 @NoArgsConstructor

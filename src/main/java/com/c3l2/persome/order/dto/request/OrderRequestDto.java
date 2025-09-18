@@ -1,9 +1,9 @@
 package com.c3l2.persome.order.dto.request;
 
-import com.c3l2.persome.entity.order.Order;
-import com.c3l2.persome.entity.order.OrderStatus;
-import com.c3l2.persome.entity.order.ReceiveType;
-import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.order.entity.Order;
+import com.c3l2.persome.order.entity.OrderStatus;
+import com.c3l2.persome.order.entity.ReceiveType;
+import com.c3l2.persome.user.entity.User;
 import lombok.*;
 
 import java.math.BigDecimal;

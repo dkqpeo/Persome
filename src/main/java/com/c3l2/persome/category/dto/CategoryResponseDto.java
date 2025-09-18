@@ -1,6 +1,6 @@
 package com.c3l2.persome.category.dto;
 
-import com.c3l2.persome.entity.product.Category;
+import com.c3l2.persome.product.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

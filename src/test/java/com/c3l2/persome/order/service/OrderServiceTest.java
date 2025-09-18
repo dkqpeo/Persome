@@ -1,11 +1,11 @@
 package com.c3l2.persome.order.service;
 
 import com.c3l2.persome.coupon.repository.UserCouponRepository;
-import com.c3l2.persome.entity.order.Order;
-import com.c3l2.persome.entity.order.ReceiveType;
-import com.c3l2.persome.entity.product.Product;
-import com.c3l2.persome.entity.product.ProductOption;
-import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.order.entity.Order;
+import com.c3l2.persome.order.entity.ReceiveType;
+import com.c3l2.persome.product.entity.Product;
+import com.c3l2.persome.product.entity.ProductOption;
+import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.order.dto.PriceCalculationResult;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.dto.response.OrderResponseDto;

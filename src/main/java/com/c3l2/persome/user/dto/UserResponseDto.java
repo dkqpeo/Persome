@@ -1,8 +1,7 @@
 package com.c3l2.persome.user.dto;
 
-import com.c3l2.persome.entity.user.Gender;
-import com.c3l2.persome.entity.user.User;
-import com.c3l2.persome.entity.user.UserNotification;
+import com.c3l2.persome.user.entity.User;
+import com.c3l2.persome.user.entity.UserNotification;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

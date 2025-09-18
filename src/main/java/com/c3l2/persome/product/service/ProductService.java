@@ -1,7 +1,7 @@
 package com.c3l2.persome.product.service;
 
-import com.c3l2.persome.entity.product.Category;
-import com.c3l2.persome.entity.product.Product;
+import com.c3l2.persome.product.entity.Category;
+import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.dto.OrderSearchDto;
 import com.c3l2.persome.product.dto.PageProductAllResponse;
 import com.c3l2.persome.product.dto.ProductAllResponse;

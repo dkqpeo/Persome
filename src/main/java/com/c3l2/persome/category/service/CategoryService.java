@@ -2,7 +2,7 @@ package com.c3l2.persome.category.service;
 
 import com.c3l2.persome.category.dto.CategoryResponseDto;
 import com.c3l2.persome.category.repository.CategoryRepository;
-import com.c3l2.persome.entity.product.Category;
+import com.c3l2.persome.product.entity.Category;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

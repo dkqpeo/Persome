@@ -1,6 +1,6 @@
 package com.c3l2.persome.order.repository;
 
-import com.c3l2.persome.entity.order.OrderItem;
+import com.c3l2.persome.order.entity.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
