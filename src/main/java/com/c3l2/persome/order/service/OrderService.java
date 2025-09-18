@@ -11,6 +11,7 @@ import com.c3l2.persome.entity.delivery.DeliveryStatus;
 import com.c3l2.persome.entity.order.Order;
 import com.c3l2.persome.entity.order.OrderItem;
 import com.c3l2.persome.entity.order.ReceiveType;
+import com.c3l2.persome.entity.point.TransactionType;
 import com.c3l2.persome.entity.product.Product;
 import com.c3l2.persome.entity.product.ProductOption;
 import com.c3l2.persome.entity.user.User;
@@ -37,6 +38,7 @@ public class OrderService {
     private final ProductOptionRepository productOptionRepository;
     private final UserCouponRepository userCouponRepository;
     private final PricingService pricingService;
+    private final UserPointService userPointService;
 
     //주문 생성
     @Transactional
@@ -97,8 +99,27 @@ public class OrderService {
         order.applyCouponDiscount(promoAppliedTotal.subtract(afterCoupon));
 
         //4. 포인트 할인 적용
-        BigDecimal afterPoint = applyPoint(user, request.getUsePointAmount(), afterCoupon);
-        order.applyPointDiscount(afterCoupon.subtract(afterPoint));
+        BigDecimal afterPoint = afterCoupon;
+        if (request.getUsePointAmount() != null && request.getUsePointAmount() > 0) {
+            //포인트 사용
+            PointChangeRequestDto useDto = PointChangeRequestDto.builder()
+                    .orderId(order.getId())
+                    .amount(request.getUsePointAmount())
+                    .type(TransactionType.USE)
+                    .build();
+
+            PointChangeResponseDto pointResponse = userPointService.changePoints(user.getId(), useDto);
+
+            if (!pointResponse.isSuccess()) {
+                throw new IllegalStateException("포인트 사용에 실패했습니다.");
+            }
+
+            // 할인 금액 적용
+            order.applyPointDiscount(BigDecimal.valueOf(pointResponse.getChangedPoints()));
+
+            // 결제 금액 계산용
+            afterPoint = afterCoupon.subtract(BigDecimal.valueOf(pointResponse.getChangedPoints()));
+        }
 
         //5. 배송비 계산
         int shippingFee = calculateShippingFee(promoAppliedTotal,request.getReceiveType());
@@ -173,10 +194,12 @@ public class OrderService {
         //2. 포인트 복구
         if (order.getPointUsedAmount() != null && order.getPointUsedAmount().compareTo(BigDecimal.ZERO) > 0) {
             int refundPoints = order.getPointUsedAmount().intValue();
-            User user = order.getUser();
-            user.getUserPoint().addPoints(refundPoints);
-
-            // 포인트 이력 남기기 나중에 추가
+            PointChangeRequestDto restoreDto = PointChangeRequestDto.builder()
+                    .orderId(order.getId())
+                    .amount(refundPoints)
+                    .type(TransactionType.RESTORE)
+                    .build();
+            userPointService.changePoints(userId, restoreDto);
         }
 
         //3. 상태 변경
