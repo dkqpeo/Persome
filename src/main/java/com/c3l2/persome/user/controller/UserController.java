@@ -13,7 +13,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private UserService userService;
+    private final UserService userService;
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserLoginDto loginDto) {
+        userService.login(loginDto);
+        return ResponseEntity.ok("로그인 성공");
+    }
 
     // 회원가입
     @PostMapping("/register")
