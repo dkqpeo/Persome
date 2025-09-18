@@ -1,7 +1,7 @@
 package com.c3l2.persome.order.service;
 
-import com.c3l2.persome.event.entity.Promotion;
-import com.c3l2.persome.event.entity.constant.PromotionStatus;
+import com.c3l2.persome.promotion.entity.Promotion;
+import com.c3l2.persome.promotion.entity.PromotionStatus;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
 import com.c3l2.persome.user.entity.User;
@@ -9,7 +9,7 @@ import com.c3l2.persome.order.dto.PriceCalculationResult;
 import com.c3l2.persome.promotion.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.c3l2.persome.event.entity.constant.DiscountType;
+import com.c3l2.persome.promotion.entity.DiscountType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

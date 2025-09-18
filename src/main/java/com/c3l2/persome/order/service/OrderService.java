@@ -80,7 +80,7 @@ public class OrderService {
             order.getOrderItems().add(orderItem);
 
             // 합계 누적
-            originalPrice = originalPrice.add(calc.getTotalPrice());      // 프로모션 전 총액
+            originalPrice = originalPrice.add(calc.getTotalPrice());               // 프로모션 전 총액
             promoDiscountTotal = promoDiscountTotal.add(calc.getPromoDiscount()); // 프로모션 할인 총액
             promoAppliedTotal = promoAppliedTotal.add(calc.getFinalPrice());     // 프로모션 적용 후 합계
             totalQty += productDto.getQuantity();
@@ -151,9 +151,6 @@ public class OrderService {
     //주문 목록 조회
     @Transactional(readOnly = true)
     public List<OrderSummaryDto> getUserOrders(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
-
         List<Order> orders = orderRepository.findByUserId(userId);
 
         return orders.stream()

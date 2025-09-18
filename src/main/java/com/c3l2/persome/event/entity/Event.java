@@ -2,7 +2,7 @@ package com.c3l2.persome.event.entity;
 
 import com.c3l2.persome.coupon.entity.Coupon;
 import com.c3l2.persome.event.entity.constant.EventStatus;
-import com.c3l2.persome.event.entity.constant.EventType;
+import com.c3l2.persome.promotion.entity.Promotion;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,11 +29,7 @@ public class Event {
     private String name;
 
     @Column(name = "thumbnail_url")
-    private String thumbnailurl;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type" , nullable = false)
-    private EventType type; //이벤트 유형(PROMOTION,BANNER.SALE.COUPON)
+    private String thumbnailUrl;
 
     @Column(name ="description", columnDefinition = "TEXT" , nullable = false)
     private String description;
@@ -44,7 +40,7 @@ public class Event {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
-    @Column(name = " created_at" , nullable = false)
+    @Column(name = "created_at" , nullable = false)
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)

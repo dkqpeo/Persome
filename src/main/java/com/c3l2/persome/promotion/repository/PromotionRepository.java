@@ -1,7 +1,7 @@
 package com.c3l2.persome.promotion.repository;
 
-import com.c3l2.persome.event.entity.Promotion;
-import com.c3l2.persome.event.entity.constant.PromotionStatus;
+import com.c3l2.persome.promotion.entity.Promotion;
+import com.c3l2.persome.promotion.entity.PromotionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,5 +18,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
             "AND p.startDate <= :now " +
             "AND p.endDate >= :now")
     List<Promotion> findActivePromotionsWithTargets(PromotionStatus status, LocalDateTime now);
+
+    List<Promotion> findByEventId(Long eventId); //이벤트 아이디로 프로모션 찾기
 
 }

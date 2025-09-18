@@ -1,4 +1,4 @@
-package com.c3l2.persome.event.entity.constant;
+package com.c3l2.persome.promotion.entity;
 
 public enum DiscountType {
 
