@@ -80,11 +80,21 @@ public class Order {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Delivery delivery;
 
+    @Column(name = "scheduled_status_change_at", columnDefinition = "DATETIME(0)")
+    private LocalDateTime scheduledStatusChangeAt; //상태 자동 변경 예정 시각
+
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
+
+        if (this.orderStatus == null) {
+            this.orderStatus = OrderStatus.PENDING;
+        }
+        if (this.scheduledStatusChangeAt == null) {
+            this.scheduledStatusChangeAt = now.plusHours(1); //1시간 뒤 상태 변경
+        }
     }
 
     @PreUpdate
@@ -107,8 +117,8 @@ public class Order {
     //배송비 설정
     public void applyShippingFee(int shippingFee) {this.shippingFee = shippingFee;}
     //최종 결제 금액
-    public void calculateFinalAmount(BigDecimal afterPoint, int shippingFee) {this.orderTotalAmount = afterPoint.add(BigDecimal.valueOf(shippingFee));}
-    // 배송 스냅샷 등록
+    public void calculateFinalAmount(BigDecimal finalPrice) {this.orderTotalAmount = finalPrice;}
+    //배송 스냅샷 등록
     public void registerDelivery(DeliverySnapshot snapshot) {
         this.delivery = Delivery.builder()
                 .order(this)
@@ -116,6 +126,8 @@ public class Order {
                 .deliverySnapshot(snapshot)
                 .build();
     }
-    // 주문 취소
+    //주문 취소
     public void cancel() {this.orderStatus = OrderStatus.CANCELED;}
+    //주문 완료
+    public void paid() {this.orderStatus = OrderStatus.PAID;}
 }
