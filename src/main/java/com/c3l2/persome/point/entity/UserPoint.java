@@ -14,10 +14,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPoint {
-
-    // 1:1
     @Id
-    @OneToOne(fetch = FetchType.EAGER)
+    @Column(name = "user_id")
+    private Long id; //User의 PK를 그대로 PK로 사용
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId //User.id를 그대로 가져옴
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "balance")
