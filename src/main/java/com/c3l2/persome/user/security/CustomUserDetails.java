@@ -2,6 +2,7 @@ package com.c3l2.persome.user.security;
 
 import com.c3l2.persome.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
@@ -17,6 +19,7 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String role = user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
+        log.info("getAuthorities: {}", role);
         return List.of(new SimpleGrantedAuthority(role));
     }
 

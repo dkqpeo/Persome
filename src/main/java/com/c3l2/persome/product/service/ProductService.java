@@ -136,4 +136,38 @@ public class ProductService {
                 .hasPrevious(originalPage.hasPrevious())
                 .build();
     }
+
+    /**
+     * 입력받은 키워드를 포함하는 상품 목록을 페이지 단위로 반환
+     *
+     * @param searchKeyword
+     * @param searchDto
+     * @return
+     */
+    public PageProductAllResponse findKeyword(String searchKeyword, OrderSearchDto searchDto) {
+
+        Pageable pageRequest = PageRequest.of(searchDto.getPage(), searchDto.getSize());
+
+        // 1. 페이징된 Product ID들만 먼저 조회
+        Page<Product> productPage = productRepository.findByName(searchKeyword, pageRequest);
+
+        if (productPage.isEmpty()) {
+            return PageProductAllResponse.from(productPage);
+        }
+
+        // 2. Product ID 목록 추출
+        List<Long> productIds = productPage.getContent().stream()
+                .map(Product::getId)
+                .toList();
+
+        // 3. Fetch join을 사용하여 연관 엔티티들을 한 번에 로드
+        List<Product> productsWithBasicFetch = productRepository.findByIdsWithFetch(productIds);
+
+        // 4. ProductPrice를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
+        productRepository.findByIdsWithPrices(productIds);
+
+        // 5. 페이징 정보는 유지하면서 fetch join된 Product들로 새로운 Page 생성
+        return createPageProductAllResponse(productsWithBasicFetch, productPage);
+
+    }
 }

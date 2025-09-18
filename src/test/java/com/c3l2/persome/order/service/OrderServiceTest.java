@@ -5,6 +5,7 @@ import com.c3l2.persome.order.entity.Order;
 import com.c3l2.persome.order.entity.ReceiveType;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
+import com.c3l2.persome.product.repository.ProductOptionRepository;
 import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.order.dto.PriceCalculationResult;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;

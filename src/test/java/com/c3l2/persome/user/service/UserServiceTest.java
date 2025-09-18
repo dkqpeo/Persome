@@ -31,6 +31,17 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
+    void login() {
+
+        String loginId = "test";
+
+        User byLoginIdOrThrow = userService.findByLoginIdOrThrow(loginId);
+
+        assertThat(byLoginIdOrThrow.getLoginId()).isEqualTo(loginId);
+
+    }
+
+    @Test
     void 회원가입_정상_테스트() {
         // given
         UserRegisterDto dto = UserRegisterDto.builder()

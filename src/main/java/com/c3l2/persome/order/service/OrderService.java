@@ -11,6 +11,7 @@ import com.c3l2.persome.point.entity.TransactionType;
 import com.c3l2.persome.point.service.UserPointService;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
+import com.c3l2.persome.product.repository.ProductOptionRepository;
 import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.order.dto.*;
 import com.c3l2.persome.order.dto.response.OrderResponseDto;

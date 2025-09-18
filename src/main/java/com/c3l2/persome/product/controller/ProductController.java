@@ -34,15 +34,7 @@ public class ProductController {
     public ResponseEntity<PageProductAllResponse> getAllProducts(@RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "24") int size) {
 
-        // 페이지 크기 검증 (30, 50, 100만 허용)
-        if(size != 24 && size != 36) {
-            size = 24;
-        }
-
-        OrderSearchDto searchDto = OrderSearchDto.builder()
-                .page(page)
-                .size(size)
-                .build();
+        OrderSearchDto searchDto = getSearchDto(page, size);
 
 
         PageProductAllResponse allProducts = productService.getAllProducts(searchDto);
@@ -51,6 +43,29 @@ public class ProductController {
 
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<PageProductAllResponse> searchProducts(@RequestParam String searchKeyword,
+                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "24") int size) {
 
+        OrderSearchDto searchDto = getSearchDto(page, size);
+        PageProductAllResponse allProducts = productService.findKeyword(searchKeyword, searchDto);
+
+        return new ResponseEntity<>(allProducts, HttpStatus.OK);
+
+    }
+
+    private OrderSearchDto getSearchDto(int page, int size) {
+
+        // 페이지 크기 검증 (30, 50, 100만 허용)
+        if(size != 24 && size != 36) {
+            size = 24;
+        }
+
+        return OrderSearchDto.builder()
+                .page(page)
+                .size(size)
+                .build();
+    }
 
 }

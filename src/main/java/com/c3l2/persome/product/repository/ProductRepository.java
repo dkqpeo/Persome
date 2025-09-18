@@ -36,4 +36,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.id IN :productIds")
     List<Product> findByIdsWithPrices(@Param("productIds") List<Long> productIds);
 
+    // 상품 이름에 name이 포함되는 컬럼을 반환
+    @Query("SELECT p FROM Product p WHERE " +
+            "p.name LIKE %:name% ")
+    Page<Product> findByName(String name, Pageable pageable);
+
 }
