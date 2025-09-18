@@ -44,12 +44,12 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PageProductAllResponse> searchProducts(@RequestParam String searchKeyword,
+    public ResponseEntity<PageProductAllResponse> searchProducts(@RequestParam String keyword,
                                                                  @RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "24") int size) {
 
         OrderSearchDto searchDto = getSearchDto(page, size);
-        PageProductAllResponse allProducts = productService.findKeyword(searchKeyword, searchDto);
+        PageProductAllResponse allProducts = productService.findKeyword(keyword, searchDto);
 
         return new ResponseEntity<>(allProducts, HttpStatus.OK);
 
