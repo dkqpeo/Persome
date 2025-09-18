@@ -11,6 +11,7 @@ import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.dto.*;
 import com.c3l2.persome.user.exception.DormantAccountException;
 import com.c3l2.persome.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,16 +20,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MembershipLevelRepository membershipLevelRepository;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MembershipLevelRepository membershipLevelRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.membershipLevelRepository = membershipLevelRepository;
-    }
 
     // 로그인
     public User login(UserLoginDto loginDto) {
@@ -184,5 +181,19 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
         user.changeStatus(Status.WITHDRAWN);
+    }
+
+    // 시큐리티용 로딩 로직
+    @Transactional(readOnly = true)
+    public User findByLoginIdOrThrow(String loginId) {
+        User user = userRepository.findByLoginId(loginId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디 입니다."));
+
+        if (user.getStatus() == Status.WITHDRAWN)
+            throw new IllegalArgumentException("탈퇴한 회원입니다.");
+
+        if (user.getStatus() == Status.DORMANT)
+            throw new IllegalArgumentException("휴면 계정입니다.");
+
+        return user;
     }
 }
