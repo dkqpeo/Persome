@@ -88,4 +88,20 @@ public class Coupon {
     public void preUpdate(){
         this.updatedAt = LocalDateTime.now();
     }
+
+    //발급 카운트 증가
+    public void increaseIssueCount() {
+        if (this.issueCount >= this.limitIssueCount) {
+            throw new IllegalStateException("쿠폰 발급 한도를 초과했습니다.");
+        }
+        this.issueCount++;
+    }
+
+    //사용 카운트 증가
+    public void increaseUsedCount() {
+        if (this.usedCount >= this.issueCount) {
+            throw new IllegalStateException("사용 가능한 쿠폰이 없습니다.");
+        }
+        this.usedCount++;
+    }
 }

@@ -1,4 +1,4 @@
-package com.c3l2.persome.coupon;
+package com.c3l2.persome.coupon.repository;
 
 import com.c3l2.persome.coupon.entity.Coupon;
 import org.springframework.data.jpa.repository.JpaRepository;

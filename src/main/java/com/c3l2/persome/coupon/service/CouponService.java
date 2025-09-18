@@ -1,6 +1,6 @@
 package com.c3l2.persome.coupon.service;
 
-import com.c3l2.persome.coupon.CouponRepository;
+import com.c3l2.persome.coupon.repository.CouponRepository;
 import com.c3l2.persome.coupon.dto.CouponDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

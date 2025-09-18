@@ -5,6 +5,7 @@ import com.c3l2.persome.payment.entity.PaymentMethod;
 import com.c3l2.persome.payment.dto.PaymentRequestDto;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import com.c3l2.persome.payment.service.PaymentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 
-@Controller
+@RestController
+@RequiredArgsConstructor
 public class PaymentController {
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
 
     //결제 생성
     @PostMapping("/payments")
