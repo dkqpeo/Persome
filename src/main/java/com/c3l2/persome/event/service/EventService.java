@@ -1,13 +1,13 @@
 package com.c3l2.persome.event.service;
 
-import com.c3l2.persome.coupon.CouponRepository;
 import com.c3l2.persome.coupon.dto.CouponDto;
+import com.c3l2.persome.coupon.service.CouponService;
 import com.c3l2.persome.event.dto.EventDetailResponseDto;
 import com.c3l2.persome.event.dto.EventResponseDto;
 import com.c3l2.persome.event.entity.Event;
 import com.c3l2.persome.event.repository.EventRepository;
 import com.c3l2.persome.promotion.dto.PromotionDto;
-import com.c3l2.persome.promotion.repository.PromotionRepository;
+import com.c3l2.persome.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
-    private final PromotionRepository promotionRepository;
-    private final CouponRepository couponRepository;
+    private final PromotionService promotionService;
+    private final CouponService couponService;
 
     //이벤트 전체 조회
     public List<EventResponseDto> getEvents() {
@@ -39,13 +39,8 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Event not found"));
 
-        List<PromotionDto> promotions = promotionRepository.findByEventId(eventId).stream()
-                .map(PromotionDto::fromEntity)
-                .toList();
-
-        List<CouponDto> coupons = couponRepository.findByEventId(eventId).stream()
-                .map(CouponDto::fromEntity)
-                .toList();
+        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
+        List<CouponDto> coupons = couponService.getCouponsByEvent(eventId);
 
         return EventDetailResponseDto.fromEntity(event, promotions, coupons);
     }

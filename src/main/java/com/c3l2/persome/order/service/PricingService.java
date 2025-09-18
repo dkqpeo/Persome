@@ -4,6 +4,7 @@ import com.c3l2.persome.promotion.entity.Promotion;
 import com.c3l2.persome.promotion.entity.PromotionStatus;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
+import com.c3l2.persome.promotion.service.PromotionService;
 import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.order.dto.PriceCalculationResult;
 import com.c3l2.persome.promotion.repository.PromotionRepository;
@@ -19,7 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PricingService {
-     private final PromotionRepository promotionRepository;
+     private final PromotionService promotionService;
 
 
     //최종 가격 계산
@@ -57,7 +58,7 @@ public class PricingService {
     //프로모션 적용
     private BigDecimal applyPromotion(Product product, int qty, BigDecimal price) {
         LocalDateTime now = LocalDateTime.now();
-        List<Promotion> promotions = promotionRepository.findActivePromotionsWithTargets(PromotionStatus.ACTIVE, now);
+        List<Promotion> promotions = promotionService.getAvailablePromotionsForPricing(now);
 
         for (Promotion promotion : promotions) {
             boolean applicable = promotion.getPromotionTarget().stream().anyMatch(target ->

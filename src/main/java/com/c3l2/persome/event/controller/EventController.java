@@ -4,6 +4,7 @@ import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.event.dto.EventDetailResponseDto;
 import com.c3l2.persome.event.dto.EventResponseDto;
 import com.c3l2.persome.event.service.EventService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/events")
 public class EventController {
-    private EventService eventService;
+    private final EventService eventService;
 
     //이벤트 전체 조회
     @GetMapping
