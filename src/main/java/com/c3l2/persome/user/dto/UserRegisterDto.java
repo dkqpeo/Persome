@@ -57,7 +57,8 @@ public class UserRegisterDto {
     private Boolean pushEnabled;
 
     public User toEntity(PasswordEncoder passwordEncoder, MembershipLevel defaultLevel) {
-        User user = User.builder()
+
+        return User.builder()
                 .loginId(this.loginId)
                 .password(passwordEncoder.encode(this.password))
                 .name(this.name)
@@ -68,27 +69,5 @@ public class UserRegisterDto {
                 .status(Status.ACTIVE)
                 .membershipLevel(defaultLevel)
                 .build();
-
-        // 기본 배송지 생성
-        UserAddress address = UserAddress.builder()
-                .user(user)
-                .zip(this.zip)
-                .roadAddr(this.roadAddr)
-                .addrDetail(this.addrDetail)
-                .defaultShipping(true)
-                .build();
-
-        user.getUserAddresses().add(address);
-
-        // 알림 설정
-        UserNotification notification = UserNotification.builder()
-                .user(user)
-                .emailEnabled(Boolean.TRUE.equals(this.emailEnabled))
-                .smsEnabled(Boolean.TRUE.equals(this.smsEnabled))
-                .pushEnabled(Boolean.TRUE.equals(this.pushEnabled))
-                .build();
-        user.addUserNotification(notification);
-
-        return user;
     }
 }

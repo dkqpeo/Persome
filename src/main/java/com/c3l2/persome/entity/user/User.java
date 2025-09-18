@@ -150,4 +150,8 @@ public class User {
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+
+    public void initUserPoint(UserPoint userPoint) {
+        this.userPoint = userPoint;
+    }
 }

@@ -2,31 +2,30 @@ package com.c3l2.persome.user.service;
 
 import com.c3l2.persome.entity.membership.MembershipLevel;
 import com.c3l2.persome.entity.membership.Name;
+import com.c3l2.persome.entity.point.UserPoint;
 import com.c3l2.persome.entity.user.Status;
 import com.c3l2.persome.entity.user.User;
+import com.c3l2.persome.entity.user.UserAddress;
 import com.c3l2.persome.entity.user.UserNotification;
 import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.dto.*;
 import com.c3l2.persome.user.exception.DormantAccountException;
 import com.c3l2.persome.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MembershipLevelRepository membershipLevelRepository;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MembershipLevelRepository membershipLevelRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.membershipLevelRepository = membershipLevelRepository;
-    }
 
     // 로그인
     public User login(UserLoginDto loginDto) {
@@ -74,8 +73,34 @@ public class UserService {
         MembershipLevel defaultLevel = membershipLevelRepository.findByName(Name.BABY)
                 .orElseThrow(() -> new IllegalStateException("기본 등급(BABY)이 존재하지 않습니다."));
 
-
         User user = dto.toEntity(passwordEncoder, defaultLevel);
+
+        // 주소 초기화
+        UserAddress address = UserAddress.builder()
+                .user(user)
+                .zip(dto.getZip())
+                .roadAddr(dto.getRoadAddr())
+                .addrDetail(dto.getAddrDetail())
+                .defaultShipping(true)
+                .build();
+        user.getUserAddresses().add(address);
+
+        // 알림 설정 초기화
+        UserNotification notification = UserNotification.builder()
+                .user(user)
+                .emailEnabled(Boolean.TRUE.equals(dto.getEmailEnabled()))
+                .smsEnabled(Boolean.TRUE.equals(dto.getSmsEnabled()))
+                .pushEnabled(Boolean.TRUE.equals(dto.getPushEnabled()))
+                .build();
+        user.addUserNotification(notification);
+
+        // 포인트 초기화
+        UserPoint userPoint = UserPoint.builder()
+                .user(user)
+                .balance(0)
+                .build();
+        user.initUserPoint(userPoint);
+
         userRepository.save(user);
     }
 
@@ -156,5 +181,19 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
         user.changeStatus(Status.WITHDRAWN);
+    }
+
+    // 시큐리티용 로딩 로직
+    @Transactional(readOnly = true)
+    public User findByLoginIdOrThrow(String loginId) {
+        User user = userRepository.findByLoginId(loginId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디 입니다."));
+
+        if (user.getStatus() == Status.WITHDRAWN)
+            throw new IllegalArgumentException("탈퇴한 회원입니다.");
+
+        if (user.getStatus() == Status.DORMANT)
+            throw new IllegalArgumentException("휴면 계정입니다.");
+
+        return user;
     }
 }

@@ -19,6 +19,7 @@ import com.c3l2.persome.order.dto.response.OrderResponseDto;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.dto.response.OrderSummaryDto;
 import com.c3l2.persome.order.repository.OrderRepository;
+import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
