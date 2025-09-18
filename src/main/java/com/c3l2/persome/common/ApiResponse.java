@@ -1,5 +1,6 @@
 package com.c3l2.persome.common;
 
+import com.c3l2.persome.config.error.ErrorResult;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +21,11 @@ public class ApiResponse<T> {
                 .build());
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> error(String message, HttpStatus status) {
+    public static <T> ResponseEntity<ApiResponse<T>> error(String message, T data, HttpStatus status) {
         return ResponseEntity.status(status)
                 .body(ApiResponse.<T>builder()
                         .message(message)
-                        .data(null)
+                        .data(data)
                         .build());
     }
 }
