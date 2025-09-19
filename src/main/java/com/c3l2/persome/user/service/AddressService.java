@@ -42,7 +42,7 @@ public class AddressService {
                 .roadAddr(req.getRoadAddr() != null ? req.getRoadAddr() : old.getRoadAddr())
                 .jibunAddr(req.getJibunAddr() != null ? req.getJibunAddr() : old.getJibunAddr())
                 .addrDetail(req.getAddrDetail() != null ? req.getAddrDetail() : old.getAddrDetail())
-                .defaultShipping(req.getDefaultShipping() != null ? req.getDefaultShipping() : old.getDefaultShipping())
+                .defaultShipping(req.getIsdefaultShipping() != null ? req.getIsdefaultShipping(): old.getDefaultShipping())
                 .createdAt(old.getCreatedAt())
                 .build();
     }
@@ -73,7 +73,7 @@ public class AddressService {
                 .roadAddr(request.getRoadAddr())
                 .jibunAddr(request.getJibunAddr())
                 .addrDetail(request.getAddrDetail())
-                .defaultShipping(request.getIsDefaultShipping())
+                .defaultShipping(request.getIsdefaultShipping())
                 .build();
 
         UserAddressRepository.save(userAddress);
