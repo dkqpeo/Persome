@@ -6,6 +6,7 @@ import lombok.*;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class AddressResponse {
     private Long id;
     private String label;
@@ -13,7 +14,7 @@ public class AddressResponse {
     private String roadAddr;
     private String jibunAddr;
     private String addrDetail;
-    private Boolean defaultShipping;
+    private Boolean isdefaultShipping;
 
     public static AddressResponse from(UserAddress entity) {
         return AddressResponse.builder()
@@ -23,7 +24,7 @@ public class AddressResponse {
                 .roadAddr(entity.getRoadAddr())
                 .jibunAddr(entity.getJibunAddr())
                 .addrDetail(entity.getAddrDetail())
-                .defaultShipping(entity.getDefaultShipping())
+                .isdefaultShipping(entity.getDefaultShipping())
                 .build();
     }
 }

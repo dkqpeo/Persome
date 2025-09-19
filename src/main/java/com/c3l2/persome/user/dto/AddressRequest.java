@@ -12,5 +12,7 @@ public class AddressRequest {
     private String roadAddr;
     private String jibunAddr;
     private String addrDetail;
-    private Boolean defaultShipping;
+    private Boolean isdefaultShipping;
+    private String address;
+    private Long userId;
 }
