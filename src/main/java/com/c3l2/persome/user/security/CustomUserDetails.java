@@ -1,5 +1,6 @@
 package com.c3l2.persome.user.security;
 
+import com.c3l2.persome.user.entity.Status;
 import com.c3l2.persome.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,6 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String role = user.isAdmin() ? "ROLE_ADMIN" : "ROLE_USER";
-        log.info("getAuthorities: {}", role);
         return List.of(new SimpleGrantedAuthority(role));
     }
 
@@ -52,7 +52,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getStatus().name().equals("ACTIVE");
+        //return user.getStatus().name().equals("ACTIVE");
+        return user.getStatus() == Status.ACTIVE;
     }
 
 }

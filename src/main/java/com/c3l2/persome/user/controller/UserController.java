@@ -3,6 +3,8 @@ package com.c3l2.persome.user.controller;
 import com.c3l2.persome.user.dto.*;
 import com.c3l2.persome.user.security.CustomUserDetails;
 import com.c3l2.persome.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +12,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,16 +26,38 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserLoginDto loginDto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDto.getLoginId(),
-                        loginDto.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    public ResponseEntity<String> login(@RequestBody UserLoginDto loginDto,
+                                        HttpServletRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDto.getLoginId(),
+                            loginDto.getPassword()
+                    )
+            );
+            
+            // Spring Security가 자동으로 SecurityContext를 관리하도록 설정
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            // 세션에 SecurityContext 저장
+            HttpSession session = request.getSession(true);
+            session.setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    SecurityContextHolder.getContext()
+            );
 
-        return ResponseEntity.ok("로그인 성공");
+            return ResponseEntity.ok("로그인 성공");
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+            return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
+        } catch (org.springframework.security.authentication.DisabledException e) {
+            return ResponseEntity.badRequest().body("비활성화된 계정입니다.");
+        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+            return ResponseEntity.badRequest().body("존재하지 않는 사용자입니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("로그인 처리 중 오류가 발생했습니다.");
+        }
     }
 
     // 회원가입

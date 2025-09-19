@@ -1,6 +1,7 @@
 package com.c3l2.persome.config;
 
 import com.c3l2.persome.user.security.CustomUserDetailsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
+@Slf4j
 @Configuration
 public class SecurityConfig {
 
@@ -24,8 +26,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/register", "/users/login", "/users/check-id").permitAll()
-                        .requestMatchers("/**").permitAll()
-                        .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
+                        //.requestMatchers("/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 
