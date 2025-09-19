@@ -12,20 +12,27 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
+    @GetMapping("/login")
+    public String login() {
+        return "/users/login";
+    }
+
     // 로그인
     @PostMapping("/login")
+    @ResponseBody
     public ResponseEntity<String> login(@RequestBody UserLoginDto loginDto,
                                         HttpServletRequest request) {
         try {
@@ -35,10 +42,10 @@ public class UserController {
                             loginDto.getPassword()
                     )
             );
-            
-            // Spring Security가 자동으로 SecurityContext를 관리하도록 설정
+
+            // SecurityContextHolder 설정
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            
+
             // 세션에 SecurityContext 저장
             HttpSession session = request.getSession(true);
             session.setAttribute(
@@ -46,25 +53,32 @@ public class UserController {
                     SecurityContextHolder.getContext()
             );
 
-            return ResponseEntity.ok("로그인 성공");
+            return ResponseEntity.ok("{\"redirectUrl\":\"/\"}");
         } catch (org.springframework.security.authentication.BadCredentialsException e) {
             return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
         } catch (org.springframework.security.authentication.DisabledException e) {
-            return ResponseEntity.badRequest().body("비활성화된 계정입니다.");
+            return ResponseEntity.badRequest().body("비활성화된 계정입니다. 관리자에게 문의하세요.");
         } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
-            return ResponseEntity.badRequest().body("존재하지 않는 사용자입니다.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("존재하지 않는 아이디입니다.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("로그인 처리 중 오류가 발생했습니다.");
         }
     }
 
+    // 회원가입 페이지 이동
+    @GetMapping("/register")
+    public String showRegisterForm(Model model) {
+        model.addAttribute("userRegisterDto", new UserRegisterDto());
+        return "/users/register"; // templates/users/register.html
+    }
+
     // 회원가입
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserRegisterDto registerDto) {
+    @ResponseBody
+    public ResponseEntity<String> register(@RequestBody @Valid UserRegisterDto registerDto) {
+        System.out.println("registerDto = " + registerDto.getConfirmPassword());
         userService.register(registerDto);
-        return ResponseEntity.ok("회원가입 성공");
+        return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 
     // 아이디 중복 확인
