@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public final class JOJOAddressResponse {
 
+    private Long id;
     private String label;       // 주소 라벨
     private String zip;         // 우편번호
     private String roadAddr;    // 도로명 주소

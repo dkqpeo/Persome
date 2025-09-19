@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class JOJOUserController {
 
     private final JOJOAddressService JOJOaddressService;
-
-    //배송 조회
     // 배송 조회
     @GetMapping
     public ResponseEntity<JOJOAddressResponse> getAddress(@PathVariable Long id){
@@ -24,7 +22,7 @@ public class JOJOUserController {
     }
 
     // 배송지 추가
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<JOJOAddressResponse> addToAddress(@PathVariable Long id, @RequestBody JOJOAddressRequest joJOAddressRequest) {
         JOJOAddressResponse savedAddress = JOJOaddressService.addToAddress(id, joJOAddressRequest);
         return new ResponseEntity<>(savedAddress, HttpStatus.CREATED);

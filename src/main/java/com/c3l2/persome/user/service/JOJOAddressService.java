@@ -35,8 +35,12 @@ public class JOJOAddressService {
         // 최소 필드만 매핑하여 저장 (요청 DTO에 address 문자열만 존재)
         UserAddress userAddress = UserAddress.builder()
                 .user(user)
-                .roadAddr(request.getAddress())
-                .defaultShipping(false)
+                .label(request.getLabel())
+                .zip(request.getZip())
+                .roadAddr(request.getRoadAddr())
+                .jibunAddr(request.getJibunAddr())
+                .addrDetail(request.getAddrDetail())
+                .defaultShipping(request.getIsDefaultShipping())
                 .build();
 
         jojoUserAddressRepository.save(userAddress);
