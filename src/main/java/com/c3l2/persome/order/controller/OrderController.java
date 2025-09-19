@@ -5,9 +5,11 @@ import com.c3l2.persome.order.dto.response.OrderResponseDto;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.dto.response.OrderSummaryDto;
 import com.c3l2.persome.order.service.OrderService;
+import com.c3l2.persome.user.security.CustomUserDetails;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,19 +23,15 @@ public class OrderController {
 
     //주문 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto request, HttpSession session) {
-        // 세션에서 userId 가져오기
-        Long userId = getUserIdOrThrow(session);
-
-        OrderResponseDto response = orderService.createOrder(userId, request);
+    public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto request, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        OrderResponseDto response = orderService.createOrder(userDetails.getId(), request);
         return ApiResponse.ok("주문이 정상적으로 생성되었습니다.",response );
     }
 
     //주문 목록 조회
     @GetMapping("/my")
-    public ResponseEntity<ApiResponse<List<OrderSummaryDto>>> getOrders(HttpSession session){
-        Long userId = getUserIdOrThrow(session);
-        List<OrderSummaryDto> orders = orderService.getUserOrders(userId);
+    public ResponseEntity<ApiResponse<List<OrderSummaryDto>>> getOrders(@AuthenticationPrincipal CustomUserDetails userDetails){
+        List<OrderSummaryDto> orders = orderService.getUserOrders(userDetails.getId());
         return ApiResponse.ok("주문 내역 조회 성공.",orders);
     }
 
@@ -46,19 +44,8 @@ public class OrderController {
 
     //주문 취소
     @PatchMapping("/{orderId}/cancel")
-    public ResponseEntity<String> cancelOrder(@PathVariable Long orderId, HttpSession session){
-        Long userId = getUserIdOrThrow(session);
-        orderService.cancelOrder(orderId, userId);
+    public ResponseEntity<String> cancelOrder(@PathVariable Long orderId, @AuthenticationPrincipal CustomUserDetails userDetails){
+        orderService.cancelOrder(orderId, userDetails.getId());
         return ResponseEntity.ok("주문이 성공적으로 취소되었습니다.");
-    }
-
-    //세션에서 Id 가져오기
-    private Long getUserIdOrThrow(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-            // → 글로벌 예외 핸들러(@ControllerAdvice)에서 잡아서 401 응답 내려주면 깔끔
-        }
-        return userId;
     }
 }
