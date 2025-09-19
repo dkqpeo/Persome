@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 | Persome</title>
+    <style>
+        body {
+            font-family: "Noto Sans KR", Arial, sans-serif;
+            margin: 0;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .register-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+        }
+
+        .register-container label {
+            font-weight: bold;
+            display: block;
+            margin: 15px 0 5px;
+        }
+
+        .register-container .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .register-container .checkbox-group label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #4C3579;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row div {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4C3579;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3b2760;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .extra-links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .extra-links a {
+            text-decoration: none;
+            color: #4C3579;
+        }
+
+        /* 알림 메시지 스타일 */
+        .alert {
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-field {
+            border-color: #dc3545 !important;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* 로딩 스피너 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4C3579;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<!-- 헤더 -->
+<div th:replace="~{layout/header :: header}"></div>
+
+<!-- 회원가입 폼 -->
+<div class="register-container">
+    <h2>회원가입</h2>
+
+    <!-- 알림 메시지 -->
+    <div id="alertMessage" class="alert"></div>
+
+    <form id="registerForm">
+        <label>아이디</label>
+        <input type="text" id="loginId" name="loginId" placeholder="아이디" required>
+        <div class="error-message" id="loginIdError"></div>
+
+        <label>비밀번호</label>
+        <input type="password" id="password" name="password" placeholder="비밀번호" required>
+        <div class="error-message" id="passwordError"></div>
+
+        <label>비밀번호 확인</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="비밀번호 확인" required>
+        <div class="error-message" id="confirmPasswordError"></div>
+
+        <label>이름</label>
+        <input type="text" id="name" name="name" placeholder="이름" required>
+        <div class="error-message" id="nameError"></div>
+
+        <label>전화번호</label>
+        <input type="text" id="phone" name="phone" placeholder="010-0000-0000" required>
+        <div class="error-message" id="phoneError"></div>
+
+        <label>이메일</label>
+        <input type="email" id="email" name="email" placeholder="example@email.com" required>
+        <div class="error-message" id="emailError"></div>
+
+        <label>생년월일</label>
+        <input type="date" id="birthDate" name="birthDate" required>
+        <div class="error-message" id="birthDateError"></div>
+
+        <label>성별</label>
+        <select id="gender" name="gender" required>
+            <option value="" disabled selected>선택</option>
+            <option value="M">남성</option>
+            <option value="F">여성</option>
+        </select>
+        <div class="error-message" id="genderError"></div>
+
+        <label>주소</label>
+        <div class="form-row">
+            <div>
+                <input type="text" id="zip" name="zip" placeholder="우편번호" required>
+                <div class="error-message" id="zipError"></div>
+            </div>
+            <!-- TODO: 나중에 API 붙일 때 버튼 추가 -->
+            <!-- <div><button type="button" onclick="execDaumPostcode()">주소 찾기</button></div> -->
+        </div>
+        <input type="text" id="roadAddr" name="roadAddr" placeholder="도로명 주소" required>
+        <div class="error-message" id="roadAddrError"></div>
+
+        <input type="text" id="addrDetail" name="addrDetail" placeholder="상세 주소" required>
+        <div class="error-message" id="addrDetailError"></div>
+
+        <label>알림 설정</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" id="emailEnabled" name="emailEnabled"> 이메일 수신 동의</label>
+            <label><input type="checkbox" id="smsEnabled" name="smsEnabled"> 문자 수신 동의</label>
+            <label><input type="checkbox" id="pushEnabled" name="pushEnabled"> 푸시 알림 동의</label>
+        </div>
+
+        <button type="submit" id="submitButton">회원가입</button>
+    </form>
+
+    <div class="extra-links">
+        <a href="/users/login">이미 계정이 있으신가요? 로그인</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // 기존 에러 메시지 초기화
+        clearErrors();
+
+        // 폼 데이터 수집
+        const formData = new FormData(this);
+        const data = {};
+
+        // 체크박스 처리
+        data.emailEnabled = document.getElementById('emailEnabled').checked;
+        data.smsEnabled = document.getElementById('smsEnabled').checked;
+        data.pushEnabled = document.getElementById('pushEnabled').checked;
+
+        // 일반 필드 처리
+        formData.forEach((value, key) => {
+            if (key !== 'emailEnabled' && key !== 'smsEnabled' && key !== 'pushEnabled') {
+                data[key] = value;
+            }
+        });
+
+        // 버튼 비활성화 및 로딩 표시
+        const submitButton = document.getElementById('submitButton');
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="loading"></span>처리 중...';
+
+        // AJAX 요청
+        fetch('/users/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else if (response.status === 400) {
+                    return response.json().then(errorData => {
+                        throw { status: 400, data: errorData };
+                    });
+                } else {
+                    throw new Error('서버 오류가 발생했습니다.');
+                }
+            })
+            .then(data => {
+                // 성공 처리
+                showAlert('회원가입이 완료되었습니다!', 'success');
+                alert(data);
+
+                // 폼 초기화
+                document.getElementById('registerForm').reset();
+
+                // 3초 후 로그인 페이지로 이동
+                setTimeout(() => {
+                    window.location.href = '/users/login';
+                }, 2000);
+            })
+            .catch(error => {
+                if (error.status === 400 && error.data) {
+                    // Validation 에러 처리
+                    handleValidationErrors(error.data);
+                    showAlert('입력 정보를 확인해주세요.', 'error');
+                } else {
+                    // 일반 에러 처리
+                    showAlert(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
+                }
+            })
+            .finally(() => {
+                // 버튼 복구
+                submitButton.disabled = false;
+                submitButton.innerHTML = '회원가입';
+            });
+    });
+
+    // 에러 메시지 초기화
+    function clearErrors() {
+        const errorElements = document.querySelectorAll('.error-message');
+        const inputElements = document.querySelectorAll('input, select');
+
+        errorElements.forEach(element => {
+            element.style.display = 'none';
+            element.textContent = '';
+        });
+
+        inputElements.forEach(element => {
+            element.classList.remove('error-field');
+        });
+    }
+
+    // Validation 에러 처리
+    function handleValidationErrors(errors) {
+        if (errors.fieldErrors) {
+            errors.fieldErrors.forEach(error => {
+                const field = error.field;
+                const message = error.defaultMessage;
+
+                const inputElement = document.getElementById(field);
+                const errorElement = document.getElementById(field + 'Error');
+
+                if (inputElement && errorElement) {
+                    inputElement.classList.add('error-field');
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                }
+            });
+        }
+    }
+
+    // 알림 메시지 표시
+    function showAlert(message, type) {
+        const alertElement = document.getElementById('alertMessage');
+        alertElement.textContent = message;
+        alertElement.className = `alert alert-${type}`;
+        alertElement.style.display = 'block';
+
+        // 5초 후 자동 숨김
+        setTimeout(() => {
+            alertElement.style.display = 'none';
+        }, 5000);
+    }
+
+    // 비밀번호 확인 실시간 검증
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = this.value;
+        const errorElement = document.getElementById('confirmPasswordError');
+
+        if (confirmPassword && password !== confirmPassword) {
+            this.classList.add('error-field');
+            errorElement.textContent = '비밀번호가 일치하지 않습니다.';
+            errorElement.style.display = 'block';
+        } else {
+            this.classList.remove('error-field');
+            errorElement.style.display = 'none';
+        }
+    });
+
+    // 전화번호 포맷팅
+    document.getElementById('phone').addEventListener('input', function() {
+        let value = this.value.replace(/[^0-9]/g, '');
+        if (value.length > 3 && value.length <= 7) {
+            value = value.replace(/(\d{3})(\d+)/, '$1-$2');
+        } else if (value.length > 7) {
+            value = value.replace(/(\d{3})(\d{4})(\d+)/, '$1-$2-$3');
+        }
+        this.value = value;
+    });
+</script>
+
+</body>
+</html>

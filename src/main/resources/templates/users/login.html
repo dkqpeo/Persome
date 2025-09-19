@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 | Persome</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 1200px;
+            min-height: 100vh;
+            font-family: "Noto Sans KR", Arial, sans-serif;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .login-container {
+            max-width: 350px;
+            margin: 100px auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .checkbox-container input {
+            margin-right: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        .alt-login {
+            margin-top: 15px;
+        }
+
+        .kakao-btn {
+            background-color: #FEE500;
+            color: #3A1D1D;
+        }
+
+        .kakao-btn:hover {
+            background-color: #e4d200;
+        }
+
+        .extra-links {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .extra-links a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: #555;
+        }
+
+        /* 알림 메시지 */
+        .alert {
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .alert.success {
+            background-color: #E6E6FA;
+            color: #4C3579;
+        }
+
+        .alert.error {
+            background-color: #ffe6e6;
+            color: #cc0000;
+        }
+
+        .alert.info {
+            background-color: #e6f7ff;
+            color: #005580;
+        }
+    </style>
+</head>
+<body>
+<!-- 헤더 불러오기 -->
+<div th:replace="~{layout/header :: header}"></div>
+
+<div id="alertMessage" class="alert"></div>
+
+<!-- 로그인 폼 -->
+<div class="login-container">
+    <h2>로그인</h2>
+    <form id="loginForm">
+        <input type="text" id="loginId" name="loginId" placeholder="아이디" required/>
+        <input type="password" id="password" name="password" placeholder="비밀번호" required/>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="rememberId">
+            <label for="rememberId">아이디 저장</label>
+        </div>
+
+        <button type="submit">로그인</button>
+    </form>
+
+    <div class="alt-login">
+        <button class="kakao-btn">카카오로 로그인</button>
+    </div>
+
+    <div class="extra-links">
+        <a href="#">아이디 찾기</a> |
+        <a href="#">비밀번호 찾기</a> |
+        <a href="/users/register">회원가입</a>
+    </div>
+</div>
+
+<script>
+    const loginIdInput = document.getElementById("loginId");
+    const rememberIdCheckbox = document.getElementById("rememberId");
+    const alertMessage = document.getElementById("alertMessage");
+
+    // 저장된 아이디 불러오기
+    window.onload = () => {
+        const savedId = localStorage.getItem("savedLoginId");
+        if (savedId) {
+            loginIdInput.value = savedId;
+            rememberIdCheckbox.checked = true;
+        }
+    };
+
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const loginId = document.getElementById("loginId").value;
+        const password = document.getElementById("password").value;
+
+        const rememberIdCheckbox = document.getElementById("rememberId");
+        if (rememberIdCheckbox.checked) {
+            localStorage.setItem("savedLoginId", loginId);
+        } else {
+            localStorage.removeItem("savedLoginId");
+        }
+
+        try {
+            const response = await fetch("/users/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({loginId, password})
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                window.location.href = data.redirectUrl;  // 홈으로 이동
+            } else {
+                const errorMsg = await response.text();
+                alert(errorMsg);
+            }
+        } catch (err) {
+            alert("로그인 중 오류가 발생했습니다.");
+        }
+    });
+
+    // 알림 출력
+    function showAlert(message, type) {
+        alertMessage.textContent = message;
+        alertMessage.className = "alert " + type;
+        alertMessage.style.display = "block";
+        setTimeout(() => {
+            alertMessage.style.display = "none";
+        }, 5000);
+    }
+</script>
+</body>
+</html>
