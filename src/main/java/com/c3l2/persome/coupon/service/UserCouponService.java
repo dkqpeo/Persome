@@ -1,5 +1,7 @@
 package com.c3l2.persome.coupon.service;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.dto.UserCouponResponseDto;
 import com.c3l2.persome.coupon.entity.Coupon;
 import com.c3l2.persome.coupon.entity.UserCoupon;
@@ -45,28 +47,28 @@ public class UserCouponService {
     @Transactional
     public UserCouponResponseDto issueUserCoupon(Long userId, Long couponId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.COUPON_NOT_FOUND));
 
         //쿠폰 상태/기간 체크
         LocalDateTime now = LocalDateTime.now();
         if (coupon.getStatus() != CouponStatus.ACTIVE
                 || coupon.getStartDate().isAfter(now)
                 || coupon.getEndDate().isBefore(now)) {
-            throw new IllegalStateException("쿠폰 발급 불가 상태입니다.");
+            throw new BusinessException(ErrorCode.COUPON_NOT_ACTIVE);
         }
 
         //발급 제한 체크
         if (coupon.getIssueCount() >= coupon.getLimitIssueCount()) {
-            throw new IllegalStateException("쿠폰 발급 한도를 초과했습니다.");
+            throw new BusinessException(ErrorCode.COUPON_ISSUE_LIMIT_EXCEEDED);
         }
 
         //중복 발급 체크
         boolean alreadyIssued = userCouponRepository.existsByUserIdAndCouponId(userId, couponId);
         if (alreadyIssued) {
-            throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
+            throw new BusinessException(ErrorCode.COUPON_ALREADY_ISSUED);
         }
 
         //발급
@@ -94,25 +96,25 @@ public class UserCouponService {
         }
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId)
-                .orElseThrow(() -> new IllegalArgumentException("선택한 쿠폰을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_COUPON_NOT_FOUND));
 
         if (userCoupon.getStatus() != UserCouponStatus.ISSUED) {
-            return orderPrice; // 이미 사용됐거나 만료된 경우
+            return orderPrice; //이미 사용됐거나 만료된 경우
         }
 
         Coupon coupon = userCoupon.getCoupon();
         LocalDateTime now = LocalDateTime.now();
 
-        // 유효기간 체크
+        //유효기간 체크
         if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) return orderPrice;
         if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) return orderPrice;
 
-        // 최소 주문 금액 체크
+        //최소 주문 금액 체크
         if (coupon.getMinOrderPrice() != null && orderPrice.compareTo(coupon.getMinOrderPrice()) < 0) {
             return orderPrice;
         }
 
-        // 할인 금액 계산
+        //할인 금액 계산
         BigDecimal discount = BigDecimal.ZERO;
         if (coupon.getDiscountType() == DiscountType.FIXED) {
             discount = coupon.getDiscountValue();
@@ -121,15 +123,15 @@ public class UserCouponService {
             discount = orderPrice.multiply(rate);
         }
 
-        // 최대 할인 금액 제한
+        //최대 할인 금액 제한
         if (coupon.getMaxDiscountPrice() != null) {
             discount = discount.min(coupon.getMaxDiscountPrice());
         }
 
-        // 최종 금액
+        //최종 금액
         BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
 
-        // 쿠폰 사용 처리
+        //쿠폰 사용 처리
         userCoupon.setStatus(UserCouponStatus.USED);
         userCoupon.setUsedAt(now);
         userCouponRepository.save(userCoupon);

@@ -1,5 +1,7 @@
 package com.c3l2.persome.order.service;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.service.UserCouponService;
 import com.c3l2.persome.delivery.entity.DeliverySnapshot;
 import com.c3l2.persome.order.entity.Order;
@@ -41,7 +43,7 @@ public class OrderService {
     @Transactional
     public OrderResponseDto createOrder(Long userId, OrderRequestDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         //1. 주문 생성
         Order order = request.toEntity(user);
@@ -54,7 +56,7 @@ public class OrderService {
 
         for (OrderRequestDto.OrderProductDto productDto : request.getProducts()) {
             ProductOption option = productOptionRepository.findById(productDto.getProductOptionId())
-                    .orElseThrow(() -> new IllegalArgumentException("상품 옵션을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_OPTION_NOT_FOUND));
 
             Product product = option.getProduct();
 
@@ -112,7 +114,7 @@ public class OrderService {
             PointChangeResponseDto pointResponse = userPointService.changePoints(user.getId(), useDto);
 
             if (!pointResponse.isSuccess()) {
-                throw new IllegalStateException("포인트 사용에 실패했습니다.");
+                throw new BusinessException(ErrorCode.ORDER_POINT_USE_FAILED);
             }
 
             // 할인 금액 적용
@@ -155,7 +157,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponseDto getOrderDetail(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
         return OrderResponseDto.fromEntity(order);
     }
 
@@ -163,18 +165,18 @@ public class OrderService {
     @Transactional
     public void cancelOrder(Long orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
         //주문자가 맞는지 확인
         if (!order.getUser().getId().equals(userId)) {
-            throw new IllegalStateException("본인의 주문만 취소할 수 있습니다.");
+            throw new BusinessException(ErrorCode.ORDER_USER_MISMATCH);
         }
 
         //취소 가능 상태만 허용
         if (!(order.getOrderStatus() == OrderStatus.PENDING
                 || order.getOrderStatus() == OrderStatus.PAID
                 || order.getOrderStatus() == OrderStatus.PROCESSING)) {
-            throw new IllegalStateException("현재 상태에서는 주문을 취소할 수 없습니다.");
+            throw new BusinessException(ErrorCode.ORDER_CANNOT_CANCEL);
         }
 
         //1. 쿠폰 복구
