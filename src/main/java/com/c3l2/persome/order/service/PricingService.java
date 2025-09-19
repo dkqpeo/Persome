@@ -1,5 +1,7 @@
 package com.c3l2.persome.order.service;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.promotion.entity.Promotion;
 import com.c3l2.persome.promotion.entity.PromotionStatus;
 import com.c3l2.persome.product.entity.Product;
@@ -52,7 +54,7 @@ public class PricingService {
                         .filter(price -> price.getType().name().equalsIgnoreCase("ORIGINAL"))
                         .map(price -> BigDecimal.valueOf(price.getPrice()))
                         .findFirst()
-                        .orElseThrow(() -> new IllegalStateException("상품 가격을 찾을 수 없습니다.")));
+                        .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_PRICE_NOT_FOUND)));
     }
 
     //프로모션 적용

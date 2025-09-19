@@ -1,5 +1,7 @@
 package com.c3l2.persome.promotion.service;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.promotion.dto.PromotionDto;
 import com.c3l2.persome.promotion.entity.Promotion;
 import com.c3l2.persome.promotion.entity.PromotionStatus;
@@ -17,8 +19,11 @@ public class PromotionService {
 
     //현재 진행 중인 프로모션 조회
     public List<PromotionDto> getAvailablePromotions(LocalDateTime now) {
-        return promotionRepository.findActivePromotionsWithTargets(PromotionStatus.ACTIVE, now)
-                .stream()
+        List<Promotion> promotions = promotionRepository.findActivePromotionsWithTargets(PromotionStatus.ACTIVE, now);
+        if (promotions.isEmpty()) {
+            throw new BusinessException(ErrorCode.PROMOTION_NOT_ACTIVE);
+        }
+        return promotions.stream()
                 .map(PromotionDto::fromEntity)
                 .toList();
     }
@@ -30,7 +35,13 @@ public class PromotionService {
 
     //특정 이벤트의 프로모션 조회
     public List<PromotionDto> getPromotionsByEvent(Long eventId) {
-        return promotionRepository.findByEventId(eventId).stream()
+        List<Promotion> promotions = promotionRepository.findByEventId(eventId);
+
+        if (promotions.isEmpty()) {
+            throw new BusinessException(ErrorCode.EVENT_PROMOTION_NOT_FOUND);
+        }
+
+        return promotions.stream()
                 .map(PromotionDto::fromEntity)
                 .toList();
     }

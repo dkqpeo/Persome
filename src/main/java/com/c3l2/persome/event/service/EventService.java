@@ -1,5 +1,7 @@
 package com.c3l2.persome.event.service;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.dto.CouponDto;
 import com.c3l2.persome.coupon.service.CouponService;
 import com.c3l2.persome.event.dto.EventDetailResponseDto;
@@ -30,14 +32,14 @@ public class EventService {
     //이벤트 단건 조회
     public EventResponseDto getEvent(Long eventId) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
         return EventResponseDto.fromEntity(event);
     }
 
     //이벤트 상세 조회 - 프로모션, 쿠폰 포함
     public EventDetailResponseDto getEventDetail(Long eventId) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
 
         List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
         List<CouponDto> coupons = couponService.getCouponsByEvent(eventId);
