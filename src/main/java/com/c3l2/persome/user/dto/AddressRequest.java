@@ -13,4 +13,7 @@ public class AddressRequest {
     private String jibunAddr;
     private String addrDetail;
     private Boolean defaultShipping;
+    private String address;
+    private Long userId;
+    private Boolean isDefaultShipping; // 기본 배송지 여부
 }
