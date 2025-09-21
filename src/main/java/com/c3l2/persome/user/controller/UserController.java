@@ -9,16 +9,22 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/users")
@@ -35,7 +41,7 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> login(@RequestBody UserLoginDto loginDto,
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginDto loginDto,
                                         HttpServletRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -55,15 +61,21 @@ public class UserController {
                     SecurityContextHolder.getContext()
             );
 
-            return ResponseEntity.ok("{\"redirectUrl\":\"/\"}");
-        } catch (org.springframework.security.authentication.BadCredentialsException e) {
-            return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
-        } catch (org.springframework.security.authentication.DisabledException e) {
-            return ResponseEntity.badRequest().body("비활성화된 계정입니다. 관리자에게 문의하세요.");
-        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
-            return ResponseEntity.badRequest().body("존재하지 않는 아이디입니다.");
+            // SavedRequest 확인
+            SavedRequest savedRequest = (SavedRequest) session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+            String redirectUrl = (savedRequest != null) ? savedRequest.getRedirectUrl() : "/";
+
+            Map<String, String> result = new HashMap<>();
+            result.put("redirectUrl", redirectUrl);
+            return ResponseEntity.ok(result);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "비밀번호가 일치하지 않습니다."));
+        } catch (DisabledException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "비활성화된 계정입니다. 관리자에게 문의하세요."));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "존재하지 않는 아이디입니다."));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("로그인 처리 중 오류가 발생했습니다.");
+            return ResponseEntity.badRequest().body(Map.of("error", "로그인 처리 중 오류가 발생했습니다."));
         }
     }
 

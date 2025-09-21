@@ -58,13 +58,18 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                 )
-                .requestCache(c -> c.requestCache(new NullRequestCache()))
+                //.requestCache(c -> c.requestCache(new NullRequestCache()))
                 .logout(logout -> logout
                         .logoutUrl("/users/logout")
                         .logoutSuccessUrl("/") // ✅ 로그아웃하면 홈으로
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/users/login"); // 로그인 페이지로 보내기
+                        })
                 );
 
         return http.build();
