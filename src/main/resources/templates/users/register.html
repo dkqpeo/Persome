@@ -70,7 +70,6 @@
         }
 
         button {
-            width: 100%;
             padding: 14px;
             background-color: #4C3579;
             color: white;
@@ -89,6 +88,11 @@
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
+        }
+
+        /* 회원가입 버튼만 꽉 차게 */
+        #submitButton {
+            width: 100%;
         }
 
         .extra-links {
@@ -133,6 +137,40 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .form-row2{
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .form-row2 input {
+            flex: 1; /* ✅ input이 남은 공간을 꽉 채우도록 */
+            padding: 0 12px;
+            font-size: 1em;
+            height: 46px;
+            box-sizing: border-box;
+        }
+
+        .check-id-btn {
+            background-color: #A68DC0; /* ✅ 시그니처 색상 */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0 20px;
+            height: 46px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -2px;
+        }
+
+        .check-id-btn:hover {
+            background-color: #3b2760;
+        }
     </style>
 </head>
 <body>
@@ -148,8 +186,11 @@
 
     <form id="registerForm">
         <label>아이디</label>
-        <input type="text" id="loginId" name="loginId" placeholder="아이디" required>
-        <div class="error-message" id="loginIdError"></div>
+        <div class="form-row2">
+            <input type="text" id="loginId" name="loginId" placeholder="아이디" required>
+            <button type="button" id="checkIdButton" class="check-id-btn">중복확인</button>
+        </div>
+        <div id="idCheckMessage" style="margin-top:5px; font-size:0.9em;"></div>
 
         <label>비밀번호</label>
         <input type="password" id="password" name="password" placeholder="비밀번호" required>
@@ -225,11 +266,50 @@
         }
     });
 
+    let isIdChecked = false; // ✅ 아이디 중복확인 여부 저장
+
+    // 아이디 중복 확인
+    document.getElementById("checkIdButton").addEventListener("click", async () => {
+        const loginId = document.getElementById("loginId").value.trim();
+        const messageBox = document.getElementById("idCheckMessage");
+
+        if (!loginId) {
+            messageBox.textContent = "아이디를 입력해주세요.";
+            messageBox.style.color = "red";
+            isIdChecked = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/users/check-id?loginId=${loginId}`);
+            if (response.ok) {
+                const msg = await response.text();
+                messageBox.textContent = msg; // "사용 가능한 아이디입니다."
+                messageBox.style.color = "green";
+                isIdChecked = true;
+            } else {
+                const msg = await response.text();
+                messageBox.textContent = msg; // "이미 존재하는 아이디입니다."
+                messageBox.style.color = "red";
+                isIdChecked = false;
+            }
+        } catch {
+            messageBox.textContent = "서버 오류가 발생했습니다.";
+            messageBox.style.color = "red";
+            isIdChecked = false;
+        }
+    });
+
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
         // 기존 에러 메시지 초기화
         clearErrors();
+
+        if (!isIdChecked) {  // ✅ 중복확인 안 했으면 막기
+            alert("아이디 중복확인은 필수입니다.");
+            return;
+        }
 
         // 폼 데이터 수집
         const formData = new FormData(this);
@@ -268,8 +348,8 @@
                 if (response.ok) {
                     return response.text();
                 } else if (response.status === 400) {
-                    return response.json().then(errorData => {
-                        throw { status: 400, data: errorData };
+                    return response.text().then(msg => {
+                        throw new Error(msg); // ✅ msg를 그대로 Error 객체에 담음
                     });
                 } else {
                     throw new Error('서버 오류가 발생했습니다.');
@@ -289,10 +369,10 @@
                 if (error.status === 400 && error.data) {
                     // Validation 에러 처리
                     handleValidationErrors(error.data);
-                    showAlert('입력 정보를 확인해주세요.', 'error');
+                    alert("입력 정보를 확인해주세요.");
                 } else {
                     // 일반 에러 처리
-                    showAlert(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
+                    alert(error.message || '회원가입 중 오류가 발생했습니다.');
                 }
             })
             .finally(() => {

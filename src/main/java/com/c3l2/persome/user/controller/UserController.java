@@ -94,9 +94,15 @@ public class UserController {
     @PostMapping("/register")
     @ResponseBody
     public ResponseEntity<String> register(@RequestBody @Valid UserRegisterDto registerDto) {
-        System.out.println("registerDto = " + registerDto.getConfirmPassword());
-        userService.register(registerDto);
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        try {
+            userService.register(registerDto);
+            return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            // 중복 아이디, 중복 이메일 등 → 그대로 프론트로 내려줌
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("서버 오류: " + e.getMessage());
+        }
     }
 
     // 아이디 중복 확인
