@@ -90,6 +90,19 @@ public enum ErrorCode {
     COUPON_APPLY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-009", "쿠폰 적용에 실패했습니다."),
     COUPON_RESTORE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-010", "쿠폰 복구에 실패했습니다.");
 
+    // 상품
+
+    // 상품 옵션
+    PRODUCT_OPTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "PO-001", "해당 상품 옵션이 존재하지 않습니다."),
+
+    // 주문 상품
+    ORDER_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "OI-001", "해당 주문 상품이 존재하지 않습니다."),
+
+    // 리뷰
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),
+    REVIEW_MODIFY_FORBIDDEN(HttpStatus.FORBIDDEN, "R-002", "리뷰를 수정할 권한이 없습니다."),
+    REVIEW_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "R-003", "리뷰를 삭제할 권한이 없습니다.");
+
     private final HttpStatus httpStatus;
     private final String errorCode;
     private final String message;

@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=USER
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        hbm2ddl:
+          auto: create-drop
+        id:
+          new_generator_mappings: true
+  h2:
+    console:
+      enabled: true
+  task:
+    scheduling:
+      enabled: false
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.c3l2.persome: DEBUG
+
+file:
+  upload:
+    review-images: src/test/resources/static/uploads/review-images

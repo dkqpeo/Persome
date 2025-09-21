@@ -1,6 +1,7 @@
 package com.c3l2.persome.review.entity;
 
 import com.c3l2.persome.order.entity.OrderItem;
+import com.c3l2.persome.product.entity.ProductOption;
 import com.c3l2.persome.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "review")
+@Table(name = "review", 
+       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_option_id"}))
 @Getter
 @Builder
 @NoArgsConstructor
@@ -43,6 +45,10 @@ public class Review {
     @JoinColumn(name = "order_item_id", nullable = false)
     private OrderItem orderItem;
 
+    @ManyToOne
+    @JoinColumn(name = "product_option_id")
+    private ProductOption productOption;
+
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ReviewMedia> reviewMedias = new ArrayList<>();
@@ -50,6 +56,20 @@ public class Review {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDate.now();
+    }
+
+    /**
+     * 리뷰 평점 수정
+     */
+    public void updateRating(BigDecimal rating) {
+        this.rating = rating;
+    }
+
+    /**
+     * 리뷰 내용 수정
+     */
+    public void updateContent(String content) {
+        this.content = content;
     }
 
 }
