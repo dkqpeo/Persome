@@ -8,11 +8,52 @@
             font-family: "Noto Sans KR", Arial, sans-serif;
             margin: 0;
         }
+        .order-header {
+            background: #f3e9fa;
+            padding: 30px 0;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+            z-index: 1;
+        }
+
+        .order-header-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .step-indicator {
+            font-size: 1em;
+            color: #999;
+        }
+
+        .step-indicator .step {
+            margin: 0 6px;
+        }
+
+        .step-indicator .active {
+            font-weight: bold;
+            color: #111;
+        }
+
+        .step-indicator .arrow {
+            margin: 0 4px;
+            color: #bbb;
+        }
 
         .order-container {
             max-width: 1000px;
-            margin: 40px auto;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 40px;
         }
 
         h2 {
@@ -130,6 +171,20 @@
 </head>
 <body>
 <div th:replace="~{layout/header :: header}"></div>
+
+<div class="order-header">
+    <div class="order-header-inner">
+        <div class="order-title">주문/결제</div>
+        <div class="step-indicator">
+            <span class="step">01 장바구니</span>
+            <span class="arrow">›</span>
+            <span class="step active">02 주문/결제</span>
+            <span class="arrow">›</span>
+            <span class="step">03 주문완료</span>
+        </div>
+    </div>
+</div>
+
 
 <div class="order-container">
 
@@ -251,7 +306,6 @@
     </div>
 
 </div>
-
 
 <script>
     document.getElementById("orderBtn").addEventListener("click", async () => {
