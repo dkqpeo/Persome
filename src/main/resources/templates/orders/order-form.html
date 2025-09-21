@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 / 결제</title>
+    <style>
+        body {
+            font-family: "Noto Sans KR", Arial, sans-serif;
+            margin: 0;
+        }
+
+        .order-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            margin: 0 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            background: #fff;
+        }
+
+        .section h2 {
+            background: #fafafa;
+            margin: 0;
+            padding: 15px;
+            font-size: 1.1em;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .form-table, .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .form-table th, .form-table td,
+        .summary-table th, .summary-table td {
+            border-bottom: 1px solid #eee;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .form-table th {
+            width: 150px;
+            background: #fafafa;
+            font-weight: normal;
+            color: #444;
+        }
+
+        .product-table {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-collapse: collapse;
+        }
+
+        .product-table th, .product-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .product-table th {
+            background: #fafafa;
+        }
+
+        .product-table td img {
+            max-width: 80px;
+            max-height: 80px;
+            width: auto;
+            height: auto;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .highlight {
+            color: #e60023;
+            font-weight: bold;
+        }
+
+        .payment-bar {
+            margin-top: 40px;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .summary-table th {
+            width: 200px;
+            background: #fafafa;
+        }
+
+        .summary-table td {
+            text-align: right;
+        }
+
+        .summary-table .total th,
+        .summary-table .total td {
+            font-size: 1.2em;
+            font-weight: bold;
+            border-top: 2px solid #A68DC0;
+            background: #f3e9fa;
+        }
+
+        .payment-bar button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #A68DC0;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .payment-bar button:hover {
+            background: #9a74c3;
+        }
+
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<div class="order-container">
+
+    <div class="section">
+        <h2>배송지 정보</h2>
+        <table class="form-table">
+            <tr>
+                <th>받는 분</th>
+                <td><input type="text" placeholder="이름 입력"></td>
+            </tr>
+            <tr>
+                <th>연락처</th>
+                <td><input type="text" placeholder="010-0000-0000"></td>
+            </tr>
+            <tr>
+                <th>주소</th>
+                <td><input type="text" placeholder="도로명 주소 검색"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>배송 요청사항</h2>
+        <table class="form-table">
+            <tr>
+                <th>요청 메시지</th>
+                <td>
+                    <select>
+                        <option>배송 메시지를 선택하세요</option>
+                        <option>문 앞에 두세요</option>
+                        <option>경비실에 맡겨주세요</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>기타 요청사항</th>
+                <td><textarea placeholder="기타 요청사항 입력"></textarea></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>주문 상품</h2>
+        <table class="product-table">
+            <thead>
+            <tr>
+                <th>상품이미지</th>
+                <th>상품정보</th>
+                <th>판매가</th>
+                <th>수량</th>
+                <th>구매가</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><img src="/images/banner-sample.jpg" alt="상품이미지"></td>
+                <td>루에페 퍼퓸 30ml</td>
+                <td>38,000원</td>
+                <td>1</td>
+                <td class="highlight">35,300원</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>쿠폰 / 포인트</h2>
+        <table class="form-table">
+            <tr>
+                <th>쿠폰 사용</th>
+                <td><select><option>적용 가능한 쿠폰 없음</option></select></td>
+            </tr>
+            <tr>
+                <th>포인트 사용</th>
+                <td><input type="number" placeholder="사용할 포인트 입력"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>결제 수단 선택</h2>
+        <table class="form-table">
+            <tr>
+                <th>결제수단</th>
+                <td>
+                    <label><input type="radio" name="payment" checked> 신용카드</label>
+                    <label><input type="radio" name="payment"> PAYCO</label>
+                    <label><input type="radio" name="payment"> 카카오페이</label>
+                    <label><input type="radio" name="payment"> 네이버페이</label>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="payment-bar">
+        <table class="summary-table">
+            <tr>
+                <th>총 상품 금액</th>
+                <td id="product-price">38,000원</td>
+            </tr>
+            <tr>
+                <th>쿠폰 할인</th>
+                <td id="coupon-discount">-2,700원</td>
+            </tr>
+            <tr>
+                <th>배송비</th>
+                <td id="shipping-fee">0원</td>
+            </tr>
+            <tr>
+                <th>포인트 할인</th>
+                <td id="point-discount">0원</td>
+            </tr>
+            <tr class="total">
+                <th>최종 결제금액</th>
+                <td id="final-price">35,300원</td>
+            </tr>
+        </table>
+        <button id="orderBtn">결제하기</button>
+    </div>
+
+</div>
+
+
+<script>
+    document.getElementById("orderBtn").addEventListener("click", async () => {
+        const receiverName = document.querySelector("input[placeholder='이름 입력']").value;
+        const receiverPhone = document.querySelector("input[placeholder='010-0000-0000']").value;
+        const address = document.querySelector("input[placeholder='도로명 주소 검색']").value;
+        const requestMessage = document.querySelector("textarea").value;
+
+        const products = [
+            { productOptionId: 1, quantity: 1 }
+        ];
+
+        const orderData = {
+            products,
+            receiverName,
+            receiverPhone,
+            address,
+            addressDetail: "",
+            receiveType: "DELIVERY",
+            shippingFee: 0,
+            requestMessage,
+            userCouponId: null,
+            usePointAmount: 0
+        };
+
+        try {
+            const response = await fetch("/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                alert(result.message || "주문 생성 중 오류가 발생했습니다.");
+                return;
+            }
+            alert(result.message || "주문이 정상적으로 생성되었습니다.");
+            window.location.href = "/orders/complete";
+        } catch (error) {
+            alert(error.message || "서버와 통신 중 오류가 발생했습니다.");
+        }
+    });
+</script>
+</body>
+</html>
