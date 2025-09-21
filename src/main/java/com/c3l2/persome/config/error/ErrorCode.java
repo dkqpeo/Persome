@@ -47,21 +47,6 @@ public enum ErrorCode {
     ORDER_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "O-010", "이미 완료된 주문입니다."),
     ORDER_SHIPPING_INFO_MISSING(HttpStatus.BAD_REQUEST, "O-011", "배송 정보가 누락되었습니다."),
 
-    // 상품
-    PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-001", "해당 상품을 찾을 수 없습니다."),
-    PRODUCT_OPTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-002", "해당 상품 옵션을 찾을 수 없습니다."),
-    PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "P-003", "상품 재고가 부족합니다."),
-    PRODUCT_OPTION_INVALID(HttpStatus.BAD_REQUEST, "P-004", "잘못된 상품 옵션입니다."),
-    PRODUCT_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "P-005", "상품 가격 정보가 올바르지 않습니다."),
-    PRODUCT_ALREADY_SOLD_OUT(HttpStatus.BAD_REQUEST, "P-006", "이미 품절된 상품입니다."),
-    PRODUCT_INACTIVE(HttpStatus.BAD_REQUEST, "P-007", "판매 중지된 상품입니다."),
-    PRODUCT_CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-008", "해당 상품 카테고리를 찾을 수 없습니다."),
-    PRODUCT_IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-009", "상품 이미지를 찾을 수 없습니다."),
-    PRODUCT_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-010", "상품 저장에 실패했습니다."),
-    PRODUCT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-011", "상품 수정에 실패했습니다."),
-    PRODUCT_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-012", "상품 삭제에 실패했습니다."),
-    PRODUCT_PRICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-013", "상품 가격을 찾을 수 없습니다."),
-
     // 프로모션
     PROMOTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "R-001", "해당 프로모션을 찾을 수 없습니다."),
     PROMOTION_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "R-002", "현재 활성화된 프로모션이 아닙니다."),
@@ -88,15 +73,22 @@ public enum ErrorCode {
     COUPON_ALREADY_ISSUED(HttpStatus.BAD_REQUEST, "C-007", "이미 발급받은 쿠폰입니다."),
     COUPON_MIN_ORDER_PRICE_NOT_MET(HttpStatus.BAD_REQUEST, "C-008", "쿠폰 적용을 위한 최소 주문 금액에 미달합니다."),
     COUPON_APPLY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-009", "쿠폰 적용에 실패했습니다."),
-    COUPON_RESTORE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-010", "쿠폰 복구에 실패했습니다.");
+    COUPON_RESTORE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-010", "쿠폰 복구에 실패했습니다."),
 
     // 상품
-
-    // 상품 옵션
-    PRODUCT_OPTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "PO-001", "해당 상품 옵션이 존재하지 않습니다."),
-
-    // 주문 상품
-    ORDER_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "OI-001", "해당 주문 상품이 존재하지 않습니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-001", "해당 상품을 찾을 수 없습니다."),
+    PRODUCT_OPTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-002", "해당 상품 옵션을 찾을 수 없습니다."),
+    PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "P-003", "상품 재고가 부족합니다."),
+    PRODUCT_OPTION_INVALID(HttpStatus.BAD_REQUEST, "P-004", "잘못된 상품 옵션입니다."),
+    PRODUCT_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "P-005", "상품 가격 정보가 올바르지 않습니다."),
+    PRODUCT_ALREADY_SOLD_OUT(HttpStatus.BAD_REQUEST, "P-006", "이미 품절된 상품입니다."),
+    PRODUCT_INACTIVE(HttpStatus.BAD_REQUEST, "P-007", "판매 중지된 상품입니다."),
+    PRODUCT_CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-008", "해당 상품 카테고리를 찾을 수 없습니다."),
+    PRODUCT_IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-009", "상품 이미지를 찾을 수 없습니다."),
+    PRODUCT_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-010", "상품 저장에 실패했습니다."),
+    PRODUCT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-011", "상품 수정에 실패했습니다."),
+    PRODUCT_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-012", "상품 삭제에 실패했습니다."),
+    PRODUCT_PRICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-013", "상품 가격을 찾을 수 없습니다."),
 
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),
