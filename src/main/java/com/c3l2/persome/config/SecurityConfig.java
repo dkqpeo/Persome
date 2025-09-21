@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +39,7 @@ public class SecurityConfig {
                 )
 
                 .headers(headers -> headers
-                        .cacheControl(cache -> cache.disable()) // 캐시 비활성화
+                        .cacheControl(HeadersConfigurer.CacheControlConfig::disable) // 캐시 비활성화
                 )
 
                 /*.formLogin(form -> form
