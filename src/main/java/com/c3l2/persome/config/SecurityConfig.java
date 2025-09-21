@@ -31,10 +31,14 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/users/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .requestMatchers("/", "/users/login", "/users/check-id").permitAll()
+                        .requestMatchers("/", "/users/terms", "/users/terms/agree", "/users/login", "/users/check-id").permitAll()
                         //.requestMatchers("/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+
+                .headers(headers -> headers
+                        .cacheControl(cache -> cache.disable()) // 캐시 비활성화
                 )
 
                 /*.formLogin(form -> form

@@ -18,6 +18,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -67,9 +69,13 @@ public class UserController {
 
     // 회원가입 페이지 이동
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
-        model.addAttribute("userRegisterDto", new UserRegisterDto());
-        return "/users/register"; // templates/users/register.html
+    public String showRegisterPage(HttpSession session) {
+        Boolean agreed = (Boolean) session.getAttribute("termsAgreed");
+        if (agreed == null || !agreed) {
+            // 약관 동의 안 했으면 /users/terms로 돌려보냄
+            return "redirect:/users/terms";
+        }
+        return "users/register"; // templates/users/register.html
     }
 
     // 회원가입
@@ -129,5 +135,19 @@ public class UserController {
         userService.deleteUser(userDetails.getId());
 
         return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+    }
+
+    // 약관 동의 페이지
+    @GetMapping("/terms")
+    public String showTermsPage() {
+        return "users/terms"; // templates/users/terms.html
+    }
+
+    // 약관 동의 처리
+    @PostMapping("/terms/agree")
+    @ResponseBody
+    public ResponseEntity<String> agreeTerms(HttpSession session) {
+        session.setAttribute("termsAgreed", true); // 세션에 동의 여부 저장
+        return ResponseEntity.ok("약관 동의 완료");
     }
 }

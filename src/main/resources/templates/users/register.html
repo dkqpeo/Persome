@@ -29,17 +29,19 @@
 
         .register-container .checkbox-group {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            flex-direction: column; /* 세로 정렬 */
+            gap: 8px;               /* 항목 간격 */
             margin-top: 5px;
         }
 
         .register-container .checkbox-group label {
-            font-weight: normal;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            white-space: nowrap;      /* 텍스트 줄바꿈 방지 */
+            width: fit-content;       /* label이 텍스트 길이만큼만 차지 */
         }
 
         h2 {
@@ -106,22 +108,6 @@
             margin: 15px 0;
             border-radius: 6px;
             display: none;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .error-field {
-            border-color: #dc3545 !important;
         }
 
         .error-message {
@@ -219,6 +205,9 @@
             <label><input type="checkbox" id="pushEnabled" name="pushEnabled"> 푸시 알림 동의</label>
         </div>
 
+        <!-- 약관 동의 hidden 필드 -->
+        <input type="hidden" id="consentsData" name="consents">
+
         <button type="submit" id="submitButton">회원가입</button>
     </form>
 
@@ -228,6 +217,14 @@
 </div>
 
 <script>
+    // 약관 동의값 불러와 hidden input에 넣기
+    document.addEventListener("DOMContentLoaded", () => {
+        const consents = sessionStorage.getItem("consents");
+        if (consents) {
+            document.getElementById("consentsData").value = consents;
+        }
+    });
+
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -245,10 +242,13 @@
 
         // 일반 필드 처리
         formData.forEach((value, key) => {
-            if (key !== 'emailEnabled' && key !== 'smsEnabled' && key !== 'pushEnabled') {
+            if (!['emailEnabled','smsEnabled','pushEnabled','consents'].includes(key)) {
                 data[key] = value;
             }
         });
+
+        // consents JSON 포함
+        data.consents = JSON.parse(document.getElementById('consentsData').value || "[]");
 
         // 버튼 비활성화 및 로딩 표시
         const submitButton = document.getElementById('submitButton');
@@ -283,10 +283,7 @@
                 // 폼 초기화
                 document.getElementById('registerForm').reset();
 
-                // 3초 후 로그인 페이지로 이동
-                setTimeout(() => {
-                    window.location.href = '/users/login';
-                }, 2000);
+                window.location.href = '/users/login';
             })
             .catch(error => {
                 if (error.status === 400 && error.data) {
