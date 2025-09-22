@@ -1,8 +1,14 @@
 package com.c3l2.persome.payment.entity;
 
+import lombok.*;
+
+@Getter
+@AllArgsConstructor
 public enum PaymentStatus {
-    PENDING,   //결제대기
-    PAID,   //결제완료
-    FAILED,    //결제실패
-    CANCELED   //결제취소
+    PENDING("결제 대기"),
+    PAID("결제 완료"),
+    FAILED("결제 실패"),
+    CANCELED("결제 취소");
+
+    private final String label;
 }

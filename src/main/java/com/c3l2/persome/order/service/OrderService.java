@@ -5,14 +5,18 @@ import com.c3l2.persome.cart.repository.CartItemRepository;
 import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.service.UserCouponService;
+import com.c3l2.persome.delivery.entity.Delivery;
 import com.c3l2.persome.delivery.entity.DeliverySnapshot;
+import com.c3l2.persome.delivery.entity.DeliveryStatus;
 import com.c3l2.persome.order.dto.response.*;
 import com.c3l2.persome.order.entity.Order;
 import com.c3l2.persome.order.entity.OrderItem;
 import com.c3l2.persome.order.entity.ReceiveType;
+import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import com.c3l2.persome.payment.entity.Payment;
 import com.c3l2.persome.payment.entity.PaymentStatus;
 import com.c3l2.persome.payment.repository.PaymentRepository;
+import com.c3l2.persome.payment.service.PaymentService;
 import com.c3l2.persome.point.dto.PointChangeRequestDto;
 import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.entity.TransactionType;
@@ -46,6 +50,7 @@ public class OrderService {
     private final PricingService pricingService;
     private final UserPointService userPointService;
     private final UserCouponService userCouponService;
+    private final PaymentService paymentService;
 
     //주문 준비
     public OrderPrepareResponseDto prepareOrder(List<Long> cartItemIds) {
@@ -104,6 +109,7 @@ public class OrderService {
 
         //1. 주문 생성
         Order order = request.toEntity(user);
+        order.addRequestMessage(request.getRequestMessage());
 
         //2. 주문 상품 생성 + 가격 계산
         BigDecimal originalPrice = BigDecimal.ZERO;   //프로모션 적용 전 총액
@@ -185,12 +191,21 @@ public class OrderService {
 
         //7. 배송 스냅샷 저장
         if (request.getReceiveType() == ReceiveType.DELIVERY) {
+            Delivery delivery = Delivery.builder()
+                    .order(order)
+                    .deliveryStatus(DeliveryStatus.READY)
+                    .build();
+
             DeliverySnapshot snapshot = DeliverySnapshot.builder()
                     .receiverName(request.getReceiverName())
                     .receiverPhone(request.getReceiverPhone())
+                    .zipCode(request.getZipCode())
                     .address(request.getAddress())
                     .addressDetail(request.getAddressDetail())
+                    .delivery(delivery)
                     .build();
+
+            delivery.addSnapshot(snapshot);
             order.registerDelivery(snapshot);
         }
 
@@ -206,10 +221,10 @@ public class OrderService {
                 .paidAt(LocalDateTime.now())
                 .build();
 
-        paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
         savedOrder.paid(); //주문 상태 변경 - 결제 완료
 
-        return OrderResponseDto.fromEntity(savedOrder);
+        return OrderResponseDto.fromEntity(savedOrder,PaymentResponseDto.fromEntity(savedPayment));
     }
 
     //주문 목록 조회
@@ -227,7 +242,8 @@ public class OrderService {
     public OrderResponseDto getOrderDetail(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-        return OrderResponseDto.fromEntity(order);
+        PaymentResponseDto payment = paymentService.getPaymentByOrderId(orderId);
+        return OrderResponseDto.fromEntity(order, payment);
     }
 
     //주문 취소

@@ -2,6 +2,7 @@ package com.c3l2.persome.order.dto.response;
 
 import com.c3l2.persome.delivery.dto.DeliverySnapshotDto;
 import com.c3l2.persome.order.entity.Order;
+import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -24,14 +25,16 @@ public class OrderResponseDto {
     private BigDecimal originalPrice;          // 할인 전 총액
     private DeliverySnapshotDto deliveryInfo;   // 배송 스냅샷
     private List<OrderItemDto> items;           // 주문 상품 목록
+    private PaymentResponseDto payment;
+    private String requestMessage;
 
-    public static OrderResponseDto fromEntity(Order order) {
+    public static OrderResponseDto fromEntity(Order order, PaymentResponseDto payment) {
         return OrderResponseDto.builder()
                 .orderId(order.getId())
                 .userId(order.getUser().getId())
                 .orderDate(order.getOrderDate())
                 .totalPrice(order.getOrderTotalAmount())
-                .orderStatus(order.getOrderStatus().name())
+                .orderStatus(order.getOrderStatus().getLabel())
                 .couponDiscountAmount(order.getCouponDiscountAmount())
                 .pointUsedAmount(order.getPointUsedAmount())
                 .promoDiscountAmount(order.getPromoDiscountAmount())
@@ -42,6 +45,8 @@ public class OrderResponseDto {
                 .items(order.getOrderItems().stream()
                         .map(OrderItemDto::fromEntity)
                         .toList())
+                .payment(payment)
+                .requestMessage(order.getRequestMessage())
                 .build();
     }
 }

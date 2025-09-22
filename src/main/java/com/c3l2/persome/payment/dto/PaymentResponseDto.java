@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 public class PaymentResponseDto {
     private Long paymentId;
     private Long orderId;
-    private PaymentMethod method;
-    private PaymentStatus status;
+    private String method;
+    private String status;
     private BigDecimal amount;
     private LocalDateTime paidAt;
 
@@ -23,8 +23,8 @@ public class PaymentResponseDto {
         return PaymentResponseDto.builder()
                 .paymentId(payment.getId())
                 .orderId(payment.getOrder().getId())
-                .method(payment.getMethod())
-                .status(payment.getStatus())
+                .method(payment.getMethod().getLabel())
+                .status(payment.getStatus().getLabel())
                 .amount(payment.getAmount())
                 .paidAt(payment.getPaidAt())
                 .build();

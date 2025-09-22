@@ -21,6 +21,7 @@ public class OrderRequestDto {
     private String receiverPhone;
     private String address;
     private String addressDetail;
+    private String zipCode;
 
     private ReceiveType receiveType;
     private Integer shippingFee;

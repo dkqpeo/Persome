@@ -77,7 +77,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const orderId = urlParams.get("orderid");
+        const orderId = urlParams.get("orderId");
+        console.log(orderId)
 
         if (orderId) {
             document.getElementById("view-detail").addEventListener("click", (e) => {
