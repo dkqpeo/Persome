@@ -33,6 +33,10 @@ public enum ErrorCode {
     NOT_EXISTS_USER(HttpStatus.BAD_REQUEST, "M-006", "회원정보가 일치하지 않습니다."),
     USERNAME_IS_NULL(HttpStatus.BAD_REQUEST, "M-007", "username이 null 입니다."),
     NOT_ADMIN_USER(HttpStatus.BAD_REQUEST, "M-008", "Admin User가 아닙니다."),
+    WITHDRAWN_USER(HttpStatus.BAD_REQUEST, "M-009", "탈퇴한 회원입니다."),
+    DORMANT_USER(HttpStatus.BAD_REQUEST, "M-010", "휴면 계정입니다."),
+    USER_NOTIFICATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "M-011", "알림 설정이 존재하지 않습니다."),
+    DEFAULT_MEMBERSHIP_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "M-012", "기본 멤버십 레벨(BABY)이 존재하지 않습니다."),
 
     // 주문
     ORDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "O-001", "해당 주문을 찾을 수 없습니다."),
@@ -93,7 +97,10 @@ public enum ErrorCode {
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),
     REVIEW_MODIFY_FORBIDDEN(HttpStatus.FORBIDDEN, "R-002", "리뷰를 수정할 권한이 없습니다."),
-    REVIEW_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "R-003", "리뷰를 삭제할 권한이 없습니다.");
+    REVIEW_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "R-003", "리뷰를 삭제할 권한이 없습니다."),
+
+    // ErrorCode.java
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "서버 내부 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode;

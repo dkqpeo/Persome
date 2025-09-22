@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>아이디 찾기</title>
+    <link rel="stylesheet" href="/css/header.css">
     <style>
         body, html {
             height: 100%;
@@ -105,7 +106,7 @@
 </head>
 <body>
 <!-- 헤더 불러오기 -->
-<div th:replace="~{layout/header :: header}"></div>
+<div id="header"></div>
 
 <main>
 <div class="find-container">
@@ -133,6 +134,8 @@
     </div>
 </div>
 </main>
+
+<script src="/js/header.js"></script>
 <script>
     document.getElementById("findIdForm").addEventListener("submit", function(e){
         e.preventDefault();
@@ -141,7 +144,7 @@
         document.getElementById("resultMessage").innerText = "";
         document.getElementById("errorMessage").innerText = "";
 
-        fetch("/users/find-id", {
+        fetch("/api/users/find-id", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
@@ -150,7 +153,9 @@
             })
         })
             .then(res => {
-                if(!res.ok) throw new Error("사용자를 찾을 수 없습니다.");
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.message); });
+                }
                 return res.text();
             })
             .then(data => {

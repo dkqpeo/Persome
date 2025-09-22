@@ -22,8 +22,13 @@ public class UserResponseDto {
     private Boolean emailEnabled;
     private Boolean smsEnabled;
     private Boolean pushEnabled;
+    private String membershipLevel;
+    private String displayName;
 
     public static UserResponseDto fromEntity(User user, UserNotification userNotification){
+        String membershipLevel = user.getMembershipLevel().getName().name(); // 예: BABY, SILVER
+        String displayName = membershipLevel + " PERSOME " + user.getName() + "님";
+
         return UserResponseDto.builder()
                 .loginId(user.getLoginId())
                 .name(user.getName())
@@ -33,6 +38,8 @@ public class UserResponseDto {
                 .emailEnabled(userNotification.isEmailEnabled())
                 .smsEnabled(userNotification.isSmsEnabled())
                 .pushEnabled(userNotification.isPushEnabled())
+                .membershipLevel(membershipLevel)
+                .displayName(displayName)
                 .build();
     }
 }

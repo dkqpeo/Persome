@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입 | Persome</title>
+    <link rel="stylesheet" href="/css/header.css">
     <style>
         body {
             font-family: "Noto Sans KR", Arial, sans-serif;
@@ -175,7 +176,7 @@
 </head>
 <body>
 <!-- 헤더 -->
-<div th:replace="~{layout/header :: header}"></div>
+<div id="header"></div>
 
 <!-- 회원가입 폼 -->
 <div class="register-container">
@@ -257,6 +258,7 @@
     </div>
 </div>
 
+<script src="/js/header.js"></script>
 <script>
     // 약관 동의값 불러와 hidden input에 넣기
     document.addEventListener("DOMContentLoaded", () => {
@@ -281,15 +283,14 @@
         }
 
         try {
-            const response = await fetch(`/users/check-id?loginId=${loginId}`);
+            const response = await fetch(`/api/users/check-id?loginId=${loginId}`);
+            const result = await response.json();
             if (response.ok) {
-                const msg = await response.text();
-                messageBox.textContent = msg; // "사용 가능한 아이디입니다."
+                messageBox.textContent = result.message;
                 messageBox.style.color = "green";
                 isIdChecked = true;
             } else {
-                const msg = await response.text();
-                messageBox.textContent = msg; // "이미 존재하는 아이디입니다."
+                messageBox.textContent = result.message; // "이미 가입된 회원입니다."
                 messageBox.style.color = "red";
                 isIdChecked = false;
             }
@@ -319,6 +320,7 @@
         data.emailEnabled = document.getElementById('emailEnabled').checked;
         data.smsEnabled = document.getElementById('smsEnabled').checked;
         data.pushEnabled = document.getElementById('pushEnabled').checked;
+        data.consents = JSON.parse(document.getElementById('consentsData').value || "[]");
 
         // 일반 필드 처리
         formData.forEach((value, key) => {
@@ -327,16 +329,13 @@
             }
         });
 
-        // consents JSON 포함
-        data.consents = JSON.parse(document.getElementById('consentsData').value || "[]");
-
         // 버튼 비활성화 및 로딩 표시
         const submitButton = document.getElementById('submitButton');
         submitButton.disabled = true;
         submitButton.innerHTML = '<span class="loading"></span>처리 중...';
 
         // AJAX 요청
-        fetch('/users/register', {
+        fetch('/api/users/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -344,21 +343,18 @@
             },
             body: JSON.stringify(data)
         })
-            .then(response => {
+            .then(async response => {
                 if (response.ok) {
-                    return response.text();
-                } else if (response.status === 400) {
-                    return response.text().then(msg => {
-                        throw new Error(msg); // ✅ msg를 그대로 Error 객체에 담음
-                    });
+                    return response.text(); // 성공은 단순 문자열
                 } else {
-                    throw new Error('서버 오류가 발생했습니다.');
+                    // ❌ 실패 시 JSON 응답을 파싱해서 message만 꺼냄
+                    const error = await response.json().catch(() => null);
+                    const msg = error && error.message ? error.message : '회원가입 중 오류가 발생했습니다.';
+                    throw new Error(msg);
                 }
             })
             .then(data => {
-                // 성공 처리
-                showAlert('회원가입이 완료되었습니다!', 'success');
-                alert(data);
+                alert('회원가입이 완료되었습니다!');
 
                 // 폼 초기화
                 document.getElementById('registerForm').reset();
@@ -366,14 +362,8 @@
                 window.location.href = '/users/login';
             })
             .catch(error => {
-                if (error.status === 400 && error.data) {
-                    // Validation 에러 처리
-                    handleValidationErrors(error.data);
-                    alert("입력 정보를 확인해주세요.");
-                } else {
-                    // 일반 에러 처리
-                    alert(error.message || '회원가입 중 오류가 발생했습니다.');
-                }
+                // 여기서 에러는 항상 Error(message) 형태라 message만 출력됨
+                alert(error.message);
             })
             .finally(() => {
                 // 버튼 복구
@@ -414,19 +404,6 @@
                 }
             });
         }
-    }
-
-    // 알림 메시지 표시
-    function showAlert(message, type) {
-        const alertElement = document.getElementById('alertMessage');
-        alertElement.textContent = message;
-        alertElement.className = `alert alert-${type}`;
-        alertElement.style.display = 'block';
-
-        // 5초 후 자동 숨김
-        setTimeout(() => {
-            alertElement.style.display = 'none';
-        }, 5000);
     }
 
     // 비밀번호 확인 실시간 검증

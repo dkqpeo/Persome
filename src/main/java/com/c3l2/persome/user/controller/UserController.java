@@ -1,5 +1,7 @@
 package com.c3l2.persome.user.controller;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.user.dto.*;
 import com.c3l2.persome.user.security.CustomUserDetails;
 import com.c3l2.persome.user.service.UserService;
@@ -18,26 +20,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-@Controller
-@RequestMapping("/users")
+@RestController
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-
-    @GetMapping("/login")
-    public String login() {
-        return "/users/login";
-    }
 
     // 로그인
     @PostMapping("/login")
@@ -70,128 +63,151 @@ public class UserController {
             result.put("redirectUrl", redirectUrl);
             return ResponseEntity.ok(result);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "비밀번호가 일치하지 않습니다."));
-        } catch (DisabledException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "비활성화된 계정입니다. 관리자에게 문의하세요."));
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "존재하지 않는 아이디입니다."));
+            // ✅ 아이디/비번 불일치 시
+            return ResponseEntity
+                    .status(ErrorCode.INVALID_LOGIN_CREDENTIALS.getHttpStatus())
+                    .body(Map.of("code", ErrorCode.INVALID_LOGIN_CREDENTIALS.getErrorCode(),
+                            "message", ErrorCode.INVALID_LOGIN_CREDENTIALS.getMessage()));
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "로그인 처리 중 오류가 발생했습니다."));
+            return ResponseEntity
+                    .status(ErrorCode.SERVER_ERROR.getHttpStatus())
+                    .body(Map.of("code", ErrorCode.SERVER_ERROR.getErrorCode(),
+                            "message", ErrorCode.SERVER_ERROR.getMessage()));
         }
-    }
-
-    // 회원가입 페이지 이동
-    @GetMapping("/register")
-    public String showRegisterPage(HttpSession session) {
-        Boolean agreed = (Boolean) session.getAttribute("termsAgreed");
-        if (agreed == null || !agreed) {
-            // 약관 동의 안 했으면 /users/terms로 돌려보냄
-            return "redirect:/users/terms";
-        }
-        return "users/register"; // templates/users/register.html
     }
 
     // 회원가입
     @PostMapping("/register")
-    @ResponseBody
-    public ResponseEntity<String> register(@RequestBody @Valid UserRegisterDto registerDto) {
+    public ResponseEntity<?> register(@RequestBody @Valid UserRegisterDto registerDto) {
         try {
             userService.register(registerDto);
             return ResponseEntity.ok("회원가입이 완료되었습니다.");
-        } catch (IllegalArgumentException e) {
-            // 중복 아이디, 중복 이메일 등 → 그대로 프론트로 내려줌
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("서버 오류: " + e.getMessage());
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
         }
     }
 
     // 아이디 중복 확인
     @GetMapping("/check-id")
-    public ResponseEntity<String> checkId(@RequestParam String loginId) {
+    public ResponseEntity<?> checkId(@RequestParam String loginId) {
         if (userService.checkLoginId(loginId)) {
-            return ResponseEntity.badRequest().body("이미 존재하는 아이디입니다.");
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("code", ErrorCode.ALREADY_REGISTERED_USER.getErrorCode(),
+                            "message", ErrorCode.ALREADY_REGISTERED_USER.getMessage()));
         }
-        return ResponseEntity.ok("사용 가능한 아이디입니다.");
+        return ResponseEntity.ok(Map.of("message", "사용 가능한 아이디입니다."));
     }
 
     // 아이디 찾기
-    @GetMapping("/find-id")
-    public String findId() {
-        return "users/find-id";
-    }
-
     @PostMapping("/find-id")
-    public ResponseEntity<String> findId(@RequestBody FindIdRequestDto dto) {
-        String loginId = userService.findIdByNameAndEmail(dto.getName(), dto.getEmail());
+    public ResponseEntity<String> findId(@RequestBody Map<String, String> body) {
+        String name = body.get("name");
+        String email = body.get("email");
+
+        String loginId = userService.findIdByNameAndEmail(name, email);
         return ResponseEntity.ok(loginId);
     }
 
     // 비밀번호 찾기
-    @GetMapping("/find-password")
-    public String findPassword() {
-        return "users/find-password";
-    }
-
-    // 비밀번호 찾기 처리
     @PostMapping("/find-password")
-    public ResponseEntity<String> findPassword(@RequestBody FindPasswordRequestDto dto) {
-        String message = userService.resetPassword(dto.getLoginId(), dto.getEmail());
-        return ResponseEntity.ok(message);
+    public ResponseEntity<?> findPassword(@RequestBody FindPasswordRequestDto dto) {
+        try {
+            String message = userService.resetPassword(dto.getLoginId(), dto.getEmail());
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
+        }
     }
 
     // 알람 설정
     @PatchMapping("/me/notifications")
-    public ResponseEntity<UserNotificationDto> updateNotifications(
+    public ResponseEntity<?> updateNotifications(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UserNotificationDto notificationDto) {
-        UserNotificationDto updated = userService.updateUserNotifications(userDetails.getId(), notificationDto);
-        return ResponseEntity.ok(updated);
+        try {
+            UserNotificationDto updated = userService.updateUserNotifications(userDetails.getId(), notificationDto);
+            return ResponseEntity.ok(updated);
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
+        }
     }
 
     // 회원 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getMyUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        return ResponseEntity.ok(userService.getUser(userDetails.getId()));
+    public ResponseEntity<?> getMyUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            return ResponseEntity.ok(userService.getUser(userDetails.getId()));
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
+        }
     }
 
     // 회원 정보 수정
     @PatchMapping("/me")
-    public ResponseEntity<UserResponseDto> updateMyUser(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                        @RequestBody UserUpdateDto updateDto) {
-        UserResponseDto updated = userService.updateUser(userDetails.getId(), updateDto);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<?> updateMyUser(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                          @RequestBody UserUpdateDto updateDto) {
+        try {
+            UserResponseDto updated = userService.updateUser(userDetails.getId(), updateDto);
+            return ResponseEntity.ok(updated);
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
+        }
     }
 
     // 비밀번호 수정
     @PatchMapping("/me/password")
-    public ResponseEntity<String> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                 @Valid @RequestBody UserPasswordUpdateDto passwordUpdateDto) {
-        userService.updatePassword(userDetails.getId(), passwordUpdateDto);
-
-        return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+    public ResponseEntity<?> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                            @Valid @RequestBody UserPasswordUpdateDto passwordUpdateDto) {
+        try {
+            userService.updatePassword(userDetails.getId(), passwordUpdateDto);
+            return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
+        }
     }
 
     // 회원 탈퇴
     @DeleteMapping("/me")
-    public ResponseEntity<String> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        userService.deleteUser(userDetails.getId());
-
-        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
-    }
-
-    // 약관 동의 페이지
-    @GetMapping("/terms")
-    public String showTermsPage() {
-        return "users/terms"; // templates/users/terms.html
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            userService.deleteUser(userDetails.getId());
+            return ResponseEntity.ok(Map.of("message", "회원 탈퇴가 완료되었습니다."));
+        } catch (BusinessException e) {
+            return ResponseEntity
+                    .status(e.getErrorCode().getHttpStatus())
+                    .body(Map.of("code", e.getErrorCode().getErrorCode(),
+                            "message", e.getErrorCode().getMessage()));
+        }
     }
 
     // 약관 동의 처리
     @PostMapping("/terms/agree")
-    @ResponseBody
-    public ResponseEntity<String> agreeTerms(HttpSession session) {
-        session.setAttribute("termsAgreed", true); // 세션에 동의 여부 저장
-        return ResponseEntity.ok("약관 동의 완료");
+    public ResponseEntity<?> agreeTerms(HttpSession session) {
+        session.setAttribute("termsAgreed", true);
+        return ResponseEntity.ok(Map.of("message", "약관 동의 완료"));
     }
 }
