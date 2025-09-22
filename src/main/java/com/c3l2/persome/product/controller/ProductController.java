@@ -9,9 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {
@@ -19,9 +20,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDetailResponse> getProductDetail(@PathVariable Long id) {
-        log.info("상품 상세 조회 API 호출 id = {}", id);
-        return ResponseEntity.ok(productService.getProductDetail(id));
+    public ResponseEntity<ProductDetailResponse> getProductDetail(@PathVariable("id") Long productId) {
+        log.info("상품 상세 조회 API 호출 productId = {}", productId);
+        return ResponseEntity.ok(productService.getProductDetail(productId));
     }
 
     /**

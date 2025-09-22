@@ -1,25 +1,31 @@
 package com.c3l2.persome.order.controller;
 
 import com.c3l2.persome.common.ApiResponse;
+import com.c3l2.persome.order.dto.response.OrderPrepareResponseDto;
 import com.c3l2.persome.order.dto.response.OrderResponseDto;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.dto.response.OrderSummaryDto;
 import com.c3l2.persome.order.service.OrderService;
 import com.c3l2.persome.user.security.CustomUserDetails;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/orders")
+@RequestMapping("api/orders")
 public class OrderController {
     private final OrderService orderService;
+
+    //주문 준비
+    @GetMapping("/prepare")
+    public ResponseEntity<ApiResponse<OrderPrepareResponseDto>> prepareOrder(@RequestParam List<Long> cartItemIds){
+        OrderPrepareResponseDto response = orderService.prepareOrder(cartItemIds);
+        return ApiResponse.ok("주문 준비 조회 성공",  response);
+    }
 
     //주문 생성
     @PostMapping

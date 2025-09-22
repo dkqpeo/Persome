@@ -102,34 +102,14 @@
 </div>
 
 <script src="/js/header.js"></script>
+<script src="/js/app.js"></script>
 <script>
-    // 더미 AJAX (나중에 /api/products/popular 이런 API로 대체 가능)
-    document.addEventListener("DOMContentLoaded", () => {
-        loadProducts("popularProducts", [
-            {id: 1, name: "퍼스옴 로션", price: "15,000원", img: "/images/sample1.jpg"},
-            {id: 2, name: "퍼스옴 에센스", price: "22,000원", img: "/images/sample2.jpg"},
-            {id: 3, name: "퍼스옴 클렌저", price: "12,000원", img: "/images/sample3.jpg"},
-            {id: 4, name: "퍼스옴 선크림", price: "18,000원", img: "/images/sample4.jpg"}
-        ]);
-
-        loadProducts("newProducts", [
-            {id: 5, name: "NEW 립밤", price: "7,000원", img: "/images/sample5.jpg"},
-            {id: 6, name: "NEW 핸드크림", price: "9,000원", img: "/images/sample6.jpg"},
-            {id: 7, name: "NEW 쿠션팩트", price: "25,000원", img: "/images/sample7.jpg"},
-            {id: 8, name: "NEW 마스크팩", price: "2,000원", img: "/images/sample8.jpg"}
-        ]);
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.Persome) {
+            window.Persome.loadHomeProducts();
+            window.Persome.updateHeaderCartCount();
+        }
     });
-
-    function loadProducts(containerId, products) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = products.map(p => `
-            <div class="product">
-                <img src="${p.img}" alt="${p.name}">
-                <h3>${p.name}</h3>
-                <p>${p.price}</p>
-            </div>
-        `).join("");
-    }
 </script>
 </body>
 </html>

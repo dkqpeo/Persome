@@ -38,11 +38,11 @@ public class ProductService {
                 .ratingAvg(product.getRatingAvg())
                 .status(product.getStatus().name())
                 .brandName(product.getBrand().getName())
-                .firstCategory(product.getCategory().getName())
-                .secondCategory(product.getCategory().getParent() != null ? product.getCategory().getParent().getName() : null)
-                .thirdCategory(product.getCategory().getParent() != null && product.getCategory().getParent().getParent() != null
+                .firstCategory(product.getCategory().getParent() != null && product.getCategory().getParent().getParent() != null
                         ? product.getCategory().getParent().getParent().getName()
                         : null)
+                .secondCategory(product.getCategory().getParent() != null ? product.getCategory().getParent().getName() : null)
+                .thirdCategory(product.getCategory().getName())
                 .images(product.getProductImgs().stream()
                         .map(img -> ProductDetailResponse.ImgResponse.builder()
                                 .imgUrl(img.getImgUrl())

@@ -8,7 +8,6 @@ import com.c3l2.persome.point.entity.UserPoint;
 import com.c3l2.persome.user.entity.*;
 import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.dto.*;
-import com.c3l2.persome.user.exception.DormantAccountException;
 import com.c3l2.persome.user.repository.UserConsentRepository;
 import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

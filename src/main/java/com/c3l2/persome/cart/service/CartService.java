@@ -26,7 +26,7 @@ public class CartService {
 
     // C: 장바구니 담기
     public CartResponseDto addToCart(Long user_id, CartItemRequest cartItemRequest) {
-        Long userId = 1L; // TODO: 인증 연동 시 실제 사용자 ID로 대체 -> userService.findUser(user_id)
+        Long userId = user_id;
 
         // 1. 사용자의 장바구니 찾기
         Cart cart = cartRepository.findByUser_Id(userId);
@@ -62,16 +62,18 @@ public class CartService {
     // R: 장바구니 조회
     public CartResponseDto getCartItems(Long userId) {
         Cart cart = cartRepository.findByUser_Id(userId);
-
-        //return cart != null ? cart.getCartItems() : List.of();
-
+        if (cart == null) {
+            // 카트가 아직 생성되지 않은 사용자: 빈 장바구니 응답
+            return CartResponseDto.builder()
+                    .cartId(null)
+                    .cartItems(java.util.Collections.emptyList())
+                    .build();
+        }
         return CartResponseDto.from(cart);
     }
 
     // U: 장바구니 수량 변경
     public CartItem updateQuantity(Long user_id, CartItemUpdateQuantity updateQuantity) {
-
-        Long userId = 1L; // TODO: 인증 연동 시 실제 사용자 ID로 대체 -> userService.findUser(user_id)
 
         // findById는 Optional을 반환하므로, Optional로 처리 후 orElseThrow로 예외 처리
         CartItem cartItem = cartItemRepository.findById(updateQuantity.getCartItemId())

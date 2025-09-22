@@ -9,6 +9,8 @@ import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,8 +19,12 @@ public class AddressService {
 
     @Transactional
     public AddressResponse updateAddress(Long userId, Long addressId, AddressRequest req) {
-        UserAddress old = userAddressRepository.findByIdAndUserId(addressId, userId)
+        UserAddress old = userAddressRepository.findByIdAndUser_Id(addressId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("주소가 없거나 권한이 없습니다."));
+
+        if (Boolean.TRUE.equals(req.getIsdefaultShipping())) {
+            userAddressRepository.clearDefaultForUser(userId, old.getId());
+        }
 
         UserAddress updated = patch(old, req);
 
@@ -27,7 +33,7 @@ public class AddressService {
 
     @Transactional
     public void deleteAddress(Long userId, Long addressId) {
-        long deleted = userAddressRepository.deleteByIdAndUserId(addressId, userId);
+        long deleted = userAddressRepository.deleteByIdAndUser_Id(addressId, userId);
         if (deleted == 0) {
             throw new IllegalArgumentException("주소가 없거나 권한이 없습니다.");
         }
@@ -46,21 +52,26 @@ public class AddressService {
                 .createdAt(old.getCreatedAt())
                 .build();
     }
-    private final UserAddressRepository UserAddressRepository;
     private final UserRepository userRepository;
 
     // 주소 조회
     public AddressResponse getAddress(Long userId) {
-        UserAddress address = UserAddressRepository.findByUserId(userId);
-        if (address == null) {
-            throw new IllegalArgumentException("Address not found for userId: " + userId);
-        }
+        UserAddress address = userAddressRepository
+                .findTop1ByUser_IdOrderByDefaultShippingDescUpdatedAtDesc(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Address not found for userId: " + userId));
 
-        // UserAddress를 JOJOAddressResponse로 변환하여 반환
         return AddressResponse.from(address);
     }
 
+    // 다건 조회
+    @Transactional(readOnly = true)
+    public List<AddressResponse> getAddresses(Long userId) {
+        return userAddressRepository.findAllByUser_IdOrderByDefaultShippingDescUpdatedAtDesc(userId)
+                .stream().map(AddressResponse::from).collect(Collectors.toList());
+    }
+
     // 주소 추가
+    @Transactional
     public AddressResponse addToAddress(Long userId, AddressRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with userId: " + userId));
@@ -76,10 +87,12 @@ public class AddressService {
                 .defaultShipping(request.getIsdefaultShipping())
                 .build();
 
-        UserAddressRepository.save(userAddress);
+        if (Boolean.TRUE.equals(request.getIsdefaultShipping())) {
+            userAddressRepository.clearDefaultForUser(userId, null);
+        }
 
-        // 주소가 추가된 후, JOJOAddressResponse로 변환하여 반환
-        return AddressResponse.from(userAddress);
+        UserAddress saved = userAddressRepository.save(userAddress);
+        return AddressResponse.from(saved);
     }
 
 }
