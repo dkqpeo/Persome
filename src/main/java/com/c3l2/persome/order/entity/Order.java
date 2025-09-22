@@ -128,6 +128,8 @@ public class Order {
     }
     //주문 취소
     public void cancel() {this.orderStatus = OrderStatus.CANCELED;}
-    //주문 완료
+    //결제 완료
     public void paid() {this.orderStatus = OrderStatus.PAID;}
+    //주문 완료
+    public void completed() {this.orderStatus = OrderStatus.COMPLETED;}
 }

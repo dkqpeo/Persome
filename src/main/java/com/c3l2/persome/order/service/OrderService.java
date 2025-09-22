@@ -10,6 +10,9 @@ import com.c3l2.persome.order.dto.response.*;
 import com.c3l2.persome.order.entity.Order;
 import com.c3l2.persome.order.entity.OrderItem;
 import com.c3l2.persome.order.entity.ReceiveType;
+import com.c3l2.persome.payment.entity.Payment;
+import com.c3l2.persome.payment.entity.PaymentStatus;
+import com.c3l2.persome.payment.repository.PaymentRepository;
 import com.c3l2.persome.point.dto.PointChangeRequestDto;
 import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.entity.TransactionType;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c3l2.persome.order.entity.OrderStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +42,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductOptionRepository productOptionRepository;
     private final CartItemRepository cartItemRepository;
+    private final PaymentRepository paymentRepository;
     private final PricingService pricingService;
     private final UserPointService userPointService;
     private final UserCouponService userCouponService;
@@ -191,6 +196,19 @@ public class OrderService {
 
         //8. 저장 & 응답
         Order savedOrder = orderRepository.save(order);
+
+        //9. 결제
+        Payment payment = Payment.builder()
+                .order(savedOrder)
+                .method(request.getPaymentMethod())
+                .status(PaymentStatus.PAID)
+                .amount(savedOrder.getOrderTotalAmount()) //주문 최종 금액
+                .paidAt(LocalDateTime.now())
+                .build();
+
+        paymentRepository.save(payment);
+        savedOrder.paid(); //주문 상태 변경 - 결제 완료
+
         return OrderResponseDto.fromEntity(savedOrder);
     }
 

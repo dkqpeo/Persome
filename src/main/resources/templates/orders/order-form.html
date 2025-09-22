@@ -339,7 +339,7 @@
                     if (!response.ok) throw new Error(result.message);
 
                     alert(result.message || "주문이 정상적으로 생성되었습니다.");
-                    window.location.href = "/orders/order-complete";
+                    window.location.href = `/orders/complete?orderId=${result.data.orderId}`;
                 } catch (error) {
                     alert(error.message || "서버와 통신 중 오류가 발생했습니다.");
                 }
