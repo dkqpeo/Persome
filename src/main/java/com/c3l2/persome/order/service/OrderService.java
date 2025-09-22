@@ -69,10 +69,10 @@ public class OrderService {
                     .productName(product.getName() + " - " + option.getName())
                     .quantity(qty)
                     .unitPrice(calc.getUnitPrice())
-                    .totalPrice(calc.getTotalPrice())
+                    .totalPrice(calc.getFinalPrice())
                     .status("PREPARE")
                     .imageUrl(product.getProductImgs().isEmpty() ? null :
-                            String.valueOf(product.getProductImgs().getFirst()))
+                            String.valueOf(product.getProductImgs().getFirst().getImgUrl()))
                     .build();
 
             itemDtos.add(itemDto);

@@ -12,10 +12,7 @@
             background: #f3e9fa;
             padding: 30px 0;
             border-bottom: 1px solid #ddd;
-            position: relative;
-            z-index: 1;
         }
-
         .order-header-inner {
             max-width: 1000px;
             margin: 0 auto;
@@ -24,51 +21,42 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .order-title {
             font-size: 1.8em;
             font-weight: bold;
             color: #111;
         }
-
         .step-indicator {
             font-size: 1em;
             color: #999;
         }
-
         .step-indicator .step {
             margin: 0 6px;
         }
-
         .step-indicator .active {
             font-weight: bold;
             color: #111;
         }
-
         .step-indicator .arrow {
             margin: 0 4px;
             color: #bbb;
         }
-
         .order-container {
             max-width: 1000px;
             margin: 0 auto;
             padding: 40px;
         }
-
         h2 {
             font-size: 1.3em;
             margin: 0 0 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #eee;
         }
-
         .section {
             margin-bottom: 30px;
             border: 1px solid #ddd;
             background: #fff;
         }
-
         .section h2 {
             background: #fafafa;
             margin: 0;
@@ -76,72 +64,53 @@
             font-size: 1.1em;
             border-bottom: 1px solid #ddd;
         }
-
-        .form-table, .summary-table {
+        .form-table, .summary-table, .product-table {
             width: 100%;
             border-collapse: collapse;
         }
-
         .form-table th, .form-table td,
         .summary-table th, .summary-table td {
             border-bottom: 1px solid #eee;
             padding: 12px 15px;
             text-align: left;
         }
-
         .form-table th {
             width: 150px;
             background: #fafafa;
             font-weight: normal;
             color: #444;
         }
-
-        .product-table {
-            width: 100%;
-            border: 1px solid #ddd;
-            border-collapse: collapse;
-        }
-
         .product-table th, .product-table td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
         }
-
         .product-table th {
             background: #fafafa;
         }
-
         .product-table td img {
             max-width: 80px;
             max-height: 80px;
-            width: auto;
-            height: auto;
             border-radius: 6px;
             object-fit: cover;
         }
-
         .highlight {
             color: #e60023;
             font-weight: bold;
         }
-
         .payment-bar {
             margin-top: 40px;
             background: #fff;
             padding: 20px;
             border: 1px solid #ddd;
         }
-
         .summary-table th {
             width: 200px;
             background: #fafafa;
         }
-
         .summary-table td {
             text-align: right;
         }
-
         .summary-table .total th,
         .summary-table .total td {
             font-size: 1.2em;
@@ -149,7 +118,6 @@
             border-top: 2px solid #A68DC0;
             background: #f3e9fa;
         }
-
         .payment-bar button {
             margin-top: 20px;
             width: 100%;
@@ -162,9 +130,12 @@
             border-radius: 6px;
             cursor: pointer;
         }
-
         .payment-bar button:hover {
             background: #9a74c3;
+        }
+        .summary-table .discount {
+            color: #e60023;
+            font-weight: bold;
         }
 
     </style>
@@ -186,7 +157,6 @@
 </div>
 
 <div class="order-container">
-
     <div class="section">
         <h2>배송지 정보</h2>
         <table class="form-table">
@@ -215,6 +185,7 @@
                         <option>배송 메시지를 선택하세요</option>
                         <option>문 앞에 두세요</option>
                         <option>경비실에 맡겨주세요</option>
+                        <option>기타</option>
                     </select>
                 </td>
             </tr>
@@ -237,15 +208,7 @@
                 <th>구매가</th>
             </tr>
             </thead>
-            <tbody>
-            <tr>
-                <td><img src="/images/banner-sample.jpg" alt="상품이미지"></td>
-                <td>루에페 퍼퓸 30ml</td>
-                <td>38,000원</td>
-                <td>1</td>
-                <td class="highlight">35,300원</td>
-            </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 
@@ -282,11 +245,11 @@
         <table class="summary-table">
             <tr>
                 <th>총 상품 금액</th>
-                <td id="product-price">38,000원</td>
+                <td id="product-price">0원</td>
             </tr>
             <tr>
                 <th>쿠폰 할인</th>
-                <td id="coupon-discount">-2,700원</td>
+                <td id="coupon-discount" class="discount">-0원</td>
             </tr>
             <tr>
                 <th>배송비</th>
@@ -294,60 +257,100 @@
             </tr>
             <tr>
                 <th>포인트 할인</th>
-                <td id="point-discount">0원</td>
+                <td id="point-discount" class="discount">-0원</td>
             </tr>
             <tr class="total">
                 <th>최종 결제금액</th>
-                <td id="final-price">35,300원</td>
+                <td id="final-price">0원</td>
             </tr>
         </table>
         <button id="orderBtn">결제하기</button>
     </div>
-
 </div>
-
 <script>
-    document.getElementById("orderBtn").addEventListener("click", async () => {
-        const receiverName = document.querySelector("input[placeholder='이름 입력']").value;
-        const receiverPhone = document.querySelector("input[placeholder='010-0000-0000']").value;
-        const address = document.querySelector("input[placeholder='도로명 주소 검색']").value;
-        const requestMessage = document.querySelector("textarea").value;
+    document.addEventListener("DOMContentLoaded", async () => {
+        //cartItemIds 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        //const cartItemIds = urlParams.getAll("cartItemIds");
+        const cartItemIds = [1,2,3];
 
-        const products = [
-            { productOptionId: 1, quantity: 1 }
-        ];
-
-        const orderData = {
-            products,
-            receiverName,
-            receiverPhone,
-            address,
-            addressDetail: "",
-            receiveType: "DELIVERY",
-            shippingFee: 0,
-            requestMessage,
-            userCouponId: null,
-            usePointAmount: 0
-        };
+        if (!cartItemIds) {
+            alert("선택된 장바구니 상품이 없습니다.");
+            window.location.href = "/cart";
+            return;
+        }
+        const formatCurrency = (num) => Number(num).toLocaleString() + "원";
 
         try {
-            const response = await fetch("/orders", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(orderData)
-            });
+            const res = await fetch(`/orders/prepare?cartItemIds=${cartItemIds}`);
+            if (!res.ok) throw new Error("주문 준비 중 오류가 발생했습니다.");
+            const { data, message } = await res.json();
 
-            const result = await response.json();
-            if (!response.ok) {
-                alert(result.message || "주문 생성 중 오류가 발생했습니다.");
-                return;
-            }
-            alert(result.message || "주문이 정상적으로 생성되었습니다.");
-            window.location.href = "/orders/complete";
+            const tbody = document.querySelector(".product-table tbody");
+            tbody.innerHTML = data.items.map(item => `
+                <tr>
+                    <td><img src="${item.imageUrl || '/images/no-image.png'}" alt="상품이미지"></td>
+                    <td>${item.productName}</td>
+                    <td>${formatCurrency(item.unitPrice)}</td>
+                    <td>${item.quantity}</td>
+                    <td class="highlight">${formatCurrency(item.totalPrice)}</td>
+                </tr>
+            `).join("");
+
+            //요약 정보
+            const summary = data.summary;
+            document.getElementById("product-price").textContent = formatCurrency(summary.productPrice);
+            document.getElementById("coupon-discount").textContent = "- " + formatCurrency(summary.discountPrice);
+            document.getElementById("shipping-fee").textContent = formatCurrency(summary.shippingFee);
+            document.getElementById("point-discount").textContent = "- 0원"; // 지금은 포인트 적용 X
+            document.getElementById("final-price").textContent = formatCurrency(summary.finalPrice);
+
+            //결제하기
+            document.getElementById("orderBtn").addEventListener("click", async () => {
+                const receiverName = document.querySelector("input[placeholder='이름 입력']").value;
+                const receiverPhone = document.querySelector("input[placeholder='010-0000-0000']").value;
+                const address = document.querySelector("input[placeholder='도로명 주소 검색']").value;
+                const requestMessage = document.querySelector("textarea").value;
+
+                const orderData = {
+                    products: data.items.map(i => ({
+                        productOptionId: i.productOptionId,
+                        quantity: i.quantity
+                    })),
+                    receiverName,
+                    receiverPhone,
+                    address,
+                    addressDetail: "",
+                    receiveType: "DELIVERY",
+                    shippingFee: data.summary.shippingFee,
+                    requestMessage,
+                    userCouponId: null,
+                    usePointAmount: 0
+                };
+
+                try {
+                    const response = await fetch("/orders", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(orderData)
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+
+                    alert(result.message || "주문이 정상적으로 생성되었습니다.");
+                    window.location.href = "/orders/complete";
+                } catch (error) {
+                    alert(error.message || "서버와 통신 중 오류가 발생했습니다.");
+                }
+            });
         } catch (error) {
-            alert(error.message || "서버와 통신 중 오류가 발생했습니다.");
+            console.error(error);
+            alert("주문 준비 데이터를 불러올 수 없습니다.");
+            window.location.href = "/cart";
         }
     });
 </script>
+
 </body>
 </html>

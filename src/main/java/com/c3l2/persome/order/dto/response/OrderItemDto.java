@@ -19,15 +19,21 @@ public class OrderItemDto {
     private String imageUrl;
 
     public static OrderItemDto fromEntity(OrderItem orderItem) {
+        var product = orderItem.getProductOption().getProduct();
+
+        String imageUrl = null;
+        if (!product.getProductImgs().isEmpty()) {
+            imageUrl = product.getProductImgs().getFirst().getImgUrl();
+        }
         return OrderItemDto.builder()
                 .orderItemId(orderItem.getId())
                 .productOptionId(orderItem.getProductOption().getId())
-                .productName(orderItem.getProductOption().getProduct().getName())
+                .productName(product.getName())
                 .quantity(orderItem.getQuantity())
                 .unitPrice(orderItem.getUnitPrice())
                 .totalPrice(orderItem.getTotalPrice())
                 .status(orderItem.getOrder().getOrderStatus().name())
-                .imageUrl(String.valueOf(orderItem.getProductOption().getProduct().getProductImgs().getFirst()))
+                .imageUrl(imageUrl)
                 .build();
     }
 }
