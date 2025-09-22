@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <title th:text="${firstCategory}">상품 목록</title>
+    <title>상품 목록</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/header.css">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif; }
         .container { max-width: 1180px; margin: 0 auto; padding: 20px; }
@@ -37,20 +38,21 @@
     </style>
 </head>
 <body>
+<div id="header"></div>
 <div class="container">
 
     <!-- 초기 파라미터를 data-* 로 주입 -->
     <div id="page-data"
-         th:data-first="${firstCategory}"
-         th:data-second="${secondCategory}"
-         th:data-third="${thirdCategory}"
-         th:data-page="${page}"
-         th:data-size="${size}">
+         data-first=""
+         data-second=""
+         data-third=""
+         data-page="0"
+         data-size="24">
     </div>
 
     <!-- 상단 네비/타이틀 -->
-    <div class="breadcrumbs" th:text="${firstCategory} + ' > ' + ${secondCategory} + ((${thirdCategory}=='none') ? '' : ' > ' + ${thirdCategory})">스킨케어 > 스킨/토너</div>
-    <h1 class="page-title" th:text="${secondCategory} != 'none' ? ${secondCategory} : ${firstCategory}">카테고리명</h1>
+    <div class="breadcrumbs">스킨케어 > 스킨/토너</div>
+    <h1 class="page-title">카테고리명</h1>
 
     <!-- 툴바: 정렬/VIEW -->
     <div class="toolbar">
@@ -77,19 +79,25 @@
     <!-- 페이지네이션 -->
     <div class="pagination" id="pagination"></div>
 </div>
-
+<script src="/js/header.js"></script>
 <script>
     (function() {
-        const data = document.getElementById('page-data').dataset;
-
+        // URL 파라미터에서 카테고리 정보 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        
         const state = {
-            firstCategory: data.first,
-            secondCategory: data.second,
-            thirdCategory: data.third,
-            page: parseInt(data.page || '0', 10),
-            size: parseInt(data.size || '24', 10),
-            sort: 'POPULAR' // 서버가 지원 시 전달
+            firstCategory: urlParams.get('firstCategory') || 'skincare',
+            secondCategory: urlParams.get('secondCategory') || 'none',
+            thirdCategory: urlParams.get('thirdCategory') || 'none',
+            page: parseInt(urlParams.get('page') || '0', 10),
+            size: parseInt(urlParams.get('size') || '24', 10),
+            sort: urlParams.get('sort') || 'POPULAR'
         };
+        
+        // 페이지 제목과 브레드크럼 업데이트
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePageInfo();
+        });
 
         // API 엔드포인트 (실제 경로로 변경 가능)
         // 사용자 요청: localhost:8080/api/products 사용
@@ -98,6 +106,30 @@
         const $grid = document.getElementById('product-grid');
         const $pgn  = document.getElementById('pagination');
         const $cnt  = document.getElementById('result-count');
+        
+        // 페이지 정보 업데이트 함수
+        function updatePageInfo() {
+            // 브레드크럼 업데이트
+            const breadcrumbs = document.querySelector('.breadcrumbs');
+            let breadcrumbText = state.firstCategory;
+            if (state.secondCategory && state.secondCategory !== 'none') {
+                breadcrumbText += ' > ' + state.secondCategory;
+                if (state.thirdCategory && state.thirdCategory !== 'none') {
+                    breadcrumbText += ' > ' + state.thirdCategory;
+                }
+            }
+            breadcrumbs.textContent = breadcrumbText;
+            
+            // 페이지 제목 업데이트
+            const pageTitle = document.querySelector('.page-title');
+            const displayCategory = (state.secondCategory && state.secondCategory !== 'none') 
+                ? state.secondCategory 
+                : state.firstCategory;
+            pageTitle.textContent = displayCategory;
+            
+            // 페이지 제목 태그 업데이트
+            document.title = displayCategory + ' - PERSOME';
+        }
 
         // 정렬 탭
         document.getElementById('sort-tabs').addEventListener('click', (e) => {
@@ -275,4 +307,4 @@
     })();
 </script>
 </body>
-</html>s
+</html>

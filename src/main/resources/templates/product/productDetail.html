@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/header.css">
     <title>상품 상세 - PERSOME</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -108,7 +109,7 @@
 </head>
 <body>
     <!-- Header -->
-    <div th:insert="layout/header :: header"></div>
+    <div id="header"></div>
 
     <div class="container">
         <!-- Breadcrumb -->
@@ -235,7 +236,7 @@
             </div>
         </div>
     </div>
-
+    <script src="/js/header.js"></script>
     <script>
         let productData = null;
         let currentPrice = 0;
