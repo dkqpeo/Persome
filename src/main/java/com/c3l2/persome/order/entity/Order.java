@@ -59,10 +59,10 @@ public class Order {
     @Column(name = "original_price", precision = 15, scale = 2, nullable = false)
     private BigDecimal originalPrice; //할인 전 총액
 
-    @Column(name = "coupon_discount_amount", precision = 15, scale = 2, nullable = false)
+    @Column(name = "coupon_discount_amount", precision = 15, scale = 2)
     private BigDecimal couponDiscountAmount; //쿠폰 할인 금액
 
-    @Column(name = "point_used_amount", precision = 15, scale = 2, nullable = false)
+    @Column(name = "point_used_amount", precision = 15, scale = 2)
     private BigDecimal pointUsedAmount; //포인트 할인 금액
 
     @Column(name = "promo_discount_amount", precision = 15, scale = 2)
@@ -111,9 +111,13 @@ public class Order {
         this.orderTotalQty = totalQty;
     }
     //쿠폰 할인 적용
-    public void applyCouponDiscount(BigDecimal discountAmount) {this.couponDiscountAmount = discountAmount;}
+    public void applyCouponDiscount(BigDecimal discountAmount) {
+        this.couponDiscountAmount = discountAmount != null ? discountAmount : BigDecimal.ZERO;
+    }
     //포인트 할인 적용
-    public void applyPointDiscount(BigDecimal pointAmount) {this.pointUsedAmount = pointAmount;}
+    public void applyPointDiscount(BigDecimal pointAmount) {
+        this.pointUsedAmount = pointAmount != null ? pointAmount : BigDecimal.ZERO;
+    }
     //배송비 설정
     public void applyShippingFee(int shippingFee) {this.shippingFee = shippingFee;}
     //최종 결제 금액

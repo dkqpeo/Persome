@@ -1,8 +1,10 @@
 package com.c3l2.persome.coupon.dto;
 
 import com.c3l2.persome.coupon.entity.UserCoupon;
+import com.c3l2.persome.coupon.entity.constant.DiscountType;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,6 +19,9 @@ public class UserCouponResponseDto {
     private String status;
     private LocalDateTime expiredAt;
 
+    private DiscountType discountType;   // RATE or FIXED
+    private BigDecimal discountValue;    // 30 (30% or 30원)
+
     public static UserCouponResponseDto fromEntity(UserCoupon userCoupon) {
         return UserCouponResponseDto.builder()
                 .userCouponId(userCoupon.getId())
@@ -25,6 +30,8 @@ public class UserCouponResponseDto {
                 .couponName(userCoupon.getCoupon().getName())
                 .status(userCoupon.getStatus().name())
                 .expiredAt(userCoupon.getExpiredAt())
+                .discountType(userCoupon.getCoupon().getDiscountType())
+                .discountValue(userCoupon.getCoupon().getDiscountValue())
                 .build();
     }
 }
