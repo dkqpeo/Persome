@@ -16,17 +16,23 @@ public class AddressController {
 
     private final AddressService addressService;
 
-    /** 배송 조회 */
+    /** 배송 조회 (단건: 기본/최신 1건) */
+    @GetMapping(params = "mode=single")
+    public ResponseEntity<AddressResponse> getAddressSingle(@PathVariable("userId") Long userId){
+        AddressResponse addressRequest = addressService.getAddress(userId);
+        return ResponseEntity.ok(addressRequest);
+    }
+
+    /** 배송 조회 (다건) */
     @GetMapping
-    public ResponseEntity<AddressResponse> getAddress(@PathVariable Long id){
-        AddressResponse addressRequest = addressService.getAddress(id);
-        return ResponseEntity.ok(addressRequest);  // 변수명을 일치시킴
+    public ResponseEntity<java.util.List<AddressResponse>> getAddresses(@PathVariable("userId") Long userId){
+        return ResponseEntity.ok(addressService.getAddresses(userId));
     }
 
     /** 배송지 추가*/
     @PostMapping
-    public ResponseEntity<AddressResponse> addToAddress(@PathVariable Long id, @RequestBody AddressRequest addressRequest) {
-        AddressResponse savedAddress = addressService.addToAddress(id, addressRequest);
+    public ResponseEntity<AddressResponse> addToAddress(@PathVariable("userId") Long userId, @RequestBody AddressRequest addressRequest) {
+        AddressResponse savedAddress = addressService.addToAddress(userId, addressRequest);
         return new ResponseEntity<>(savedAddress, HttpStatus.CREATED);
     }
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주문/배송 | Persome</title>
+  <style>
+    body { font-family:"Noto Sans KR", Arial, sans-serif; margin:0; }
+    .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+    h2 { font-size: 22px; margin: 10px 0 16px; }
+    .filters { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
+    .filters input, .filters select { padding:8px 10px; border:1px solid #ddd; border-radius:6px; }
+    .filters button { padding:8px 12px; border:none; background:#000; color:#fff; border-radius:6px; cursor:pointer; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border-bottom:1px solid #eee; padding:12px 8px; text-align:left; font-size:14px; }
+    th { color:#555; }
+    .empty { color:#777; text-align:center; padding:20px 0; }
+    .status { font-weight:700; color:#4C3579; }
+    .link { color:#4C3579; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <div class="container">
+    <h2>주문/배송</h2>
+    <div class="filters"><input type="date" id="fromDate" /><span>~</span><input type="date" id="toDate" /><select id="status"><option value="">전체 상태</option><option value="CREATED">주문완료</option><option value="PAID">결제완료</option><option value="SHIPPED">배송중</option><option value="DELIVERED">배송완료</option><option value="CANCELLED">취소</option></select><button id="btnFilter">조회</button></div>
+    <table aria-label="주문 목록"><thead><tr><th>주문번호</th><th>주문일시</th><th>상태</th><th>결제금액</th><th>상세</th></tr></thead><tbody id="ordersBody"><tr><td colspan="5" class="empty">로딩 중…</td></tr></tbody></table>
+  </div>
+  <script src="/js/header.js"></script>
+  <script src="/js/orders.js"></script>
+</body>
+</html>
+

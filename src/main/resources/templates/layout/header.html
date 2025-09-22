@@ -11,10 +11,10 @@
             <span th:if="${#authentication != null and #authentication.authenticated and #authentication.name != 'anonymousUser'}">
                 <span th:text="${#authentication.principal.displayName}"></span>
                     | <a href="/users/logout">로그아웃</a>
-                    | <a href="/users/me">마이페이지</a>
+                    | <a href="/mypage/">마이페이지</a>
             </span>
 
-            | <a href="/cart">
+            | <a href="/cart/">
                 장바구니
                 <span th:if="${#authentication != null and #authentication.authenticated and #authentication.name != 'anonymousUser'}">
                     (<span id="cartCount">0</span>)
@@ -182,4 +182,19 @@
 
         .main-nav li a:hover { color: #A68DC0; }
     </style>
+    <script src="/js/app.js"></script>
+    <!-- 로그인 시 현재 사용자 정보를 전역으로 노출 (Thymeleaf inline JS 필요) -->
+    <script th:if="${#authentication != null and #authentication.authenticated and #authentication.name != 'anonymousUser'}" th:inline="javascript">
+        window.PersomeUser = {
+            id: [[${#authentication.principal.id}]],
+            loginId: /*[[${#authentication.name}]]*/
+        };
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.Persome && typeof window.Persome.updateHeaderCartCount === 'function') {
+                window.Persome.updateHeaderCartCount().catch(() => {});
+            }
+        });
+    </script>
 </div>
