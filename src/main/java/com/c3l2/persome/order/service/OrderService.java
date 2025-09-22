@@ -101,9 +101,9 @@ public class OrderService {
         Order order = request.toEntity(user);
 
         //2. 주문 상품 생성 + 가격 계산
-        BigDecimal originalPrice = BigDecimal.ZERO;   // 프로모션 적용 전 총액
-        BigDecimal promoDiscountTotal = BigDecimal.ZERO; // 프로모션 할인 총액
-        BigDecimal promoAppliedTotal = BigDecimal.ZERO;    // 프로모션 적용 후 총액
+        BigDecimal originalPrice = BigDecimal.ZERO;   //프로모션 적용 전 총액
+        BigDecimal promoDiscountTotal = BigDecimal.ZERO; //프로모션 할인 총액
+        BigDecimal promoAppliedTotal = BigDecimal.ZERO;    //프로모션 적용 후 총액
         int totalQty = 0;
 
         for (OrderRequestDto.OrderProductDto productDto : request.getProducts()) {
@@ -129,9 +129,9 @@ public class OrderService {
             order.getOrderItems().add(orderItem);
 
             // 합계 누적
-            originalPrice = originalPrice.add(calc.getTotalPrice());               // 프로모션 전 총액
-            promoDiscountTotal = promoDiscountTotal.add(calc.getPromoDiscount()); // 프로모션 할인 총액
-            promoAppliedTotal = promoAppliedTotal.add(calc.getFinalPrice());     // 프로모션 적용 후 합계
+            originalPrice = originalPrice.add(calc.getTotalPrice());               //프로모션 전 총액
+            promoDiscountTotal = promoDiscountTotal.add(calc.getPromoDiscount()); //프로모션 할인 총액
+            promoAppliedTotal = promoAppliedTotal.add(calc.getFinalPrice());     //프로모션 적용 후 합계
             totalQty += productDto.getQuantity();
 
         }

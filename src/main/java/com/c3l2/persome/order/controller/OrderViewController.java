@@ -11,4 +11,9 @@ public class OrderViewController {
     String orderPage(){
         return "orders/order-form";
     }
+
+    @GetMapping("/complete")
+    String completeOrderPage(){
+        return "orders/order-complete";
+    }
 }

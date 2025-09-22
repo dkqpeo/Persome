@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 완료</title>
+    <style>
+        body {
+            font-family: "Noto Sans KR", Arial, sans-serif;
+            margin: 0;
+            background-color: #fafafa;
+        }
+        .complete-container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        .complete-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .complete-message {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .btn-area {
+            margin-top: 30px;
+        }
+        .btn-area a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 14px 28px;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        .btn-home {
+            background: #A68DC0;
+            color: #fff;
+        }
+        .btn-home:hover {
+            background: #9a74c3;
+        }
+        .btn-orders {
+            background: #f3e9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        .btn-orders:hover {
+            background: #e6dff3;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<div class="complete-container">
+    <div class="complete-title">주문이 완료되었습니다 🎉</div>
+    <div class="complete-message">
+        소중한 주문 감사합니다.<br>
+        주문 내역은 <strong>마이페이지 &gt; 주문내역</strong>에서 확인하실 수 있습니다.
+    </div>
+    <div class="btn-area">
+        <a href="/" class="btn-home">홈으로 가기</a>
+        <a href="/users/me/orders" class="btn-orders">주문내역 보기</a>
+    </div>
+</div>
+
+</body>
+</html>
