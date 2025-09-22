@@ -3,6 +3,7 @@ package com.c3l2.persome.order.dto.request;
 import com.c3l2.persome.order.entity.Order;
 import com.c3l2.persome.order.entity.OrderStatus;
 import com.c3l2.persome.order.entity.ReceiveType;
+import com.c3l2.persome.payment.entity.PaymentMethod;
 import com.c3l2.persome.user.entity.User;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class OrderRequestDto {
     private String receiverPhone;
     private String address;
     private String addressDetail;
+    private String zipCode;
 
     private ReceiveType receiveType;
     private Integer shippingFee;
@@ -28,6 +30,8 @@ public class OrderRequestDto {
 
     private Long userCouponId;
     private Integer usePointAmount;
+
+    private PaymentMethod paymentMethod;
 
     public Order toEntity(User user) {
         return Order.builder()

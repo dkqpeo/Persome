@@ -27,7 +27,7 @@ public class OrderScheduler {
         );
 
         for (Order order : orders) {
-            order.paid(); //결제 완료 처리
+            order.completed(); //주문 완료 처리
         }
 
         if (!orders.isEmpty()) {

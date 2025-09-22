@@ -32,4 +32,8 @@ public class DeliverySnapshot {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_id", nullable = false, unique = true)
     private Delivery delivery;
+
+    public void linkToDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
 }

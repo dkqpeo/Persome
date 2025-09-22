@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,8 +30,11 @@ public class PaymentController {
 
     //결제 수단 조회
     @GetMapping("/payments/methods")
-    public ResponseEntity<List<PaymentMethod>> getPaymentMethods() {
-        return ResponseEntity.ok(Arrays.asList(PaymentMethod.values()));
+    public ResponseEntity<List<Map<String, String>>> getPaymentMethods() {
+        List<Map<String, String>> methods = Arrays.stream(PaymentMethod.values())
+                .map(pm -> Map.of("code", pm.name(), "label", pm.getLabel()))
+                .toList();
+        return ResponseEntity.ok(methods);
     }
 
     //특정 주문의 결제 조회

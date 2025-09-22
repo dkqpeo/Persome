@@ -120,14 +120,21 @@ public class Order {
     public void calculateFinalAmount(BigDecimal finalPrice) {this.orderTotalAmount = finalPrice;}
     //배송 스냅샷 등록
     public void registerDelivery(DeliverySnapshot snapshot) {
-        this.delivery = Delivery.builder()
+        Delivery delivery = Delivery.builder()
                 .order(this)
                 .deliveryStatus(DeliveryStatus.READY)
-                .deliverySnapshot(snapshot)
                 .build();
+        delivery.addSnapshot(snapshot);
+        this.delivery = delivery;
+    }
+    //베성 요청사항 등록
+    public void addRequestMessage(String requestMessage) {
+        this.requestMessage = requestMessage;
     }
     //주문 취소
     public void cancel() {this.orderStatus = OrderStatus.CANCELED;}
-    //주문 완료
+    //결제 완료
     public void paid() {this.orderStatus = OrderStatus.PAID;}
+    //주문 완료
+    public void completed() {this.orderStatus = OrderStatus.COMPLETED;}
 }

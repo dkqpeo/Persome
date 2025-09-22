@@ -47,4 +47,11 @@ public class Delivery {
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public void addSnapshot(DeliverySnapshot snapshot) {
+        this.deliverySnapshot = snapshot;
+        if (snapshot != null) {
+            snapshot.linkToDelivery(this);
+        }
+    }
 }

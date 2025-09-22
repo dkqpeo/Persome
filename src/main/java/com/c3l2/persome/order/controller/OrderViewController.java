@@ -13,7 +13,8 @@ public class OrderViewController {
     }
 
     @GetMapping("/complete")
-    String completeOrderPage(){
-        return "orders/order-complete";
-    }
+    String completeOrderPage(){ return "orders/order-complete"; }
+
+    @GetMapping("/detail")
+    String orderDetailPage(){ return "orders/order-detail"; }
 }
