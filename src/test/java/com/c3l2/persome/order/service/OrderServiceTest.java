@@ -75,7 +75,7 @@ class OrderServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(productOptionRepository.findById(option.getId())).thenReturn(Optional.of(option));
-        when(pricingService.calculateFinalPrice(any(), any(), any(), anyInt())).thenReturn(priceResult);
+        when(pricingService.calculateFinalPrice(any(), any(), anyInt())).thenReturn(priceResult);
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when

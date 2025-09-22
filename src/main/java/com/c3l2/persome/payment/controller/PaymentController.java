@@ -5,8 +5,10 @@ import com.c3l2.persome.payment.entity.PaymentMethod;
 import com.c3l2.persome.payment.dto.PaymentRequestDto;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import com.c3l2.persome.payment.service.PaymentService;
+import com.c3l2.persome.user.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class PaymentController {
     private final PaymentService paymentService;
 
@@ -38,9 +41,9 @@ public class PaymentController {
     }
 
     //사용자 결제 내역 목록 조회
-    @GetMapping("/users/{userId}/payments")
-    public ResponseEntity<ApiResponse<List<PaymentResponseDto>>> getPaymentByUserId(@PathVariable Long userId) {
-        List<PaymentResponseDto> response = paymentService.getUserPayments(userId);
+    @GetMapping("/users/me/payments")
+    public ResponseEntity<ApiResponse<List<PaymentResponseDto>>> getPaymentByUserId(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<PaymentResponseDto> response = paymentService.getUserPayments(userDetails.getId());
         return  ApiResponse.ok("사용자 결제 내역 목록 조회 성공", response);
     }
 }
