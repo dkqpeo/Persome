@@ -24,6 +24,7 @@
     position: relative;
     height: 60px; /* 높이 고정 */
     margin-bottom: 25px;
+    min-width: 1000px;
 }
 
 /* 로고는 왼쪽 */
@@ -51,6 +52,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%); /* X, Y 둘 다 정중앙 */
+    width: 350px;
 }
 
 .search-box form {
