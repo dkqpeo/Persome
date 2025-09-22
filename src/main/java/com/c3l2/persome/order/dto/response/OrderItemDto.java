@@ -16,6 +16,7 @@ public class OrderItemDto {
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
     private String status;
+    private String imageUrl;
 
     public static OrderItemDto fromEntity(OrderItem orderItem) {
         return OrderItemDto.builder()
@@ -26,6 +27,7 @@ public class OrderItemDto {
                 .unitPrice(orderItem.getUnitPrice())
                 .totalPrice(orderItem.getTotalPrice())
                 .status(orderItem.getOrder().getOrderStatus().name())
+                .imageUrl(String.valueOf(orderItem.getProductOption().getProduct().getProductImgs().getFirst()))
                 .build();
     }
 }

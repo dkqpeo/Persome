@@ -26,7 +26,7 @@ public class PricingService {
 
 
     //최종 가격 계산
-    public PriceCalculationResult calculateFinalPrice(Product product, ProductOption option, User user, int qty) {
+    public PriceCalculationResult calculateFinalPrice(Product product, ProductOption option, int qty) {
         BigDecimal unitPrice = getBasePrice(product)
                 .add(BigDecimal.valueOf(option.getAdditionalAmount())); //단가(기본가격or세일가격 + 옵션 추가금)
 
