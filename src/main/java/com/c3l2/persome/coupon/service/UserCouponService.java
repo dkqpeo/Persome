@@ -91,10 +91,8 @@ public class UserCouponService {
 
     //쿠폰 할인 적용
     public BigDecimal applyCoupon(Long userCouponId, BigDecimal orderPrice) {
-        System.out.println("[쿠폰적용 시작] userCouponId=" + userCouponId + ", orderPrice=" + orderPrice);
 
         if (userCouponId == null) {
-            System.out.println("[쿠폰적용 실패] userCouponId=null");
             return orderPrice;
         }
 
@@ -102,28 +100,20 @@ public class UserCouponService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_COUPON_NOT_FOUND));
 
         if (userCoupon.getStatus() != UserCouponStatus.ISSUED) {
-            System.out.println("[쿠폰적용 불가] status=" + userCoupon.getStatus());
             return orderPrice;
         }
 
         Coupon coupon = userCoupon.getCoupon();
         LocalDateTime now = LocalDateTime.now();
-        System.out.println("[쿠폰정보] type=" + coupon.getDiscountType()
-                + ", value=" + coupon.getDiscountValue()
-                + ", minOrder=" + coupon.getMinOrderPrice()
-                + ", maxDiscount=" + coupon.getMaxDiscountPrice());
 
         if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) {
-            System.out.println("[쿠폰적용 불가] 아직 사용기간 전");
             return orderPrice;
         }
         if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) {
-            System.out.println("[쿠폰적용 불가] 이미 만료됨");
             return orderPrice;
         }
 
         if (coupon.getMinOrderPrice() != null && orderPrice.compareTo(coupon.getMinOrderPrice()) < 0) {
-            System.out.println("[쿠폰적용 불가] 최소주문금액 미달: min=" + coupon.getMinOrderPrice() + ", order=" + orderPrice);
             return orderPrice;
         }
 
@@ -140,8 +130,6 @@ public class UserCouponService {
         }
 
         BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
-
-        System.out.println("[쿠폰적용 완료] 할인금액=" + discount + ", 최종결제금액=" + discountedPrice);
 
         userCoupon.setStatus(UserCouponStatus.USED);
         userCoupon.setUsedAt(now);
