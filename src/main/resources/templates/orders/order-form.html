@@ -282,7 +282,7 @@
         const formatCurrency = (num) => Number(num).toLocaleString() + "원";
 
         try {
-            const res = await fetch(`/orders/prepare?cartItemIds=${cartItemIds}`);
+            const res = await fetch(`api/orders/prepare?cartItemIds=${cartItemIds}`);
             if (!res.ok) throw new Error("주문 준비 중 오류가 발생했습니다.");
             const { data, message } = await res.json();
 
@@ -329,7 +329,7 @@
                 };
 
                 try {
-                    const response = await fetch("/orders", {
+                    const response = await fetch("api/orders", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(orderData)

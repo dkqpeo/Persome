@@ -2,7 +2,6 @@ package com.c3l2.persome.promotion.controller;
 
 import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.promotion.dto.PromotionDto;
-import com.c3l2.persome.promotion.entity.Promotion;
 import com.c3l2.persome.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/promotions")
+@RequestMapping("api/promotions")
 public class PromotionController {
     private final PromotionService promotionService;
 

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping ("/orders")
-public class OrderPageController {
+public class OrderViewController {
     @GetMapping
     String orderPage(){
         return "orders/order-form";
