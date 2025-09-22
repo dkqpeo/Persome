@@ -1,12 +1,13 @@
 package com.c3l2.persome.user.service;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.membership.entity.MembershipLevel;
 import com.c3l2.persome.membership.entity.Name;
 import com.c3l2.persome.point.entity.UserPoint;
 import com.c3l2.persome.user.entity.*;
 import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.dto.*;
-import com.c3l2.persome.user.exception.DormantAccountException;
 import com.c3l2.persome.user.repository.UserConsentRepository;
 import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,20 +32,20 @@ public class UserService {
     // 로그인
     public User login(UserLoginDto loginDto) {
         User user = userRepository.findByLoginId(loginDto.getLoginId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+            throw new BusinessException(ErrorCode.NOT_EQUAL_PASSWORD);
         }
 
         // 상태별 분기
         if (user.getStatus() == Status.WITHDRAWN) {
-            throw new IllegalStateException("탈퇴한 회원입니다.");
+            throw new BusinessException(ErrorCode.WITHDRAWN_USER);
         }
 
         if (user.getStatus() == Status.DORMANT) {
             // 휴면 상태 → 휴면 해제 페이지로 유도
-            throw new DormantAccountException("휴면 상태 계정입니다. 휴면 해제를 진행해주세요.");
+            throw new BusinessException(ErrorCode.DORMANT_USER);
         }
 
         // 정상 회원일 경우 로그인 허용
@@ -59,20 +60,20 @@ public class UserService {
     @Transactional
     public void register(UserRegisterDto dto) {
         if (checkLoginId(dto.getLoginId())) {
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
+            throw new BusinessException(ErrorCode.ALREADY_REGISTERED_USER);
         }
 
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            throw new BusinessException(ErrorCode.ALREADY_EXISTS__EMAIL);
         }
 
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new BusinessException(ErrorCode.NOT_EQUAL_PASSWORD);
         }
 
         // 기본 MembershipLevel = BABY
         MembershipLevel defaultLevel = membershipLevelRepository.findByName(Name.BABY)
-                .orElseThrow(() -> new IllegalStateException("기본 등급(BABY)이 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.DEFAULT_MEMBERSHIP_NOT_FOUND));
 
         User user = dto.toEntity(passwordEncoder, defaultLevel);
 
@@ -137,11 +138,11 @@ public class UserService {
     // 알람설정
     @Transactional
     public UserNotificationDto updateUserNotifications(Long userId, UserNotificationDto dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         UserNotification notification = user.getUserNotification();
         if (notification == null) {
-            throw new IllegalArgumentException("알림 설정이 존재하지 않음.");
+            throw new BusinessException(ErrorCode.USER_NOTIFICATION_NOT_FOUND);
         }
 
         if (dto.getEmailEnabled() != null) {
@@ -163,7 +164,7 @@ public class UserService {
 
     // 회원 정보 조회
     public UserResponseDto getUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         return UserResponseDto.fromEntity(user, user.getUserNotification());
     }
@@ -171,7 +172,7 @@ public class UserService {
     // 회원 정보 수정
     @Transactional
     public UserResponseDto updateUser(Long userId, UserUpdateDto dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         user.updateFromDto(dto);
 
@@ -181,10 +182,10 @@ public class UserService {
     // 비밀번호 변경
     @Transactional
     public void updatePassword(Long userId, UserPasswordUpdateDto dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+            throw new BusinessException(ErrorCode.NOT_EQUAL_PASSWORD);
         }
 
         user.changePassword(passwordEncoder.encode(dto.getNewPassword()));
@@ -193,20 +194,20 @@ public class UserService {
     // 회원 탈퇴
     @Transactional
     public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
         user.changeStatus(Status.WITHDRAWN);
     }
 
     // 시큐리티용 로딩 로직
     @Transactional(readOnly = true)
     public User findByLoginIdOrThrow(String loginId) {
-        User user = userRepository.findByLoginId(loginId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디 입니다."));
+        User user = userRepository.findByLoginId(loginId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         if (user.getStatus() == Status.WITHDRAWN)
-            throw new IllegalArgumentException("탈퇴한 회원입니다.");
+            throw new BusinessException(ErrorCode.WITHDRAWN_USER);
 
         if (user.getStatus() == Status.DORMANT)
-            throw new IllegalArgumentException("휴면 계정입니다.");
+            throw new BusinessException(ErrorCode.DORMANT_USER);
 
         return user;
     }
@@ -215,7 +216,7 @@ public class UserService {
     @Transactional
     public void saveUserConsents(Long userId, List<UserConsentDto> consents) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         for (UserConsentDto dto : consents) {
             PolicyCode code = PolicyCode.valueOf(dto.getPolicyCode());
@@ -233,14 +234,14 @@ public class UserService {
     // 아이디 찾기
     public String findIdByNameAndEmail(String name, String email) {
         User user = userRepository.findByNameAndEmail(name, email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없음"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXISTS_USER));
         return user.getLoginId();
     }
 
     // 비밀번호 임시 발급
     public String resetPassword(String loginId, String email) {
         User user = userRepository.findByLoginIdAndEmail(loginId, email)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
         // 임시 비밀번호 생성
         String tempPassword = generateTempPassword();

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>약관 동의 | Persome</title>
+    <link rel="stylesheet" href="/css/header.css">
     <style>
         body {
             font-family: "Noto Sans KR", Arial, sans-serif;
@@ -18,7 +19,7 @@
             padding: 40px;
             border: 1px solid #eee;
             border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
             background: #fff;
         }
 
@@ -79,7 +80,7 @@
     </style>
 </head>
 <body>
-<div th:replace="~{layout/header :: header}"></div>
+<div id="header"></div>
 
 <div class="terms-container">
     <h2>이용약관 및 개인정보 처리방침</h2>
@@ -108,10 +109,20 @@
     <button type="button" onclick="agreeAndGo()">다음</button>
 </div>
 
+<script src="/js/header.js"></script>
 <script>
-    document.getElementById('allAgree').addEventListener('change', function() {
+    document.getElementById('allAgree').addEventListener('change', function () {
         const checkboxes = document.querySelectorAll('input[name="consents"]');
         checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+
+    // 개별 체크 해제되면 전체 동의도 해제
+    document.querySelectorAll('input[name="consents"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const allAgree = document.getElementById('allAgree');
+            const allChecked = Array.from(document.querySelectorAll('input[name="consents"]')).every(c => c.checked);
+            allAgree.checked = allChecked;
+        });
     });
 
     function agreeAndGo() {
@@ -125,21 +136,25 @@
 
         const consents = [];
         document.querySelectorAll('input[name="consents"]').forEach(cb => {
-            consents.push({ policyCode: cb.value, agreed: cb.checked });
+            consents.push({policyCode: cb.value, agreed: cb.checked});
         });
         sessionStorage.setItem("consents", JSON.stringify(consents));
 
         // 세션에 약관 동의 여부 저장
-        fetch('/users/terms/agree', { method: 'POST' })
+        fetch('/api/users/terms/agree', {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(consents)
+        })
             .then(res => {
                 if (res.ok) {
                     window.location.href = "/users/register";
                 } else {
-                    alert("약관 동의 처리 중 오류가 발생했습니다.");
+                    return res.json().then(err => { throw new Error(err.message); });
                 }
-            });
+            })
+            .catch(err => alert(err.message || "약관 동의 처리 중 오류가 발생했습니다."));
     }
-
 </script>
 </body>
 </html>

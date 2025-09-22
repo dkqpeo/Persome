@@ -1,0 +1,120 @@
+/* 헤더 전체 */
+.site-header {
+    border-bottom: 1px solid #eee;
+    padding: 5px 20px;
+    font-size: 0.9em;
+    font-family: "Noto Sans KR", Arial, sans-serif;
+}
+
+/* 상단 네비 */
+.top-nav {
+    text-align: right;
+    font-size: 0.85em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.top-nav a {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #555;
+}
+
+.header-main {
+    position: relative;
+    height: 60px; /* 높이 고정 */
+    margin-bottom: 25px;
+}
+
+/* 로고는 왼쪽 */
+.logo {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.logo h1 a {
+    text-decoration: none;
+    color: #4C3579;
+    font-weight: bold;
+    font-size: 2em;
+}
+
+.logo h1 .logo-o {
+    color: #B4A0E0;
+}
+
+/* 검색창은 화면 기준 정확히 중앙 */
+.search-box {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* X, Y 둘 다 정중앙 */
+}
+
+.search-box form {
+    display: flex;
+    align-items: center;
+    border: 2px solid #A68DC0;
+    border-radius: 20px;
+    padding: 2px 8px;
+    width: 350px;
+    height: 34px;
+    position: relative;
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9em;
+    padding: 0 35px 0 10px; /* 오른쪽에 버튼 공간 확보 */
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.search-box button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0; /* 불필요한 padding 제거 */
+    margin: 0;
+    width: 18px; /* 아이콘 크기만큼만 차지 */
+    height: 18px;
+    font-size: 16px;
+    line-height: 1;
+    color: #666;
+}
+
+/* 아이콘은 오른쪽 */
+.header-icons {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 하단 네비 메뉴 */
+.main-nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.main-nav li a {
+    text-decoration: none;
+    color: #222;
+    padding: 10px 15px;
+}
+
+.main-nav li a:hover {
+    color: #A68DC0;
+}

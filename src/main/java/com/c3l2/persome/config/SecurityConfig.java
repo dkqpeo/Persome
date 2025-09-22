@@ -1,6 +1,7 @@
 package com.c3l2.persome.config;
 
 import com.c3l2.persome.user.security.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @Slf4j
 @Configuration
@@ -28,15 +28,22 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         // 정적 리소스 무조건 허용
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers("/header.html", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/users/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users/find-id").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/find-id").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users/find-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/find-password").permitAll()
-                        .requestMatchers("/", "/users/terms", "/users/terms/agree", "/users/login", "/users/check-id").permitAll()
+                        // 뷰 컨트롤러 (GET 요청만)
+                        .requestMatchers(HttpMethod.GET, "/users/login", "/users/register",
+                                "/users/find-id", "/users/find-password", "/users/terms").permitAll()
+
+                        // API - 인증 불필요
+                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/check-id").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/find-id").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/find-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/terms/agree").permitAll()
+
+                        // ✅ 홈
+                        .requestMatchers("/").permitAll()
                         //.requestMatchers("/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/orders/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -73,7 +80,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/users/login"); // 로그인 페이지로 보내기
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 반환
                         })
                 );
 
