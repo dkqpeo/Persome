@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>주문 완료</title>
@@ -59,10 +59,10 @@
             background: #e6dff3;
         }
     </style>
+    <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
-<div th:replace="~{layout/header :: header}"></div>
-
+<div id="header"></div>
 <div class="complete-container">
     <div class="complete-title">주문이 완료되었습니다 🎉</div>
     <div class="complete-message">
@@ -74,6 +74,7 @@
         <a href="javascript:void(0);" id="view-detail" class="btn-orders">주문 상세 보기</a>
     </div>
 </div>
+<script src="/js/header.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
