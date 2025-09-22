@@ -15,15 +15,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserCoupon {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Version
-    private Long version; //락
-
-    @Column(name = "used_at", nullable = false)
+    @Column(name = "used_at")
     private LocalDateTime usedAt;
 
     @Enumerated(EnumType.STRING)

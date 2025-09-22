@@ -91,7 +91,10 @@ public class UserCouponService {
 
     //쿠폰 할인 적용
     public BigDecimal applyCoupon(Long userCouponId, BigDecimal orderPrice) {
+        System.out.println("[쿠폰적용 시작] userCouponId=" + userCouponId + ", orderPrice=" + orderPrice);
+
         if (userCouponId == null) {
+            System.out.println("[쿠폰적용 실패] userCouponId=null");
             return orderPrice;
         }
 
@@ -99,22 +102,31 @@ public class UserCouponService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_COUPON_NOT_FOUND));
 
         if (userCoupon.getStatus() != UserCouponStatus.ISSUED) {
-            return orderPrice; //이미 사용됐거나 만료된 경우
+            System.out.println("[쿠폰적용 불가] status=" + userCoupon.getStatus());
+            return orderPrice;
         }
 
         Coupon coupon = userCoupon.getCoupon();
         LocalDateTime now = LocalDateTime.now();
+        System.out.println("[쿠폰정보] type=" + coupon.getDiscountType()
+                + ", value=" + coupon.getDiscountValue()
+                + ", minOrder=" + coupon.getMinOrderPrice()
+                + ", maxDiscount=" + coupon.getMaxDiscountPrice());
 
-        //유효기간 체크
-        if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) return orderPrice;
-        if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) return orderPrice;
-
-        //최소 주문 금액 체크
-        if (coupon.getMinOrderPrice() != null && orderPrice.compareTo(coupon.getMinOrderPrice()) < 0) {
+        if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) {
+            System.out.println("[쿠폰적용 불가] 아직 사용기간 전");
+            return orderPrice;
+        }
+        if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) {
+            System.out.println("[쿠폰적용 불가] 이미 만료됨");
             return orderPrice;
         }
 
-        //할인 금액 계산
+        if (coupon.getMinOrderPrice() != null && orderPrice.compareTo(coupon.getMinOrderPrice()) < 0) {
+            System.out.println("[쿠폰적용 불가] 최소주문금액 미달: min=" + coupon.getMinOrderPrice() + ", order=" + orderPrice);
+            return orderPrice;
+        }
+
         BigDecimal discount = BigDecimal.ZERO;
         if (coupon.getDiscountType() == DiscountType.FIXED) {
             discount = coupon.getDiscountValue();
@@ -123,18 +135,16 @@ public class UserCouponService {
             discount = orderPrice.multiply(rate);
         }
 
-        //최대 할인 금액 제한
         if (coupon.getMaxDiscountPrice() != null) {
             discount = discount.min(coupon.getMaxDiscountPrice());
         }
 
-        //최종 금액
         BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
 
-        //쿠폰 사용 처리
+        System.out.println("[쿠폰적용 완료] 할인금액=" + discount + ", 최종결제금액=" + discountedPrice);
+
         userCoupon.setStatus(UserCouponStatus.USED);
         userCoupon.setUsedAt(now);
-        userCouponRepository.save(userCoupon);
 
         return discountedPrice;
     }

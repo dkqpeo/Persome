@@ -28,7 +28,16 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         // 정적 리소스 무조건 허용
-                        .requestMatchers("/header.html", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/header.html",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/webjars/**"
+                        ).permitAll()
 
                         // 뷰 컨트롤러 (GET 요청만)
                         .requestMatchers(HttpMethod.GET, "/users/login", "/users/register",
