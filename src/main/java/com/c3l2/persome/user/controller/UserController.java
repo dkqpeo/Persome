@@ -9,14 +9,23 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/users")
@@ -33,7 +42,7 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> login(@RequestBody UserLoginDto loginDto,
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginDto loginDto,
                                         HttpServletRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -53,32 +62,48 @@ public class UserController {
                     SecurityContextHolder.getContext()
             );
 
-            return ResponseEntity.ok("{\"redirectUrl\":\"/\"}");
-        } catch (org.springframework.security.authentication.BadCredentialsException e) {
-            return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
-        } catch (org.springframework.security.authentication.DisabledException e) {
-            return ResponseEntity.badRequest().body("비활성화된 계정입니다. 관리자에게 문의하세요.");
-        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
-            return ResponseEntity.badRequest().body("존재하지 않는 아이디입니다.");
+            // SavedRequest 확인
+            SavedRequest savedRequest = (SavedRequest) session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+            String redirectUrl = (savedRequest != null) ? savedRequest.getRedirectUrl() : "/";
+
+            Map<String, String> result = new HashMap<>();
+            result.put("redirectUrl", redirectUrl);
+            return ResponseEntity.ok(result);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "비밀번호가 일치하지 않습니다."));
+        } catch (DisabledException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "비활성화된 계정입니다. 관리자에게 문의하세요."));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "존재하지 않는 아이디입니다."));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("로그인 처리 중 오류가 발생했습니다.");
+            return ResponseEntity.badRequest().body(Map.of("error", "로그인 처리 중 오류가 발생했습니다."));
         }
     }
 
     // 회원가입 페이지 이동
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
-        model.addAttribute("userRegisterDto", new UserRegisterDto());
-        return "/users/register"; // templates/users/register.html
+    public String showRegisterPage(HttpSession session) {
+        Boolean agreed = (Boolean) session.getAttribute("termsAgreed");
+        if (agreed == null || !agreed) {
+            // 약관 동의 안 했으면 /users/terms로 돌려보냄
+            return "redirect:/users/terms";
+        }
+        return "users/register"; // templates/users/register.html
     }
 
     // 회원가입
     @PostMapping("/register")
     @ResponseBody
     public ResponseEntity<String> register(@RequestBody @Valid UserRegisterDto registerDto) {
-        System.out.println("registerDto = " + registerDto.getConfirmPassword());
-        userService.register(registerDto);
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        try {
+            userService.register(registerDto);
+            return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            // 중복 아이디, 중복 이메일 등 → 그대로 프론트로 내려줌
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("서버 오류: " + e.getMessage());
+        }
     }
 
     // 아이디 중복 확인
@@ -88,6 +113,31 @@ public class UserController {
             return ResponseEntity.badRequest().body("이미 존재하는 아이디입니다.");
         }
         return ResponseEntity.ok("사용 가능한 아이디입니다.");
+    }
+
+    // 아이디 찾기
+    @GetMapping("/find-id")
+    public String findId() {
+        return "users/find-id";
+    }
+
+    @PostMapping("/find-id")
+    public ResponseEntity<String> findId(@RequestBody FindIdRequestDto dto) {
+        String loginId = userService.findIdByNameAndEmail(dto.getName(), dto.getEmail());
+        return ResponseEntity.ok(loginId);
+    }
+
+    // 비밀번호 찾기
+    @GetMapping("/find-password")
+    public String findPassword() {
+        return "users/find-password";
+    }
+
+    // 비밀번호 찾기 처리
+    @PostMapping("/find-password")
+    public ResponseEntity<String> findPassword(@RequestBody FindPasswordRequestDto dto) {
+        String message = userService.resetPassword(dto.getLoginId(), dto.getEmail());
+        return ResponseEntity.ok(message);
     }
 
     // 알람 설정
@@ -129,5 +179,19 @@ public class UserController {
         userService.deleteUser(userDetails.getId());
 
         return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+    }
+
+    // 약관 동의 페이지
+    @GetMapping("/terms")
+    public String showTermsPage() {
+        return "users/terms"; // templates/users/terms.html
+    }
+
+    // 약관 동의 처리
+    @PostMapping("/terms/agree")
+    @ResponseBody
+    public ResponseEntity<String> agreeTerms(HttpSession session) {
+        session.setAttribute("termsAgreed", true); // 세션에 동의 여부 저장
+        return ResponseEntity.ok("약관 동의 완료");
     }
 }

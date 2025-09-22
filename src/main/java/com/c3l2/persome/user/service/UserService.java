@@ -3,13 +3,11 @@ package com.c3l2.persome.user.service;
 import com.c3l2.persome.membership.entity.MembershipLevel;
 import com.c3l2.persome.membership.entity.Name;
 import com.c3l2.persome.point.entity.UserPoint;
-import com.c3l2.persome.user.entity.Status;
-import com.c3l2.persome.user.entity.User;
-import com.c3l2.persome.user.entity.UserAddress;
-import com.c3l2.persome.user.entity.UserNotification;
+import com.c3l2.persome.user.entity.*;
 import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.dto.*;
 import com.c3l2.persome.user.exception.DormantAccountException;
+import com.c3l2.persome.user.repository.UserConsentRepository;
 import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +25,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MembershipLevelRepository membershipLevelRepository;
+    private final UserConsentRepository userConsentRepository;
+    //private final EmailService emailService;
 
     // 로그인
     public User login(UserLoginDto loginDto) {
@@ -75,7 +76,7 @@ public class UserService {
 
         User user = dto.toEntity(passwordEncoder, defaultLevel);
 
-        // 주소 초기화
+        // 주소
         UserAddress address = UserAddress.builder()
                 .user(user)
                 .zip(dto.getZip())
@@ -85,7 +86,19 @@ public class UserService {
                 .build();
         user.getUserAddresses().add(address);
 
-        // 알림 설정 초기화
+        // 약관 동의
+        if (dto.getConsents() != null) {
+            for (UserConsentDto userConsentDto : dto.getConsents()) {
+                UserConsent consent = UserConsent.builder()
+                        .policyCode(PolicyCode.valueOf(userConsentDto.getPolicyCode()))
+                        .isAgreed(userConsentDto.isAgreed())
+                        .user(user)
+                        .build();
+                user.getUserConsents().add(consent);
+            }
+        }
+
+        // 알림 설정
         UserNotification notification = UserNotification.builder()
                 .user(user)
                 .emailEnabled(Boolean.TRUE.equals(dto.getEmailEnabled()))
@@ -97,10 +110,11 @@ public class UserService {
         // 포인트 초기화
         UserPoint userPoint = UserPoint.builder()
                 .user(user)
-                .balance(0)
+                .balance(0) // 가입 시 기본 포인트 0
                 .build();
         user.initUserPoint(userPoint);
 
+        // 저장 (cascade 때문에 전부 같이 저장됨)
         userRepository.save(user);
     }
 
@@ -195,5 +209,52 @@ public class UserService {
             throw new IllegalArgumentException("휴면 계정입니다.");
 
         return user;
+    }
+
+    // 약관동의 저장
+    @Transactional
+    public void saveUserConsents(Long userId, List<UserConsentDto> consents) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        for (UserConsentDto dto : consents) {
+            PolicyCode code = PolicyCode.valueOf(dto.getPolicyCode());
+
+            UserConsent consent = UserConsent.builder()
+                    .user(user)
+                    .policyCode(code)
+                    .isAgreed(dto.isAgreed())
+                    .build();
+
+            userConsentRepository.save(consent);
+        }
+    }
+
+    // 아이디 찾기
+    public String findIdByNameAndEmail(String name, String email) {
+        User user = userRepository.findByNameAndEmail(name, email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 없음"));
+        return user.getLoginId();
+    }
+
+    // 비밀번호 임시 발급
+    public String resetPassword(String loginId, String email) {
+        User user = userRepository.findByLoginIdAndEmail(loginId, email)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // 임시 비밀번호 생성
+        String tempPassword = generateTempPassword();
+
+        // 🔥 지금은 주석 처리 (나중에 메일 발송 기능 붙일 때 활성화)
+        // user.setPassword(passwordEncoder.encode(tempPassword));
+        // userRepository.save(user);
+        // emailService.sendPasswordEmail(user.getEmail(), tempPassword);
+
+        // 지금은 단순 안내 문구만 반환
+        return "임시 비밀번호를 이메일로 발송했습니다.";
+    }
+
+    private String generateTempPassword() {
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 }

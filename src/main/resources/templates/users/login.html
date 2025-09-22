@@ -62,7 +62,7 @@
         button {
             width: 100%;
             padding: 12px;
-            background-color: black;
+            background-color: #3b2760;
             color: white;
             border: none;
             border-radius: 6px;
@@ -72,7 +72,7 @@
         }
 
         button:hover {
-            background-color: #333;
+            background-color: #A68DC0;
         }
 
         .alt-login {
@@ -135,9 +135,11 @@
 <!-- 로그인 폼 -->
 <div class="login-container">
     <h2>로그인</h2>
-    <form id="loginForm">
-        <input type="text" id="loginId" name="loginId" placeholder="아이디" required/>
-        <input type="password" id="password" name="password" placeholder="비밀번호" required/>
+    <form id="loginForm" autocomplete="off">
+        <input type="text" id="loginId" name="loginId" placeholder="아이디"
+               required autocomplete="username"/>
+        <input type="password" id="password" name="password" placeholder="비밀번호"
+               required autocomplete="new-password"/>
 
         <div class="checkbox-container">
             <input type="checkbox" id="rememberId">
@@ -152,25 +154,33 @@
     </div>
 
     <div class="extra-links">
-        <a href="#">아이디 찾기</a> |
-        <a href="#">비밀번호 찾기</a> |
-        <a href="/users/register">회원가입</a>
+        <a href="/users/find-id">아이디 찾기</a> |
+        <a href="/users/find-password">비밀번호 찾기</a> |
+        <a href="/users/terms">회원가입</a>
     </div>
 </div>
 
 <script>
     const loginIdInput = document.getElementById("loginId");
+    const passwordInput = document.getElementById("password");
     const rememberIdCheckbox = document.getElementById("rememberId");
     const alertMessage = document.getElementById("alertMessage");
 
-    // 저장된 아이디 불러오기
-    window.onload = () => {
+    // ✅ 저장된 아이디 불러오기 (항상 DOM 준비 후 실행)
+    document.addEventListener("DOMContentLoaded", () => {
         const savedId = localStorage.getItem("savedLoginId");
         if (savedId) {
             loginIdInput.value = savedId;
             rememberIdCheckbox.checked = true;
         }
-    };
+    });
+
+    // ✅ 뒤로가기 캐시 시 비밀번호 제거
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            passwordInput.value = "";
+        }
+    });
 
     document.getElementById("loginForm").addEventListener("submit", async function (e) {
         e.preventDefault();

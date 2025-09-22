@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Builder
@@ -57,6 +58,9 @@ public class UserRegisterDto {
     private Boolean emailEnabled;
     private Boolean smsEnabled;
     private Boolean pushEnabled;
+
+    // 약관 동의 목록
+    private List<UserConsentDto> consents;
 
     public User toEntity(PasswordEncoder passwordEncoder, MembershipLevel defaultLevel) {
 

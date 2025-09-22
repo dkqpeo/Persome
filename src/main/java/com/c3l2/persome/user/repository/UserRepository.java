@@ -18,16 +18,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
         // 로그인: loginId로 유저 찾기 / 비밀번호 찾기: 1단계
         Optional<User> findByLoginId(String loginId);
 
-        // 아이디 찾기: 이름 찾기
-        Optional<User> findByName(String name);
-        // 아이디 찾기: 이메일로 찾기
-        Optional<User> findByEmail(String email);
-        // 아이디 찾기: 전화번호로 찾기
-        Optional<User> findByPhone(String phone);
-
         // 비밀번호 찾기 (아이디 + 전화번호)
         Optional<User> findByLoginIdAndPhone(String loginId, String phone);
 
         // 휴면 전환
         List<User> findByStatusAndLastLoginAtBefore(Status status, LocalDateTime cutoff);
+
+        // 아이디 찾기(이름 + 이메일)
+        Optional<User> findByNameAndEmail(String name, String email);
+
+        Optional<User> findByLoginIdAndEmail(String loginId, String email);
 }

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>약관 동의 | Persome</title>
+    <style>
+        body {
+            font-family: "Noto Sans KR", Arial, sans-serif;
+            margin: 0;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .terms-container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 40px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #4C3579;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 0;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+
+        .checkbox-item input {
+            accent-color: #4C3579;
+        }
+
+        .required {
+            color: #d9534f;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        .terms-box {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 12px;
+            margin: 10px 0 20px 25px;
+            font-size: 0.9em;
+            background: #f9f9f9;
+            border-radius: 6px;
+            line-height: 1.5em;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #3b2760;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #A68DC0;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<div class="terms-container">
+    <h2>이용약관 및 개인정보 처리방침</h2>
+
+    <label class="checkbox-item">
+        <input type="checkbox" id="allAgree">
+        모든 약관에 동의합니다.
+    </label>
+
+    <label class="checkbox-item">
+        <input type="checkbox" name="consents" value="TERMS_OF_SERVICE" required>
+        이용약관 동의 <span class="required">(필수)</span>
+    </label>
+    <div class="terms-box">
+        <p>여기에 이용약관 전문 내용이 들어갑니다.</p>
+    </div>
+
+    <label class="checkbox-item">
+        <input type="checkbox" name="consents" value="PRIVACY_POLICY" required>
+        개인정보 수집 및 이용 동의 <span class="required">(필수)</span>
+    </label>
+    <div class="terms-box">
+        <p>여기에 개인정보 처리방침 전문 내용이 들어갑니다.</p>
+    </div>
+
+    <button type="button" onclick="agreeAndGo()">다음</button>
+</div>
+
+<script>
+    document.getElementById('allAgree').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('input[name="consents"]');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+
+    function agreeAndGo() {
+        const required = document.querySelectorAll('input[required]');
+        for (let r of required) {
+            if (!r.checked) {
+                alert("필수 약관에 동의해야 회원가입이 가능합니다.");
+                return;
+            }
+        }
+
+        const consents = [];
+        document.querySelectorAll('input[name="consents"]').forEach(cb => {
+            consents.push({ policyCode: cb.value, agreed: cb.checked });
+        });
+        sessionStorage.setItem("consents", JSON.stringify(consents));
+
+        // 세션에 약관 동의 여부 저장
+        fetch('/users/terms/agree', { method: 'POST' })
+            .then(res => {
+                if (res.ok) {
+                    window.location.href = "/users/register";
+                } else {
+                    alert("약관 동의 처리 중 오류가 발생했습니다.");
+                }
+            });
+    }
+
+</script>
+</body>
+</html>

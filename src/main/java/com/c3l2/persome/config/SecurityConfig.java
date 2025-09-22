@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,10 +32,18 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/users/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .requestMatchers("/", "/users/login", "/users/check-id").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/find-id").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/find-id").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/find-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/find-password").permitAll()
+                        .requestMatchers("/", "/users/terms", "/users/terms/agree", "/users/login", "/users/check-id").permitAll()
                         //.requestMatchers("/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+
+                .headers(headers -> headers
+                        .cacheControl(HeadersConfigurer.CacheControlConfig::disable) // 캐시 비활성화
                 )
 
                 /*.formLogin(form -> form
@@ -53,13 +62,18 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                 )
-                .requestCache(c -> c.requestCache(new NullRequestCache()))
+                //.requestCache(c -> c.requestCache(new NullRequestCache()))
                 .logout(logout -> logout
                         .logoutUrl("/users/logout")
                         .logoutSuccessUrl("/") // ✅ 로그아웃하면 홈으로
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/users/login"); // 로그인 페이지로 보내기
+                        })
                 );
 
         return http.build();

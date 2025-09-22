@@ -29,17 +29,19 @@
 
         .register-container .checkbox-group {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            flex-direction: column; /* 세로 정렬 */
+            gap: 8px;               /* 항목 간격 */
             margin-top: 5px;
         }
 
         .register-container .checkbox-group label {
-            font-weight: normal;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            white-space: nowrap;      /* 텍스트 줄바꿈 방지 */
+            width: fit-content;       /* label이 텍스트 길이만큼만 차지 */
         }
 
         h2 {
@@ -68,7 +70,6 @@
         }
 
         button {
-            width: 100%;
             padding: 14px;
             background-color: #4C3579;
             color: white;
@@ -89,6 +90,11 @@
             cursor: not-allowed;
         }
 
+        /* 회원가입 버튼만 꽉 차게 */
+        #submitButton {
+            width: 100%;
+        }
+
         .extra-links {
             text-align: center;
             margin-top: 20px;
@@ -106,22 +112,6 @@
             margin: 15px 0;
             border-radius: 6px;
             display: none;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .error-field {
-            border-color: #dc3545 !important;
         }
 
         .error-message {
@@ -147,6 +137,40 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .form-row2{
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .form-row2 input {
+            flex: 1; /* ✅ input이 남은 공간을 꽉 채우도록 */
+            padding: 0 12px;
+            font-size: 1em;
+            height: 46px;
+            box-sizing: border-box;
+        }
+
+        .check-id-btn {
+            background-color: #A68DC0; /* ✅ 시그니처 색상 */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0 20px;
+            height: 46px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -2px;
+        }
+
+        .check-id-btn:hover {
+            background-color: #3b2760;
+        }
     </style>
 </head>
 <body>
@@ -162,8 +186,11 @@
 
     <form id="registerForm">
         <label>아이디</label>
-        <input type="text" id="loginId" name="loginId" placeholder="아이디" required>
-        <div class="error-message" id="loginIdError"></div>
+        <div class="form-row2">
+            <input type="text" id="loginId" name="loginId" placeholder="아이디" required>
+            <button type="button" id="checkIdButton" class="check-id-btn">중복확인</button>
+        </div>
+        <div id="idCheckMessage" style="margin-top:5px; font-size:0.9em;"></div>
 
         <label>비밀번호</label>
         <input type="password" id="password" name="password" placeholder="비밀번호" required>
@@ -219,6 +246,9 @@
             <label><input type="checkbox" id="pushEnabled" name="pushEnabled"> 푸시 알림 동의</label>
         </div>
 
+        <!-- 약관 동의 hidden 필드 -->
+        <input type="hidden" id="consentsData" name="consents">
+
         <button type="submit" id="submitButton">회원가입</button>
     </form>
 
@@ -228,11 +258,58 @@
 </div>
 
 <script>
+    // 약관 동의값 불러와 hidden input에 넣기
+    document.addEventListener("DOMContentLoaded", () => {
+        const consents = sessionStorage.getItem("consents");
+        if (consents) {
+            document.getElementById("consentsData").value = consents;
+        }
+    });
+
+    let isIdChecked = false; // ✅ 아이디 중복확인 여부 저장
+
+    // 아이디 중복 확인
+    document.getElementById("checkIdButton").addEventListener("click", async () => {
+        const loginId = document.getElementById("loginId").value.trim();
+        const messageBox = document.getElementById("idCheckMessage");
+
+        if (!loginId) {
+            messageBox.textContent = "아이디를 입력해주세요.";
+            messageBox.style.color = "red";
+            isIdChecked = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/users/check-id?loginId=${loginId}`);
+            if (response.ok) {
+                const msg = await response.text();
+                messageBox.textContent = msg; // "사용 가능한 아이디입니다."
+                messageBox.style.color = "green";
+                isIdChecked = true;
+            } else {
+                const msg = await response.text();
+                messageBox.textContent = msg; // "이미 존재하는 아이디입니다."
+                messageBox.style.color = "red";
+                isIdChecked = false;
+            }
+        } catch {
+            messageBox.textContent = "서버 오류가 발생했습니다.";
+            messageBox.style.color = "red";
+            isIdChecked = false;
+        }
+    });
+
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
         // 기존 에러 메시지 초기화
         clearErrors();
+
+        if (!isIdChecked) {  // ✅ 중복확인 안 했으면 막기
+            alert("아이디 중복확인은 필수입니다.");
+            return;
+        }
 
         // 폼 데이터 수집
         const formData = new FormData(this);
@@ -245,10 +322,13 @@
 
         // 일반 필드 처리
         formData.forEach((value, key) => {
-            if (key !== 'emailEnabled' && key !== 'smsEnabled' && key !== 'pushEnabled') {
+            if (!['emailEnabled','smsEnabled','pushEnabled','consents'].includes(key)) {
                 data[key] = value;
             }
         });
+
+        // consents JSON 포함
+        data.consents = JSON.parse(document.getElementById('consentsData').value || "[]");
 
         // 버튼 비활성화 및 로딩 표시
         const submitButton = document.getElementById('submitButton');
@@ -268,8 +348,8 @@
                 if (response.ok) {
                     return response.text();
                 } else if (response.status === 400) {
-                    return response.json().then(errorData => {
-                        throw { status: 400, data: errorData };
+                    return response.text().then(msg => {
+                        throw new Error(msg); // ✅ msg를 그대로 Error 객체에 담음
                     });
                 } else {
                     throw new Error('서버 오류가 발생했습니다.');
@@ -283,19 +363,16 @@
                 // 폼 초기화
                 document.getElementById('registerForm').reset();
 
-                // 3초 후 로그인 페이지로 이동
-                setTimeout(() => {
-                    window.location.href = '/users/login';
-                }, 2000);
+                window.location.href = '/users/login';
             })
             .catch(error => {
                 if (error.status === 400 && error.data) {
                     // Validation 에러 처리
                     handleValidationErrors(error.data);
-                    showAlert('입력 정보를 확인해주세요.', 'error');
+                    alert("입력 정보를 확인해주세요.");
                 } else {
                     // 일반 에러 처리
-                    showAlert(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
+                    alert(error.message || '회원가입 중 오류가 발생했습니다.');
                 }
             })
             .finally(() => {
