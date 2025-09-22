@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>주문 / 결제</title>
@@ -139,10 +139,10 @@
         }
 
     </style>
+    <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
-<div th:replace="~{layout/header :: header}"></div>
-
+<div id="header"></div>
 <div class="order-header">
     <div class="order-header-inner">
         <div class="order-title">주문/결제</div>
@@ -266,6 +266,7 @@
         <button id="orderBtn">결제하기</button>
     </div>
 </div>
+<script src="/js/header.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const urlParams = new URLSearchParams(window.location.search);

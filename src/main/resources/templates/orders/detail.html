@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,10 +18,10 @@
         th { color:#555; }
         .muted { color:#777; }
     </style>
+    <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
-<div th:replace="~{layout/header :: header}"></div>
-
+<div id="header"></div>
 <div class="container">
     <h2>주문 상세</h2>
     <div class="meta" id="meta">-</div>
@@ -56,7 +56,7 @@
         <div class="bd" id="priceBox">-</div>
     </div>
 </div>
-
+<script src="/js/header.js"></script>
 <script src="/js/order-detail.js"></script>
 </body>
 </html>

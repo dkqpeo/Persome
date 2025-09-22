@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" >
 <head>
     <meta charset="UTF-8">
     <title>주문 상세</title>
@@ -66,10 +66,10 @@
             background: #9a74c3;
         }
     </style>
+    <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
-<div th:replace="~{layout/header :: header}"></div>
-
+<div id="header"></div>
 <div class="container">
     <h2>주문 상세 내역</h2>
 
@@ -118,7 +118,7 @@
         <a href="/users/me/orders">주문 내역</a>
     </div>
 </div>
-
+<script src="/js/header.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -173,6 +173,5 @@
         }
     });
 </script>
-
 </body>
 </html>
