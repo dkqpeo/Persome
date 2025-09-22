@@ -6,6 +6,7 @@ import com.c3l2.persome.product.entity.Category;
 import com.c3l2.persome.product.dto.OrderSearchDto;
 import com.c3l2.persome.product.dto.PageProductAllResponse;
 import com.c3l2.persome.product.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
@@ -63,7 +64,8 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/products")
-    public PageProductAllResponse getProductForCategory(@RequestParam String firstCategory,
+    public PageProductAllResponse getProductForCategory(HttpServletRequest req,
+                                                        @RequestParam String firstCategory,
                                                         @RequestParam(defaultValue = "none") String secondCategory,
                                                         @RequestParam(defaultValue = "none") String thirdCategory,
                                                         @RequestParam(defaultValue = "0") int page,
@@ -71,6 +73,7 @@ public class CategoryController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info("getProductForCategory {}", auth.getName());
+        log.info("req uri {}", req.getRequestURI());
 
         // 페이지 크기 검증 (30, 50, 100만 허용)
         if(size != 24 && size != 36) {
