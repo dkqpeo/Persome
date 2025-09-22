@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>아이디 찾기</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 80px;
+            min-height: auto;
+        }
+
+        .find-container {
+            width: 400px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 0.9em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-find {
+            background-color: #A68DC0;
+            color: #fff;
+        }
+
+        .btn-back {
+            background-color: #f1f3f5;
+            color: #333;
+        }
+
+        .links {
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .links a {
+            margin: 0 8px;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .error {
+            margin-top: 20px;
+            font-size: 0.95em;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<!-- 헤더 불러오기 -->
+<div th:replace="~{layout/header :: header}"></div>
+
+<main>
+<div class="find-container">
+    <h2>아이디 찾기</h2>
+    <form id="findIdForm">
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+        </div>
+        <button type="submit" class="btn-find">아이디 찾기</button>
+        <button type="button" class="btn-back" onclick="location.href='/users/login'">로그인으로 돌아가기</button>
+    </form>
+
+    <!-- 결과 출력 영역 -->
+    <div id="resultMessage" class="result"></div>
+    <div id="errorMessage" class="error"></div>
+
+    <div class="links">
+        <a href="/users/find-password">비밀번호 찾기</a> |
+        <a href="/users/terms">회원가입</a>
+    </div>
+</div>
+</main>
+<script>
+    document.getElementById("findIdForm").addEventListener("submit", function(e){
+        e.preventDefault();
+
+        // 결과 영역 초기화
+        document.getElementById("resultMessage").innerText = "";
+        document.getElementById("errorMessage").innerText = "";
+
+        fetch("/users/find-id", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.getElementById("name").value,
+                email: document.getElementById("email").value
+            })
+        })
+            .then(res => {
+                if(!res.ok) throw new Error("사용자를 찾을 수 없습니다.");
+                return res.text();
+            })
+            .then(data => {
+                document.getElementById("resultMessage").innerText = "아이디는 " + data + " 입니다.";
+            })
+            .catch(err => {
+                document.getElementById("errorMessage").innerText = err.message;
+            });
+    });
+</script>
+</body>
+</html>

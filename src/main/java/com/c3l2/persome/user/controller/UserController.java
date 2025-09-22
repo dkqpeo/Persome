@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/users")
@@ -112,6 +113,31 @@ public class UserController {
             return ResponseEntity.badRequest().body("이미 존재하는 아이디입니다.");
         }
         return ResponseEntity.ok("사용 가능한 아이디입니다.");
+    }
+
+    // 아이디 찾기
+    @GetMapping("/find-id")
+    public String findId() {
+        return "users/find-id";
+    }
+
+    @PostMapping("/find-id")
+    public ResponseEntity<String> findId(@RequestBody FindIdRequestDto dto) {
+        String loginId = userService.findIdByNameAndEmail(dto.getName(), dto.getEmail());
+        return ResponseEntity.ok(loginId);
+    }
+
+    // 비밀번호 찾기
+    @GetMapping("/find-password")
+    public String findPassword() {
+        return "users/find-password";
+    }
+
+    // 비밀번호 찾기 처리
+    @PostMapping("/find-password")
+    public ResponseEntity<String> findPassword(@RequestBody FindPasswordRequestDto dto) {
+        String message = userService.resetPassword(dto.getLoginId(), dto.getEmail());
+        return ResponseEntity.ok(message);
     }
 
     // 알람 설정
