@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "notice")
@@ -45,6 +46,28 @@ public class Notice {
         @Column(name = "category", nullable = false)
         @Enumerated(EnumType.STRING)
         private Category category;
+
+        public void update(String title, String content, Boolean important, Boolean active, Category category) {
+                if (title != null) {
+                        this.title = title;
+                }
+                if (content != null) {
+                        this.content = content;
+                }
+                if (Objects.nonNull(important)) {
+                        this.isImportant = important;
+                }
+                if (Objects.nonNull(active)) {
+                        this.isActive = active;
+                }
+                if (category != null) {
+                        this.category = category;
+                }
+        }
+
+        public void increaseViewCount() {
+                this.viewCount += 1;
+        }
 
         @PrePersist
         private void prePersist() {
