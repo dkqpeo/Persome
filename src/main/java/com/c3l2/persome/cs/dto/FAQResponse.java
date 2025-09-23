@@ -20,20 +20,10 @@ public class FAQResponse {
     private FaqCategory category;
     private String question;
     private String answer;
-
-    @JsonProperty("sort_order")
     private Integer sortOrder;
-
-    @JsonProperty("view_count")
     private Integer viewCount;
-
-    @JsonProperty("is_active")
     private boolean isActive;
-
-    @JsonProperty("created_at")
     private LocalDateTime createdAt;
-
-    @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 
     public static FAQResponse from(Faq faq) {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cs/faqs")
+@RequestMapping("/api/faq")  // Changed from /api/cs/faqs to /api/faq
 @RequiredArgsConstructor
 public class FAQController {
 

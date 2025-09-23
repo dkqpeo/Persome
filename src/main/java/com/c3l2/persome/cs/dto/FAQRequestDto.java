@@ -17,11 +17,7 @@ public class FAQRequestDto {
     private FaqCategory category;
     private String question;
     private String answer;
-
-    @JsonProperty("sort_order")
     private Integer sortOrder;
-
-    @JsonProperty("is_active")
     private Boolean isActive;
 
     public Faq toEntity() {

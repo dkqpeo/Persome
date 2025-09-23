@@ -16,13 +16,8 @@ public class NoticeRequestDto {
 
     private String title;
     private String content;
-
-    @JsonProperty("is_important")
     private Boolean important;
-
-    @JsonProperty("is_active")
     private Boolean active;
-
     private Category category;
 
     public Notice toEntity() {

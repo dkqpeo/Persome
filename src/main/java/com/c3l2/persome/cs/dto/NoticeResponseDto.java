@@ -20,20 +20,10 @@ public class NoticeResponseDto {
     private String title;
     private String content;
     private Category category;
-
-    @JsonProperty("is_important")
     private boolean important;
-
-    @JsonProperty("view_count")
     private int viewCount;
-
-    @JsonProperty("is_active")
     private boolean active;
-
-    @JsonProperty("created_at")
     private LocalDateTime createdAt;
-
-    @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 
     public static NoticeResponseDto from(Notice notice) {

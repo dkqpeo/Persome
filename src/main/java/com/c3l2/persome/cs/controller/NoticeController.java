@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cs/notices")
+@RequestMapping("/api/notices")
 @RequiredArgsConstructor
 public class NoticeController {
 
@@ -33,7 +33,7 @@ public class NoticeController {
         return ApiResponse.ok("공지사항 조회 성공", notice);
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ApiResponse<NoticeResponseDto>> createNotice(@RequestBody NoticeRequestDto requestDto) {
         NoticeResponseDto saved = noticeService.createNotice(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
