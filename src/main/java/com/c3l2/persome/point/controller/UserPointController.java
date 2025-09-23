@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/users/me/points")
+@RequestMapping("api/users/me/points")
 @RequiredArgsConstructor
 public class UserPointController {
     private final UserPointService userPointService;

@@ -153,16 +153,19 @@ public class OrderService {
 
         order.applyPricing(originalPrice, promoDiscountTotal, totalQty);
 
+        //주문 저장 - id 발급을 위해
+        Order savedOrder = orderRepository.save(order);
+
         //3. 쿠폰 할인 적용
         BigDecimal afterCoupon = promoAppliedTotal;
         if (request.getUserCouponId() != null) {
             afterCoupon = userCouponService.applyCoupon(request.getUserCouponId(), promoAppliedTotal);
-            order.applyCouponDiscount(promoAppliedTotal.subtract(afterCoupon));
+            savedOrder.applyCouponDiscount(promoAppliedTotal.subtract(afterCoupon));
         }
 
         //4. 배송비 계산
         int shippingFee = calculateShippingFee(promoAppliedTotal,request.getReceiveType());
-        order.applyShippingFee(shippingFee);
+        savedOrder.applyShippingFee(shippingFee);
 
         // 배송비 반영된 결제 금액 (쿠폰 적용 후 + 배송비)
         BigDecimal priceWithShipping = afterCoupon.add(BigDecimal.valueOf(shippingFee));
@@ -172,7 +175,7 @@ public class OrderService {
         if (request.getUsePointAmount() != null && request.getUsePointAmount() > 0) {
             //포인트 사용
             PointChangeRequestDto useDto = PointChangeRequestDto.builder()
-                    .orderId(order.getId())
+                    .orderId(savedOrder.getId())
                     .amount(request.getUsePointAmount())
                     .type(TransactionType.USE)
                     .build();
@@ -184,19 +187,19 @@ public class OrderService {
             }
 
             // 할인 금액 적용
-            order.applyPointDiscount(BigDecimal.valueOf(pointResponse.getChangedPoints()));
+            int usedPoints = request.getUsePointAmount();
+            savedOrder.applyPointDiscount(BigDecimal.valueOf(usedPoints));
 
-            // 결제 금액 계산용
-            afterPoint = priceWithShipping.subtract(BigDecimal.valueOf(pointResponse.getChangedPoints()));
+            afterPoint = priceWithShipping.subtract(BigDecimal.valueOf(usedPoints));
         }
 
         //6. 최종 주문 금액
-        order.calculateFinalAmount(afterPoint);
+        savedOrder.calculateFinalAmount(afterPoint);
 
         //7. 배송 스냅샷 저장
         if (request.getReceiveType() == ReceiveType.DELIVERY) {
             Delivery delivery = Delivery.builder()
-                    .order(order)
+                    .order(savedOrder)
                     .deliveryStatus(DeliveryStatus.READY)
                     .build();
 
@@ -210,13 +213,10 @@ public class OrderService {
                     .build();
 
             delivery.addSnapshot(snapshot);
-            order.registerDelivery(snapshot);
+            savedOrder.registerDelivery(snapshot);
         }
 
-        //8. 저장 & 응답
-        Order savedOrder = orderRepository.save(order);
-
-        //9. 결제
+        //8. 결제
         Payment payment = Payment.builder()
                 .order(savedOrder)
                 .method(request.getPaymentMethod())
