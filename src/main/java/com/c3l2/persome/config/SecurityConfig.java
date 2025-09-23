@@ -1,6 +1,7 @@
 package com.c3l2.persome.config;
 
 import com.c3l2.persome.user.security.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Slf4j
 @Configuration
@@ -79,9 +83,24 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 반환
-                        })
+                        // 뷰 요청 → 로그인 페이지로만 이동
+                        .defaultAuthenticationEntryPointFor(
+                                (request, response, authException) -> {
+                                    response.sendRedirect("/users/login");
+                                },
+                                request -> request.getRequestURI().startsWith("/users/me/cart")
+//                                        || request.getRequestURI().startsWith("/orders")
+                        )
+
+                        // REST 요청 → 401 JSON 응답
+                        .defaultAuthenticationEntryPointFor(
+                                (request, response, authException) -> {
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.setContentType("application/json;charset=UTF-8");
+                                    response.getWriter().write("{\"error\":\"UNAUTHORIZED\"}");
+                                },
+                                request -> request.getRequestURI().startsWith("/api")
+                        )
                 );
 
         return http.build();

@@ -1,6 +1,6 @@
 package com.c3l2.persome.cart.controller;
 
-import com.c3l2.persome.cart.dto.CartItemRequest;
+import com.c3l2.persome.cart.dto.CartItemRequestDto;
 import com.c3l2.persome.cart.dto.CartResponseDto;
 import com.c3l2.persome.cart.service.CartService;
 import com.c3l2.persome.product.entity.ProductOption;
@@ -37,12 +37,12 @@ public class DevCartController {
         if (any.isEmpty()) {
             return ResponseEntity.badRequest().body("상품 옵션이 없습니다. 상품 데이터를 먼저 등록해주세요.");
         }
-        CartItemRequest req = new CartItemRequest();
+        CartItemRequestDto req = new CartItemRequestDto();
         try {
-            java.lang.reflect.Field f1 = CartItemRequest.class.getDeclaredField("productOptionId");
+            java.lang.reflect.Field f1 = CartItemRequestDto.class.getDeclaredField("productOptionId");
             f1.setAccessible(true);
             f1.set(req, any.get().getId());
-            java.lang.reflect.Field f2 = CartItemRequest.class.getDeclaredField("quantity");
+            java.lang.reflect.Field f2 = CartItemRequestDto.class.getDeclaredField("quantity");
             f2.setAccessible(true);
             f2.set(req, 1);
         } catch (Exception e) {

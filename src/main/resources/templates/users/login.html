@@ -159,6 +159,11 @@
             loginIdInput.value = savedId;
             rememberIdCheckbox.checked = true;
         }
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect) {
+            sessionStorage.setItem("redirectAfterLogin", redirect);
+        }
     });
 
     // ✅ 뒤로가기 캐시 시 비밀번호 제거
@@ -184,11 +189,23 @@
             const response = await fetch("/api/users/login", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({loginId, password})
+                body: JSON.stringify({loginId, password}),
+                credentials: "include"
             });
 
             if (response.ok) {
-                window.location.href = "/"; // 홈으로 이동
+                let redirectUrl = sessionStorage.getItem("redirectAfterLogin");
+                console.log("✅ redirectAfterLogin 값:", redirectUrl); // 🔍 콘솔 출력
+                sessionStorage.removeItem("redirectAfterLogin");
+
+                // 예외 처리: 로그인 페이지 자체에서 들어왔거나, 회원가입에서 들어온 경우는 홈으로
+                if (!redirectUrl || redirectUrl === "/users/login" || redirectUrl.startsWith("/users/register")) {
+                    redirectUrl = "/";
+                }
+
+                console.log("➡️ 최종 redirectUrl:", redirectUrl); // 🔍 콘솔 출력
+
+                window.location.href = redirectUrl;
             } else {
                 const error = await response.json();
                 alert(error.message);

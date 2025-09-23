@@ -1,53 +1,67 @@
 package com.c3l2.persome.cart.controller;
 
-import com.c3l2.persome.cart.dto.CartItemRequest;
+import com.c3l2.persome.cart.dto.CartItemRequestDto;
 import com.c3l2.persome.cart.dto.CartItemUpdateQuantity;
 import com.c3l2.persome.cart.dto.CartResponseDto;
 import com.c3l2.persome.cart.service.CartService;
-import com.c3l2.persome.cart.entity.CartItem;
+import com.c3l2.persome.user.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users/{id}/cart")
+@RequestMapping("/api/users/me/cart")
 @RequiredArgsConstructor
 public class CartController {
 
     private final CartService cartService;
 
+    // 장바구니 조회
     @GetMapping
-    public ResponseEntity<CartResponseDto> getCartItem(@PathVariable Long id){
-        CartResponseDto cart = cartService.getCartItems(id);
-                return ResponseEntity.ok(cart);
+    public ResponseEntity<CartResponseDto> getCartItem(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        CartResponseDto cart = cartService.getCartItems(userDetails.getId());
+        return ResponseEntity.ok(cart);
     }
+
+    // 장바구니 상품 갯수 조회
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getCartCount(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        int count = cartService.getCartItemCount(userDetails.getId());
+        return ResponseEntity.ok(count);
+    }
+
     //장바구니에 상품 추가
     @PostMapping("/items")
-    public ResponseEntity<CartResponseDto> addToCart(@PathVariable Long id, @RequestBody CartItemRequest cartItemRequest) {
-        CartResponseDto cartItemResponse = cartService.addToCart(id, cartItemRequest);
-        return new ResponseEntity<>(cartItemResponse, HttpStatus.OK);
+    public ResponseEntity<CartResponseDto> addToCart(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody CartItemRequestDto cartItemRequest) {
+        CartResponseDto cartItemResponse = cartService.addToCart(userDetails.getId(), cartItemRequest);
+        return ResponseEntity.ok(cartItemResponse);
     }
 
-    //개별 제거
     @DeleteMapping("/items/{itemId}")
-    public ResponseEntity<Void> removeItem(@PathVariable Long id, @PathVariable Long itemId) {
-        cartService.removeItem(id, itemId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Void> removeItem(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long itemId) {
+        cartService.removeItem(userDetails.getId(), itemId);
+        return ResponseEntity.ok().build();
     }
 
-    //전체 제거
     @DeleteMapping("/items")
-    public ResponseEntity<Void> removeAllItems(@PathVariable Long id) {
-        cartService.clearCart(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Void> removeAllItems(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        cartService.clearCart(userDetails.getId());
+        return ResponseEntity.noContent().build();
     }
 
     // 장바구니 수량 변경
     @PatchMapping("/items/{itemId}")
-    public ResponseEntity<CartItem> updateItem(@PathVariable Long id, @RequestBody CartItemUpdateQuantity updateQuantity) {
+    public ResponseEntity<CartResponseDto> updateItem(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long itemId,
+            @RequestBody CartItemUpdateQuantity updateQuantity) {
 
-        CartItem updatedCartItem = cartService.updateQuantity(id, updateQuantity);
-        return new ResponseEntity<>(updatedCartItem,HttpStatus.OK);
+        CartResponseDto cart = cartService.updateQuantity(userDetails.getId(), updateQuantity);
+        return ResponseEntity.ok(cart);
     }
 }
