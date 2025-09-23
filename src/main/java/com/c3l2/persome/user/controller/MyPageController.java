@@ -8,21 +8,21 @@ public class MyPageController {
 
     @GetMapping({"/mypage", "/mypage/"})
     public String myPage() {
-        return "redirect:/mypage/index.html";
+        return "/mypage/index";
     }
 
     @GetMapping("/mypage/info")
     public String myInfoPage() {
-        return "redirect:/mypage/info.html";
+        return "mypage/info";
     }
 
     @GetMapping({"/mypage/addresses", "/mypage/addresses/"})
     public String myAddressesPage() {
-        return "redirect:/mypage/addresses.html";
+        return "mypage/addresses";
     }
 
     @GetMapping({"/mypage/coupons", "/mypage/coupons/"})
     public String myCouponsPage() {
-        return "redirect:/mypage/coupons.html";
+        return "/mypage/coupons";
     }
 }
