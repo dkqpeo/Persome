@@ -32,7 +32,6 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    @ResponseBody
     public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginDto loginDto,
                                         HttpServletRequest request) {
         try {
@@ -53,13 +52,9 @@ public class UserController {
                     SecurityContextHolder.getContext()
             );
 
-            // SavedRequest 확인
-            SavedRequest savedRequest = (SavedRequest) session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
-            String redirectUrl = (savedRequest != null) ? savedRequest.getRedirectUrl() : "/";
+            // 성공 응답 (redirectUrl은 JS에서 처리)
+            return ResponseEntity.ok(Map.of("status", "ok"));
 
-            Map<String, String> result = new HashMap<>();
-            result.put("redirectUrl", redirectUrl);
-            return ResponseEntity.ok(result);
         } catch (BadCredentialsException e) {
             // ✅ 아이디/비번 불일치 시
             return ResponseEntity

@@ -28,7 +28,7 @@ async function setupHeader() {
                 | <a href="/orders/my">주문배송</a>
                 | <a href="/help">고객센터</a>
             `;
-            loadCartCount();
+            await loadCartCount();
         } else if (res.status === 401){
             nav.innerHTML = `
                 <a href="/users/terms">회원가입</a> |
@@ -45,10 +45,10 @@ async function setupHeader() {
 
 async function loadCartCount() {
     try {
-        const res = await fetch("/api/cart/count", { credentials: "include" });
+        const res = await fetch("/api/users/me/cart/count");
         if (res.ok) {
-            const { count } = await res.json();
-            document.getElementById("cartCount").textContent = count;
+             // count = 3
+            document.getElementById("cartCount").innerText = await res.json();
         }
     } catch (e) {
         console.error("장바구니 개수 불러오기 실패", e);
@@ -121,5 +121,15 @@ function setupDropdownEvents() {
 
 // 전역으로 함수 노출 (하위 호환성을 위해 유지)
 window.toggleDropdown = toggleDropdown;
+function redirectToLogin(targetPath) {
+    const path = targetPath || window.location.pathname;
+    console.log("🔍 redirectToLogin 실행됨, 저장할 경로:", path); // 디버깅 로그
+    sessionStorage.setItem("redirectAfterLogin", path);
+    window.location.href = "/users/login";
+}
+
+// 전역으로 노출 (onclick에서도 실행 가능하게)
+window.redirectToLogin = redirectToLogin;
+
 
 document.addEventListener("DOMContentLoaded", loadHeader);

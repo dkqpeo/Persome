@@ -91,6 +91,7 @@ public class UserCouponService {
 
     //쿠폰 할인 적용
     public BigDecimal applyCoupon(Long userCouponId, BigDecimal orderPrice) {
+
         if (userCouponId == null) {
             return orderPrice;
         }
@@ -99,22 +100,23 @@ public class UserCouponService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_COUPON_NOT_FOUND));
 
         if (userCoupon.getStatus() != UserCouponStatus.ISSUED) {
-            return orderPrice; //이미 사용됐거나 만료된 경우
+            return orderPrice;
         }
 
         Coupon coupon = userCoupon.getCoupon();
         LocalDateTime now = LocalDateTime.now();
 
-        //유효기간 체크
-        if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) return orderPrice;
-        if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) return orderPrice;
+        if (coupon.getStartDate() != null && coupon.getStartDate().isAfter(now)) {
+            return orderPrice;
+        }
+        if (coupon.getEndDate() != null && coupon.getEndDate().isBefore(now)) {
+            return orderPrice;
+        }
 
-        //최소 주문 금액 체크
         if (coupon.getMinOrderPrice() != null && orderPrice.compareTo(coupon.getMinOrderPrice()) < 0) {
             return orderPrice;
         }
 
-        //할인 금액 계산
         BigDecimal discount = BigDecimal.ZERO;
         if (coupon.getDiscountType() == DiscountType.FIXED) {
             discount = coupon.getDiscountValue();
@@ -123,18 +125,14 @@ public class UserCouponService {
             discount = orderPrice.multiply(rate);
         }
 
-        //최대 할인 금액 제한
         if (coupon.getMaxDiscountPrice() != null) {
             discount = discount.min(coupon.getMaxDiscountPrice());
         }
 
-        //최종 금액
         BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
 
-        //쿠폰 사용 처리
         userCoupon.setStatus(UserCouponStatus.USED);
         userCoupon.setUsedAt(now);
-        userCouponRepository.save(userCoupon);
 
         return discountedPrice;
     }

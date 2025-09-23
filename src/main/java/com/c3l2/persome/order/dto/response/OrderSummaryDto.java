@@ -21,7 +21,7 @@ public class OrderSummaryDto {
                 .orderId(order.getId())
                 .orderDate(order.getOrderDate())
                 .totalPrice(order.getOrderTotalAmount())
-                .orderStatus(order.getOrderStatus().name())
+                .orderStatus(order.getOrderStatus().getLabel())
                 .build();
     }
 }

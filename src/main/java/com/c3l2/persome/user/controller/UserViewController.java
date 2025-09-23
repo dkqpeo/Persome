@@ -5,8 +5,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/users")
@@ -15,13 +17,15 @@ public class UserViewController {
 
     // 로그인 페이지
     @GetMapping("/login")
-    public String login(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String login(@AuthenticationPrincipal CustomUserDetails userDetails,
+                        @RequestParam(value = "redirect", required = false) String redirect,
+                        Model model) {
         if (userDetails != null) {
-            // 이미 로그인 상태면 홈이나 마이페이지로 리다이렉트
-            return "redirect:/";
-            // 또는 "redirect:/users/me" 로 바로 마이페이지로 보내도 됨
+            // 이미 로그인 상태면 redirect 파라미터가 있으면 거기로 보내고, 없으면 홈으로
+            return "redirect:" + (redirect != null ? redirect : "/");
         }
-        return "users/login";
+        model.addAttribute("redirect", redirect);
+        return "users/login"; // 로그인 페이지로
     }
 
     // 회원가입 페이지

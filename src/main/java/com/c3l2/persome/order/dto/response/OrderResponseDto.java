@@ -27,6 +27,7 @@ public class OrderResponseDto {
     private List<OrderItemDto> items;           // 주문 상품 목록
     private PaymentResponseDto payment;
     private String requestMessage;
+    private Integer shippingFee;
 
     public static OrderResponseDto fromEntity(Order order, PaymentResponseDto payment) {
         return OrderResponseDto.builder()
@@ -47,6 +48,7 @@ public class OrderResponseDto {
                         .toList())
                 .payment(payment)
                 .requestMessage(order.getRequestMessage())
+                .shippingFee(order.getShippingFee())
                 .build();
     }
 }
