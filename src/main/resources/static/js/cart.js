@@ -60,7 +60,7 @@
                 <div class="qty-custom" data-id="${item.id}" style="display:${item.quantity > 10 ? 'flex' : 'none'};">
                     <input type="number" min="11" 
                         value="${item.quantity > 10 ? item.quantity : ''}" 
-                        class="qty-input-custom" autofocus />
+                        class="qty-input-custom"/>
                     <button class="qty-update-btn">변경</button>
                 </div>
             </div>
@@ -208,6 +208,8 @@
                 const select = document.querySelector(`.qty-select[data-id="${id}"]`);
 
                 if (qty >= 1) {
+                    input.blur();
+
                     await updateQuantity(id, qty);
                     alert("수량 변경이 완료되었습니다.");
 
@@ -221,7 +223,6 @@
                         wrapper.style.display = "flex";
                         select.style.display = "none";
                         input.value = qty;
-                        input.blur();
                     }
                 }
             });
