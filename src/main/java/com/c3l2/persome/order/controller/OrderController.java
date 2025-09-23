@@ -8,6 +8,7 @@ import com.c3l2.persome.order.dto.response.OrderSummaryDto;
 import com.c3l2.persome.order.service.OrderService;
 import com.c3l2.persome.user.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,8 +37,12 @@ public class OrderController {
 
     //주문 목록 조회
     @GetMapping("/my")
-    public ResponseEntity<ApiResponse<List<OrderSummaryDto>>> getOrders(@AuthenticationPrincipal CustomUserDetails userDetails){
-        List<OrderSummaryDto> orders = orderService.getUserOrders(userDetails.getId());
+    public ResponseEntity<ApiResponse<Page<OrderSummaryDto>>> getOrders(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        Page<OrderSummaryDto> orders = orderService.getUserOrders(userDetails.getId(), page, size);
         return ApiResponse.ok("주문 내역 조회 성공.",orders);
     }
 

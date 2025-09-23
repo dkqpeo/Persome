@@ -41,11 +41,14 @@ public class UserPointService {
         }
 
         // 포인트 변화 (USE는 음수, EARN/RESTORE는 양수)
-        int changeAmount = (requestDto.getType() == TransactionType.USE)
-                ? -requestDto.getAmount()
-                : requestDto.getAmount();
-
-        userPoint.addPoints(changeAmount);
+        int changeAmount;
+        if (requestDto.getType() == TransactionType.USE) {
+            userPoint.usePoints(requestDto.getAmount());   //차감
+            changeAmount = -requestDto.getAmount();
+        } else {
+            userPoint.addPoints(requestDto.getAmount());  //적립/복구
+            changeAmount = requestDto.getAmount();
+        }
 
         // 거래 기록 저장
         PointTransaction pointTransaction;
