@@ -65,6 +65,32 @@
             padding: 30px 10px;
             color: #777;
         }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination button {
+            margin: 0 4px;
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background: #A68DC0;
+            color: #fff;
+            border-color: #A68DC0;
+        }
+
+        .pagination button:disabled {
+            color: #aaa;
+            cursor: not-allowed;
+            background: #f2f2f2;
+        }
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -73,25 +99,31 @@
 <div class="order-container">
     <h2>주문 내역</h2>
     <div id="orderList"></div>
+    <div id="pagination" class="pagination"></div>
 </div>
 <script src="/js/header.js"></script>
 <script>
-    async function loadOrders() {
+    let currentPage = 0;
+    const pageSize = 10;
+    async function loadOrders(page = 0) {
         const container = document.getElementById("orderList");
+        const pagination = document.getElementById("pagination");
         container.innerHTML = "<p>불러오는 중...</p>";
 
         try {
-            const res = await fetch("/api/orders/my", {
+            const res = await fetch(`/api/orders/my?page=${page}&size=${pageSize}`, {
                 method: "GET",
                 credentials: "include" //세션/쿠키 포함
             });
             if (!res.ok) throw new Error("주문 목록 조회 실패");
             const data = await res.json();
 
-            const orders = data.data;
+            const orders = data.data.content || data.data;
+            const totalPages = data.data.totalPages || 1;
 
             if (!orders || orders.length === 0) {
                 container.innerHTML = `<div class="empty">주문 내역이 없습니다.</div>`;
+                pagination.innerHTML = "";
                 return;
             }
 
@@ -127,13 +159,36 @@
             html += "</tbody></table>";
             container.innerHTML = html;
 
+            //페이지네이션
+            let pageHtml = `
+                <button onclick="changePage(${page-1})" ${page <= 0 ? "disabled" : ""}>이전</button>
+            `;
+            for (let i = 0; i < totalPages; i++) {
+                pageHtml += `
+                  <button onclick="changePage(${i})" class="${i === page ? "active" : ""}">
+                    ${i+1}
+                  </button>
+                `;
+            }
+            pageHtml += `
+                <button onclick="changePage(${page+1})" ${page >= totalPages-1 ? "disabled" : ""}>다음</button>
+            `;
+            pagination.innerHTML = pageHtml;
+
+            currentPage = page;
+
+
         } catch (err) {
             console.error(err);
             container.innerHTML = `<div class="empty">주문 내역을 불러오는 중 오류가 발생했습니다.</div>`;
         }
     }
 
-    document.addEventListener("DOMContentLoaded", loadOrders);
+    function changePage(page) {
+        loadOrders(page);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => loadOrders(0));
 </script>
 </body>
 </html>

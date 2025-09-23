@@ -30,6 +30,10 @@ import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.repository.OrderRepository;
 import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.c3l2.persome.order.entity.OrderStatus;
@@ -229,12 +233,15 @@ public class OrderService {
 
     //주문 목록 조회
     @Transactional(readOnly = true)
-    public List<OrderSummaryDto> getUserOrders(Long userId) {
-        List<Order> orders = orderRepository.findByUserId(userId);
-
-        return orders.stream()
-                .map(OrderSummaryDto::fromEntity)
-                .toList();
+    public Page<OrderSummaryDto> getUserOrders(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
+        return orderRepository.findByUserId(userId, pageable)
+                .map(order -> new OrderSummaryDto(
+                        order.getId(),
+                        order.getOrderDate(),
+                        order.getOrderTotalAmount(),
+                        order.getOrderStatus().getLabel()
+                ));
     }
 
     //주문 상세 조회
