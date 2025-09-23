@@ -1,3 +1,8 @@
+/* 또는 html에 설정 */
+html {
+    min-width: 1100px;
+}
+
 /* 헤더 전체 */
 .site-header {
     border-bottom: 1px solid #eee;
@@ -21,18 +26,54 @@
 }
 
 .header-main {
-    position: relative;
-    height: 60px; /* 높이 고정 */
-    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 40px;
     min-width: 1000px;
+    position: relative; /* 추가 */
 }
 
-/* 로고는 왼쪽 */
 .logo {
-    position: absolute;
-    left: 20px;
+    position: static;
+    transform: none;
+    flex-shrink: 0;
+    z-index: 1; /* 추가 */
+}
+
+/* 검색창을 절대 위치로 중앙 고정 */
+.search-box {
+    position: absolute; /* 다시 absolute로 변경 */
+    left: 50%;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translate(-50%, -50%);
+    width: 350px;
+    z-index: 2; /* 로고보다 위에 */
+}
+
+.header-main {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 20px;
+    min-width: 1000px;
+    position: relative;
+}
+
+.logo {
+    position: static;
+    transform: none;
+    flex-shrink: 0;
+    z-index: 1;
+    margin-left: 40px; /* 원하는 만큼 조정 */
+}
+
+.header-icons {
+    position: static;
+    transform: none;
+    flex-shrink: 0;
+    margin-left: auto;
+    z-index: 1;
 }
 
 .logo h1 a {
@@ -46,13 +87,14 @@
     color: #B4A0E0;
 }
 
-/* 검색창은 화면 기준 정확히 중앙 */
+/* 검색창을 컨테이너(.header-main) 기준 중앙으로 */
 .search-box {
     position: absolute;
-    left: 50%;
+    left: 50%; /* header-main의 50% 지점 */
     top: 50%;
-    transform: translate(-50%, -50%); /* X, Y 둘 다 정중앙 */
+    transform: translate(-50%, -50%);
     width: 350px;
+    z-index: 2;
 }
 
 .search-box form {
@@ -93,12 +135,12 @@
     color: #666;
 }
 
-/* 아이콘은 오른쪽 */
 .header-icons {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    position: static;
+    transform: none;
+    flex-shrink: 0;
+    margin-left: auto; /* 오른쪽으로 밀어내기 */
+    z-index: 1; /* 추가 */
 }
 
 /* 하단 네비 메뉴 */
@@ -106,17 +148,143 @@
     list-style: none;
     padding: 0;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 130px;
     font-weight: bold;
     margin-top: 10px;
+    align-items: center; /* 세로 정렬 추가 */
 }
 
-.main-nav li a {
+.main-nav li {
+    display: flex;
+    align-items: center; /* li 안의 요소들 세로 정렬 */
+    height: 40px; /* 고정 높이 설정 */
+}
+
+.main-nav li a,
+.main-nav li p {
     text-decoration: none;
+    font-size: 16px;
     color: #222;
     padding: 10px 15px;
+    cursor: pointer;
+    margin: 0;
+    display: flex;
+    align-items: center; /* 텍스트 세로 정렬 */
+    height: 100%; /* 부모 높이에 맞춤 */
+    line-height: 1; /* 라인 높이 조정 */
 }
 
-.main-nav li a:hover {
+.main-nav li a:hover,
+.main-nav li p:hover {
+    color: #A68DC0;
+}
+
+/* 드롭다운 메뉴 */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    position: fixed;
+    top: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    z-index: 1000;
+    width: 70vw;
+    max-width: 1200px;
+    min-height: 400px;
+    max-height: 60vh;
+    padding: 20px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    /* 초기 상태에서 숨김 처리 */
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+.dropdown-content.show {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 카테고리 메뉴 레이아웃 */
+.category-menu {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.category-column {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.category-column h3 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 8px 0;
+    padding: 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+.category-column h3 a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    transition: color 0.2s;
+}
+
+.category-column h3 a:hover {
+    color: #A68DC0;
+}
+
+.category-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    display: block;
+}
+
+.category-column li {
+    margin: 0;
+    padding: 2px 0;
+    display: block;
+    width: 100%;
+}
+
+.category-column li a {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    font-size: 14px;
+    color: #666;
+    text-decoration: none;
+    font-weight: normal;
+    transition: all 0.2s;
+    width: 100%;
+    height: 24px;
+    box-sizing: border-box;
+}
+
+.category-column li a:hover {
+    background-color: #f8f8f8;
     color: #A68DC0;
 }
