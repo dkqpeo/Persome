@@ -15,7 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -169,5 +172,48 @@ public class ProductService {
         // 5. 페이징 정보는 유지하면서 fetch join된 Product들로 새로운 Page 생성
         return createPageProductAllResponse(productsWithBasicFetch, productPage);
 
+    }
+
+    public List<ProductAllResponse> getPopularProducts(int size) {
+
+        // 홈 인기 섹션: 요청한 수만큼 랜덤 상품을 추출
+        int limit = normalizeSize(size);
+        List<Long> ids = productRepository.findRandomProductIds(PageRequest.of(0, limit));
+        return buildProductResponses(ids);
+    }
+
+    public List<ProductAllResponse> getNewProducts(int size) {
+
+        // 홈 신규 섹션: 생성일 최신 순으로 정렬된 상품 반환
+        int limit = normalizeSize(size);
+        List<Long> ids = productRepository.findLatestProductIds(PageRequest.of(0, limit));
+        return buildProductResponses(ids);
+    }
+
+    private int normalizeSize(int size) {
+        if (size <= 0) {
+            return 10;
+        }
+        return Math.min(size, 20);
+    }
+
+    private List<ProductAllResponse> buildProductResponses(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Product> productsWithBasicFetch = productRepository.findByIdsWithFetch(productIds);
+        productRepository.findByIdsWithPrices(productIds);
+
+        Map<Long, Integer> order = new HashMap<>();
+        for (int i = 0; i < productIds.size(); i++) {
+            order.put(productIds.get(i), i);
+        }
+
+        // 조회된 상품을 ID 조회 순서대로 정렬해 응답 순서를 보존
+        return productsWithBasicFetch.stream()
+                .sorted(Comparator.comparingInt(p -> order.getOrDefault(p.getId(), Integer.MAX_VALUE)))
+                .map(ProductAllResponse::from)
+                .toList();
     }
 }

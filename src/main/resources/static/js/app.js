@@ -92,10 +92,13 @@
     const containerNew = document.getElementById('newProducts');
     if (!containerPopular && !containerNew) return;
     try {
-      const data = await apiGet('/products?page=0&size=24');
-      const list = (data && data.products) || [];
-      const popular = list.slice(0, 8);
-      const fresh = list.slice(8, 16);
+      // 홈 메인 섹션: 인기/신규 API를 병렬 호출
+      const [popularData, newData] = await Promise.all([
+        apiGet('/products/popular?size=10'),
+        apiGet('/products/new?size=10')
+      ]);
+      const popular = Array.isArray(popularData) ? popularData : [];
+      const fresh = Array.isArray(newData) ? newData : [];
       if (containerPopular) containerPopular.innerHTML = popular.map(productCardHTML).join('');
       if (containerNew) containerNew.innerHTML = fresh.map(productCardHTML).join('');
     } catch (e) {
