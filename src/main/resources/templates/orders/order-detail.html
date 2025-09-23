@@ -65,6 +65,46 @@
         .btn-area a:hover {
             background: #9a74c3;
         }
+        .payment-table th,
+        .payment-table td {
+            border: none;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 1em;
+        }
+
+        .payment-table th {
+            font-weight: normal;
+            color: #555;
+            width: 200px;
+        }
+
+        .payment-table td {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .payment-table .discount {
+            color: #e60023;
+            font-weight: normal;
+        }
+
+        .payment-table .highlight {
+            color: #e60023;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .payment-table .total-label {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .payment-table .divider td {
+            border-top: 1px dashed #ddd;
+            padding: 6px 0;
+        }
+
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -106,16 +146,26 @@
 
     <!-- 결제 정보 -->
     <h2>결제 정보</h2>
-    <table>
+    <table class="payment-table">
+        <tr><th>총 상품금액</th><td id="original-price"></td></tr>
+        <tr><th>총 배송비</th><td id="delivery-fee"></td></tr>
+
+        <tr class="divider"><td colspan="2"></td></tr>
+
+        <tr><th>쿠폰 할인</th><td id="coupon-discount" class="discount"></td></tr>
+        <tr><th>포인트 사용</th><td id="point-used" class="discount"></td></tr>
+
+        <tr class="divider"><td colspan="2"></td></tr>
+
+        <tr><th class="total-label">총 결제금액</th><td id="payment-amount" class="highlight"></td></tr>
         <tr><th>결제 수단</th><td id="payment-method"></td></tr>
-        <tr><th>결제 금액</th><td id="payment-amount" class="highlight"></td></tr>
         <tr><th>결제 상태</th><td id="payment-status"></td></tr>
         <tr><th>결제일</th><td id="paid-at"></td></tr>
     </table>
 
     <div class="btn-area">
         <a href="/">홈으로</a>
-        <a href="/users/me/orders">주문 내역</a>
+        <a href="/orders/my">주문 내역</a>
     </div>
 </div>
 <script src="/js/header.js"></script>
@@ -135,12 +185,12 @@
             if (!res.ok) throw new Error("주문 정보를 불러올 수 없습니다.");
             const { data } = await res.json();
 
-            // 주문 기본 정보
+            //주문 기본 정보
             document.getElementById("order-id").textContent = data.orderId;
             document.getElementById("order-date").textContent = new Date(data.orderDate).toLocaleString();
             document.getElementById("order-status").textContent = data.orderStatus;
 
-            // 배송 정보
+            //배송 정보
             if (data.deliveryInfo) {
                 document.getElementById("receiver-name").textContent = data.deliveryInfo.receiverName;
                 document.getElementById("receiver-phone").textContent = data.deliveryInfo.receiverPhone;
@@ -148,7 +198,7 @@
             }
             document.getElementById("request-message").textContent = data.requestMessage || "-";
 
-            // 주문 상품
+            //주문 상품
             const tbody = document.getElementById("order-items");
             tbody.innerHTML = data.items.map(item => `
                 <tr>
@@ -160,10 +210,22 @@
                 </tr>
             `).join("");
 
-            // 결제 정보
+            //결제 정보
+            document.getElementById("original-price").textContent =
+                (data.originalPrice ? Number(data.originalPrice).toLocaleString() : "0") + "원";
+            document.getElementById("delivery-fee").textContent =
+                (data.originalPrice ? Number(data.shippingFee).toLocaleString() : "0") + "원";
+
+            document.getElementById("coupon-discount").textContent =
+                data.couponDiscountAmount ? "-" + Number(data.couponDiscountAmount).toLocaleString() + "원" : "- 0원";
+
+            document.getElementById("point-used").textContent =
+                data.pointUsedAmount ? "-" + Number(data.pointUsedAmount).toLocaleString() + "원" : "- 0원";
+
             if (data.payment) {
+                document.getElementById("payment-amount").textContent =
+                    Number(data.payment.amount).toLocaleString() + "원";
                 document.getElementById("payment-method").textContent = data.payment.method;
-                document.getElementById("payment-amount").textContent = Number(data.payment.amount).toLocaleString() + "원";
                 document.getElementById("payment-status").textContent = data.payment.status;
                 document.getElementById("paid-at").textContent = new Date(data.payment.paidAt).toLocaleString();
             }

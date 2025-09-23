@@ -274,7 +274,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const cartItemIds = [1,2,3];
+        const cartItemIds = urlParams.get("cartItemIds");
 
         if (!cartItemIds) {
             alert("선택된 장바구니 상품이 없습니다.");
