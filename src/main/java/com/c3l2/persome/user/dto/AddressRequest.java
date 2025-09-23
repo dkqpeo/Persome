@@ -13,6 +13,4 @@ public class AddressRequest {
     private String jibunAddr;
     private String addrDetail;
     private Boolean isdefaultShipping;
-    private String address;
-    private Long userId;
 }
