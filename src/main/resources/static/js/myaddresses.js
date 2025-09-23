@@ -1,230 +1,203 @@
-// Dedicated Address management page (list + form)
-(function(){
-  const json = async (res) => { const t = await res.text(); try { return t ? JSON.parse(t) : null; } catch { return t; } };
-  function $id(id){ return document.getElementById(id); }
-  function alertMsg(m){ const el=$id('addrAlert'); if(el) el.textContent=m||''; }
-  function uidSync(){ return (window.PersomeUser && window.PersomeUser.id) ? window.PersomeUser.id : null; }
-  async function resolveUserId(){
-    const id = uidSync();
-    if (id) return id;
-    try {
-      const r = await fetch('/users/me/points', { credentials:'same-origin' });
-      if (r.ok) { const d = await r.json(); if (d && d.userId) return d.userId; }
-    } catch {}
-    return null;
-  }
+async function loadAddresses() {
+  const listEl = document.getElementById("addrList");
+  const countEl = document.getElementById("addrCount");
 
-  let currentEditId = null;
-  let currentEditButton = null;
-  function showForm(show){ const f=$id('addrForm'); if(f) f.style.display = show ? 'block' : 'none'; }
-  function resetForm(){
-    $id('addrId').value='';
-    $id('a_label').value='';
-    $id('a_zip').value='';
-    $id('a_road').value='';
-    $id('a_jibun').value='';
-    $id('a_detail').value='';
-    $id('a_default').checked=false;
-    alertMsg('');
-  }
-  function collect(){
-    const trim = (s,max) => {
-      if (!s) return null;
-      const v = String(s).trim();
-      return v.length > max ? v.slice(0,max) : v;
-    };
-    return {
-      label: trim($id('a_label').value, 50),
-      zip: trim($id('a_zip').value, 20),
-      roadAddr: trim($id('a_road').value, 255),
-      jibunAddr: trim($id('a_jibun').value, 255),
-      addrDetail: trim($id('a_detail').value, 255),
-      isdefaultShipping: $id('a_default').checked
-    };
-  }
+  try {
+    const res = await fetch("/api/users/me/addresses", { credentials: "include" });
+    if (!res.ok) throw new Error("배송지 불러오기 실패");
+    const result = await res.json();
+    const addresses = Array.isArray(result) ? result : result.data;
 
-  function renderAddressList(list){
-    const container = $id('addrList');
-    const empty = $id('addrEmpty');
-    if (!Array.isArray(list)) {
-      // handle single object
-      list = list && list.id ? [list] : [];
-    }
-    if (!list.length) {
-      empty.style.display = 'block';
-      $id('addrItem').style.display = 'none';
-      $id('addrCount').textContent = '0';
+    countEl.textContent = addresses.length;
+    listEl.innerHTML = "";
+
+    if (!addresses || addresses.length === 0) {
+      listEl.innerHTML = `<div id="addrEmpty">등록된 배송지가 없습니다.</div>`;
       return;
     }
-    empty.style.display = 'none';
-    $id('addrCount').textContent = String(list.length);
-    // Simple render: show first item in the template box, and create additional boxes for others
-    // Clear old dynamic items
-    container.querySelectorAll('.addr-item.dynamic').forEach(el => el.remove());
 
-    function fill(box, a){
-      box.style.display = 'block';
-      box.querySelector('#v_label').textContent = a.label || '-';
-      box.querySelector('#v_default').style.display = a.isdefaultShipping ? 'inline-block' : 'none';
-      box.querySelector('#v_zip').textContent = a.zip ? `(${a.zip})` : '';
-      box.querySelector('#v_road').textContent = a.roadAddr || '';
-      box.querySelector('#v_jibun').textContent = a.jibunAddr || '';
-      box.querySelector('#v_detail').textContent = a.addrDetail || '';
-      box.dataset.id = a.id;
-      box.dataset.label = a.label || '';
-      box.dataset.zip = a.zip || '';
-      box.dataset.road = a.roadAddr || '';
-      box.dataset.jibun = a.jibunAddr || '';
-      box.dataset.detail = a.addrDetail || '';
-      box.dataset.isdefault = a.isdefaultShipping ? 'true' : 'false';
-    }
+    addresses.forEach(addr => {
+      const item = document.createElement("div");
+      item.className = "addr-item";
 
-    // First item into the static template
-    fill($id('addrItem'), list[0]);
-    // Additional items
-    const template = $id('addrItem');
-    for (let i = 1; i < list.length; i++) {
-      const a = list[i];
-      const clone = template.cloneNode(true);
-      clone.classList.add('dynamic');
-      // Remove duplicate id on the clone root
-      if (clone.hasAttribute('id')) clone.removeAttribute('id');
-      fill(clone, a);
-      // fix ids inside clone to avoid duplicates
-      clone.querySelectorAll('[id]').forEach(el=> el.removeAttribute('id'));
-      container.appendChild(clone);
-    }
-  }
+      item.innerHTML = `
+        <div class="top">
+          <div>
+            <b>${addr.label || "배송지"}</b>
+            ${addr.isdefaultShipping ? `<span class="addr-badge">기본</span>` : ""}
+          </div>
+          <div class="addr-actions">
+            <button type="button" class="btn btn-edit">수정</button>
+            <button type="button" class="btn btn-delete">삭제</button>
+          </div>
+        </div>
+        <div class="addr-lines">
+          <div>도로명: ${addr.roadAddr || ""}</div>
+          <div>지번: ${addr.jibunAddr || ""}</div>
+          <div class="addr-zip">${addr.zip || ""}</div>
+        </div>
+        <form class="addr-edit-form">
+          <input type="hidden" name="id" value="${addr.id}" />
+          <input type="text" name="label" value="${addr.label || ""}" placeholder="라벨" />
+          <input type="text" name="zip" value="${addr.zip || ""}" placeholder="우편번호" />
+          <input type="text" name="roadAddr" value="${addr.roadAddr || ""}" placeholder="도로명 주소" />
+          <input type="text" name="jibunAddr" value="${addr.jibunAddr || ""}" placeholder="지번 주소" />
+          <input type="text" name="addrDetail" value="${addr.addrDetail || ""}" placeholder="상세 주소" />
+          <label><input type="checkbox" name="default" ${addr.isdefaultShipping ? "checked" : ""}/> 기본배송지</label>
+          <div class="form-actions">
+            <button type="button" class="btn btn-save">저장</button>
+            <button type="button" class="btn btn-cancel">취소</button>
+            <button type="button" class="btn btn-reset">초기화</button>
+          </div>
+        </form>
+      `;
 
-  async function loadAddress(){
-    const id = await resolveUserId(); if(!id) return;
-    try {
-      const r = await fetch(`/users/${id}/addresses`, { credentials:'same-origin' });
-      if (!r.ok) throw new Error(await r.text());
-      const a = await r.json();
-      renderAddressList(a);
-    } catch {
-      renderAddressList([]);
-      resetForm();
-    }
-  }
+      listEl.appendChild(item);
 
-  function bindEvents(){
-    const newBtn = $id('btnAddrNew'); if (newBtn) newBtn.addEventListener('click', (e)=>{
-      e.preventDefault();
-      resetForm();
-      const t=$id('addrFormTitle'); if (t) t.textContent='새 배송지';
-      if (currentEditButton) { currentEditButton.textContent='수정'; currentEditButton.classList.remove('active'); currentEditButton=null; }
-      currentEditId=null;
-      showForm(true);
-    });
-    // Delegate edit/delete on list
-    const listEl = $id('addrList');
-    if (listEl) {
-      listEl.addEventListener('click', async (e) => {
-        const editBtn = e.target.closest('.btn-edit');
-        const delBtn = e.target.closest('.btn-delete');
-        const item = e.target.closest('.addr-item');
-        if (!item) return;
-        const addrId = item.dataset.id;
+      const editBtn = item.querySelector(".btn-edit");
+      const deleteBtn = item.querySelector(".btn-delete");
+      const form = item.querySelector(".addr-edit-form");
+      const cancelBtn = form.querySelector(".btn-cancel");
+      const saveBtn = form.querySelector(".btn-save");
+      const resetBtn = form.querySelector(".btn-reset");
 
-        if (editBtn) {
-          e.preventDefault();
-          const form = $id('addrForm');
-          // Toggle if clicking same item while form visible
-          const visible = form && form.style.display !== 'none';
-          if (visible && currentEditId === addrId) {
-            showForm(false);
-            currentEditId = null;
-            if (currentEditButton) { currentEditButton.textContent='수정'; currentEditButton.classList.remove('active'); currentEditButton=null; }
-            const t=$id('addrFormTitle'); if (t) t.textContent='새 배송지';
-            return;
-          }
+      //원래 값 저장
+      const originalData = { ...addr };
 
-          // Move form just below the clicked item
-          if (form && item.nextSibling !== form) {
-            item.insertAdjacentElement('afterend', form);
-          }
-
-          // fill form from dataset
-          $id('addrId').value = addrId || '';
-          $id('a_label').value = item.dataset.label || '';
-          $id('a_zip').value = item.dataset.zip || '';
-          $id('a_road').value = item.dataset.road || '';
-          $id('a_jibun').value = item.dataset.jibun || '';
-          $id('a_detail').value = item.dataset.detail || '';
-          $id('a_default').checked = item.dataset.isdefault === 'true';
-          showForm(true);
-          currentEditId = addrId;
-          if (currentEditButton) { currentEditButton.textContent='수정'; currentEditButton.classList.remove('active'); }
-          currentEditButton = editBtn;
-          currentEditButton.textContent = '수정 취소';
-          currentEditButton.classList.add('active');
-          const t=$id('addrFormTitle'); if (t) t.textContent='수정 배송지';
-          return;
-        }
-
-        if (delBtn) {
-          e.preventDefault();
-          if (!addrId) return;
-          if (!confirm('정말 삭제하시겠습니까?')) return;
-          try {
-            const uid = await resolveUserId(); if (!uid) throw new Error('로그인이 필요합니다.');
-            const r = await fetch(`/users/${uid}/addresses/${addrId}`, { method:'DELETE', credentials:'same-origin' });
-            if (!r.ok) throw new Error(await r.text());
-            showForm(false);
-            await loadAddress();
-          } catch (err) { alert(err.message || '삭제 실패'); }
-          return;
+      //수정 버튼
+      editBtn.addEventListener("click", () => {
+        if (form.style.display === "none") {
+          form.style.display = "block";
+          //원본 데이터 저장
+          form.dataset.original = JSON.stringify({
+            label: form.label.value,
+            zip: form.zip.value,
+            roadAddr: form.roadAddr.value,
+            jibunAddr: form.jibunAddr.value,
+            addrDetail: form.addrDetail.value,
+            isdefaultShipping: form.default.checked
+          });
+        } else {
+          form.style.display = "none";
         }
       });
-    }
 
-    $id('btnAddrSave').addEventListener('click', async (e)=>{
-      e.preventDefault();
-      const addressId = $id('addrId').value;
-      const body = collect();
-      try {
-        const uid = await resolveUserId(); if (!uid) throw new Error('로그인이 필요합니다.');
-        if (addressId) {
-          const r = await fetch(`/users/${uid}/addresses/${addressId}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify(body) });
-          if (!r.ok) throw new Error(await r.text());
-          const updated = await json(r);
-        } else {
-          const r = await fetch(`/users/${uid}/addresses`, { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify(body) });
-          if (!r.ok) throw new Error(await r.text());
-          const data = await r.json();
+      //취소 버튼
+      cancelBtn.addEventListener("click", () => {
+        if (form.dataset.original) {
+          form.label.value = originalData.label || "";
+          form.zip.value = originalData.zip || "";
+          form.roadAddr.value = originalData.roadAddr || "";
+          form.jibunAddr.value = originalData.jibunAddr || "";
+          form.addrDetail.value = originalData.addrDetail || "";
+          form.default.checked = originalData.isdefaultShipping || false;
         }
-        showForm(false);
-        currentEditId=null;
-        if (currentEditButton) { currentEditButton.textContent='수정'; currentEditButton.classList.remove('active'); currentEditButton=null; }
-        const t=$id('addrFormTitle'); if (t) t.textContent='새 배송지';
-        // Ensure latest from server
-        await loadAddress();
-      } catch(e) {
-        alert(e.message || '저장 실패');
+        form.style.display = "none";
+      });
+
+      //초기화 버튼
+      resetBtn.addEventListener("click", () => {
+        form.label.value = "";
+        form.zip.value = "";
+        form.roadAddr.value = "";
+        form.jibunAddr.value = "";
+        form.addrDetail.value = "";
+        form.default.checked = false;
+      });
+
+      //저장 버튼
+      saveBtn.addEventListener("click", async () => {
+        const payload = {
+          label: form.label.value,
+          zip: form.zip.value,
+          roadAddr: form.roadAddr.value,
+          jibunAddr: form.jibunAddr.value,
+          addrDetail: form.addrDetail.value,
+          isdefaultShipping: form.default.checked
+        };
+
+        try {
+          const res = await fetch(`/api/users/me/addresses/${addr.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error("수정 실패");
+          await loadAddresses();
+        } catch (e) {
+          console.error(e);
+          alert("수정 중 오류가 발생했습니다.");
+        }
+      });
+
+      //삭제 버튼
+      deleteBtn.addEventListener("click", async () => {
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+        try {
+          const res = await fetch(`/api/users/me/addresses/${addr.id}`, {
+            method: "DELETE",
+            credentials: "include"
+          });
+          if (!res.ok) throw new Error("삭제 실패");
+          await loadAddresses();
+        } catch (e) {
+          console.error(e);
+          alert("삭제 중 오류가 발생했습니다.");
+        }
+      });
+    });
+  } catch (e) {
+    console.error(e);
+    listEl.innerHTML = `<div class="muted">배송지를 불러오는 중 오류가 발생했습니다.</div>`;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadAddresses();
+
+  const btnNew = document.getElementById("btnAddrNew");
+  const newForm = document.getElementById("newAddrForm");
+
+  if (btnNew && newForm) {
+    btnNew.addEventListener("click", () => {
+      newForm.style.display = newForm.style.display === "none" ? "block" : "none";
+    });
+
+    newForm.querySelector(".btn-cancel").addEventListener("click", () => {
+      newForm.style.display = "none";
+    });
+
+    newForm.querySelector(".btn-reset").addEventListener("click", () => {
+      newForm.reset();
+    });
+
+    newForm.querySelector(".btn-save").addEventListener("click", async () => {
+      const payload = {
+        label: newForm.label.value,
+        zip: newForm.zip.value,
+        roadAddr: newForm.roadAddr.value,
+        jibunAddr: newForm.jibunAddr.value,
+        addrDetail: newForm.addrDetail.value,
+        isdefaultShipping: newForm.default.checked
+      };
+
+      try {
+        const res = await fetch("/api/users/me/addresses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("추가 실패");
+        await loadAddresses();
+        newForm.reset();
+        newForm.style.display = "none";
+      } catch (e) {
+        console.error(e);
+        alert("저장 중 오류가 발생했습니다.");
       }
     });
-
-    $id('btnAddrDelete').addEventListener('click', async (e)=>{
-      e.preventDefault();
-      const addressId = $id('addrId').value;
-      if (!addressId) { alert('삭제할 배송지가 없습니다.'); return; }
-      if (!confirm('정말 삭제하시겠습니까?')) return;
-      try {
-        const uid = await resolveUserId(); if (!uid) throw new Error('로그인이 필요합니다.');
-        const r = await fetch(`/users/${uid}/addresses/${addressId}`, { method:'DELETE', credentials:'same-origin' });
-        if (!r.ok) throw new Error(await r.text());
-        showForm(false);
-        currentEditId=null;
-        if (currentEditButton) { currentEditButton.textContent='수정'; currentEditButton.classList.remove('active'); currentEditButton=null; }
-        const t=$id('addrFormTitle'); if (t) t.textContent='새 배송지';
-        await loadAddress();
-      } catch(e) { alert(e.message || '삭제 실패'); }
-    });
-
-    $id('btnAddrReset').addEventListener('click', (e)=>{ e.preventDefault(); resetForm(); });
   }
+});
 
-  document.addEventListener('DOMContentLoaded', ()=>{ loadAddress(); bindEvents(); });
-})();
