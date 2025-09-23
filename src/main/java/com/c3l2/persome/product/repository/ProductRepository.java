@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -40,5 +41,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE " +
             "p.name LIKE %:name% ")
     Page<Product> findByName(String name, Pageable pageable);
+
+    @Query("SELECT p.id FROM Product p ORDER BY function('RAND')")
+    List<Long> findRandomProductIds(Pageable pageable); // 홈 인기 섹션: 랜덤 추출
+
+    @Query("SELECT p.id FROM Product p ORDER BY p.createdAt DESC")
+    List<Long> findLatestProductIds(Pageable pageable); // 홈 신규 섹션: 생성일 최신순
 
 }
