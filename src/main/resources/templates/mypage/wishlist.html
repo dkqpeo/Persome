@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>마이페이지 | Persome</title>
+    <style>
+        body { font-family:"Noto Sans KR", Arial, sans-serif; margin:0; background:#fff; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+        .hero { background: linear-gradient(90deg, #F6F3FF, #FFFFFF); border:1px solid #eee; border-radius:14px; padding:18px; display:flex; align-items:center; justify-content:space-between; }
+        .hero .who { display:flex; align-items:center; gap:12px; }
+        .avatar { width:60px; height:60px; border-radius:50%; background:#EDE7FF; display:flex; align-items:center; justify-content:center; color:#4C3579; font-weight:800; font-size:22px; }
+        .hello .name { font-size:20px; font-weight:800; color:#222; }
+        .hello .id { font-size:13px; color:#666; }
+        .badge { background:#4C3579; color:#fff; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; }
+        .summary { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:16px; }
+        .kpi { padding:18px; border:1px solid #eee; border-radius:12px; background:#fafafa; text-align:center; text-decoration:none; color:inherit; transition:0.2s; }
+        .kpi:hover { background:#F6F3FF; }
+        .kpi .label { color:#666; font-size:13px; }
+        .kpi .value { font-size:24px; font-weight:800; color:#4C3579; margin-top:6px; }
+        .grid { display:grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top:18px; }
+        .card { border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+        .card .hd { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:700; }
+        .card .bd { padding:16px; }
+        .menu { list-style:none; margin: 0; padding:0; }
+        .menu li a { display: block; padding: 12px 14px; text-decoration: none; color: #333; border-radius: 8px; font-size: 15px; font-weight: 500; transition: 0.2s; }
+        .menu li a:hover { background: #F6F3FF; color: #A68DC0; font-weight: 600; }
+        .card .hd a { font-size: 18px; font-weight: 700; text-decoration: none; color: #222; }
+        .card .hd a:hover { color: #A68DC0; }
+
+        .mt16 { margin-top:16px; }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .summary { grid-template-columns: 1fr; }
+        }
+
+        /* 위시리스트 관련 css */
+        h2 { margin:0 0 20px; font-size:1.5em; font-weight:700; }
+        table { width:100%; border-collapse:collapse; margin-top:10px; }
+        th, td { padding:12px; border-bottom:1px solid #eee; text-align:left; }
+        th { background:#fafafa; font-weight:600; }
+        .product-box { display:flex; align-items:center; gap:16px; }
+        .product-box img { width:100px; border-radius:8px; flex-shrink:0; }
+        .product-info { display:flex; flex-direction:column; justify-content:center; }
+        .product-info .brand { font-weight:600; font-size:0.95em; color:#333; margin-bottom:4px; }
+        .product-info .name { font-size:0.9em; color:#444; line-height:1.4; white-space: normal; }
+
+        .price-box { display:flex; flex-direction:column; justify-content:center; }
+        .price { color:#e60023; font-weight:700; font-size:1.05em; }
+        .original { color:#999; font-size:0.9em; text-decoration:line-through; margin-right:6px; }
+
+        .delete-btn { background:#fff; border:1px solid #ddd; border-radius:6px; padding:6px 12px; cursor:pointer; font-size: 0.9em; }
+        .delete-btn:hover { border-color:#A68DC0; color:#A68DC0; }
+
+        .empty { padding:40px; text-align:center; color:#888; }
+    </style>
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+<div id="header"></div>
+<div id="siteHeader"></div>
+<div class="container">
+    <div class="hero">
+        <div class="who">
+            <div class="avatar" id="avatar">ME</div>
+            <div class="hello">
+                <div class="name" id="helloName">- 님</div>
+                <div class="id" id="helloId">-</div>
+            </div>
+        </div>
+        <div class="badge" id="helloBadge">BABY</div>
+    </div>
+    <div class="summary">
+        <div class="kpi"><div class="label">포인트</div><div id="kpiPoints" class="value">0</div></div>
+        <a class="kpi" href="/mypage/coupons"><div class="label">보유 쿠폰</div><div id="kpiCoupons" class="value">0</div></a>
+        <div class="kpi"><div class="label">위시리스트</div><div id="kpiWish" class="value">0</div></div>
+    </div>
+    <div class="grid">
+        <div class="card">
+            <div class="hd"><a href="/mypage">마이페이지</a></div>
+            <div class="bd">
+                <ul class="menu">
+                    <li><a href="/orders/my">주문/배송 조회</a></li>
+                    <li><a href="/mypage/info">마이정보</a></li>
+                    <li><a href="/mypage/addresses">배송지 관리</a></li>
+                    <li><a href="/mypage/coupons">쿠폰</a></li>
+                    <li><a href="/mypage/wishlist">위시리스트</a></li>
+                    <li><a href="/mypage/points">포인트</a></li>
+                    <li><a href="/mypage/notification">알림 설정</a></li>
+                    <li><a href="/users/logout">로그아웃</a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <section class="container">
+                <h2>위시리스트</h2>
+                <table id="wishlistTable">
+                    <thead>
+                    <tr>
+                        <th>상품</th>
+                        <th>가격</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+                    <tbody id="wishlistBody">
+                    <tr><td colspan="3" class="empty">불러오는 중...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+    <div id="mpAlert" class="muted mt16"></div>
+</div>
+<script src="/js/header.js"></script>
+<script src="/js/mypage.js"></script>
+<script>
+    // document.addEventListener('DOMContentLoaded', function(){
+    //     if (window.Persome) window.Persome.loadMyPage?.();
+    // });
+
+    async function fetchWishlist() {
+        try {
+            const res = await fetch("/api/users/me/wishlist", { credentials: "include" });
+            if (!res.ok) throw new Error("위시리스트 조회 실패");
+            return await res.json();
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    function renderWishlist(items) {
+        const tbody = document.getElementById("wishlistBody");
+        if (!items || items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="empty">위시리스트에 담긴 상품이 없습니다.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = items.map(item => `
+        <tr>
+            <td>
+                <div class="product-box">
+                    <img src="${item.productImageUrl}" alt="${item.productName}">
+                    <div class="product-info">
+                        <div class="brand">${item.brandName || ""}</div>
+                        <div class="name">${item.productName}</div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="price-box">
+                    <span class="original">${item.originalPrice.toLocaleString()}원</span>
+                    <span class="price">${item.salePrice.toLocaleString()}원</span>
+                </div>
+            </td>
+            <td>
+                <button class="delete-btn" onclick="deleteWishlist(${item.productId})">삭제</button>
+            </td>
+        </tr>
+    `).join("");
+    }
+
+    async function deleteWishlist(productId) {
+        if (!confirm("위시리스트에서 삭제하시겠습니까?")) return;
+        try {
+            const res = await fetch(`/api/users/me/wishlist/${productId}`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+            if (res.ok) {
+                loadWishlist();
+
+                updateWishlistKpi();
+            } else {
+                alert("삭제 실패");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("삭제 중 오류 발생");
+        }
+    }
+
+    async function updateWishlistKpi() {
+        try {
+            const res = await fetch("/api/users/me/wishlist/count", { credentials: "include" });
+            if (res.ok) {
+                document.getElementById("kpiWish").textContent = await res.text();
+            }
+        } catch (e) {
+            console.error("KPI 업데이트 실패", e);
+        }
+    }
+
+    async function loadWishlist() {
+        const items = await fetchWishlist();
+        renderWishlist(items);
+    }
+
+    loadWishlist();
+
+</script>
+</body>
+</html>
