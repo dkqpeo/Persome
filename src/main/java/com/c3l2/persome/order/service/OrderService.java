@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c3l2.persome.order.entity.OrderStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -242,6 +243,18 @@ public class OrderService {
                         order.getOrderTotalAmount(),
                         order.getOrderStatus().getLabel()
                 ));
+    }
+
+    //기간별 주문 조회
+    @Transactional(readOnly = true)
+    public List<OrderSummaryDto> getUserOrdersByRange(Long userId, LocalDate fromDate, LocalDate toDate) {
+        LocalDateTime from = fromDate.atStartOfDay();
+        LocalDateTime to = (toDate != null ? toDate.plusDays(1).atStartOfDay() : LocalDateTime.now());
+
+        return orderRepository.findByUserIdAndOrderDateBetween(userId, from, to)
+                .stream()
+                .map(OrderSummaryDto::fromEntity)
+                .toList();
     }
 
     //주문 상세 조회
