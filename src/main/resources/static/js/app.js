@@ -79,7 +79,7 @@
       if (min != null) priceText = formatPrice(min);
     }
     return `
-      <a class="product" href="/product/?id=${id}" style="text-decoration:none;color:inherit">
+      <a class="product" href="/products/${id}" style="text-decoration:none;color:inherit">
         <img src="${img}" alt="${p.name || ''}">
         <h3>${p.name || ''}</h3>
         <p>${priceText}</p>
