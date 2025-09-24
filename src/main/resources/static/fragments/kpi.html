@@ -1,0 +1,19 @@
+<style>
+    .summary { display:grid; grid-template-columns: repeat(3,1fr); gap:12px; margin-top:16px; }
+    .kpi {
+        padding:18px; border:1px solid #eee; border-radius:12px; background:#fafafa; text-align:center;
+        text-decoration: none;
+        color: inherit;
+        transition:0.2s;
+        display:block;
+    }
+    .kpi:hover { background:#F6F3FF; color:#A68DC0; }
+    .kpi .label { color:#666; font-size:13px; }
+    .kpi .value { font-size:24px; font-weight:800; color:#4C3579; margin-top:6px; }
+</style>
+
+<div class="summary">
+    <a class="kpi" href="points"><div class="label">포인트</div><div id="kpiPoints" class="value">0</div></a>
+    <a class="kpi" href="coupons"><div class="label">보유 쿠폰</div><div id="kpiCoupons" class="value">0</div></a>
+    <a class="kpi" href="mypage/wishlist"><div class="label">위시리스트</div><div id="kpiWish" class="value">0</div></a>
+</div>

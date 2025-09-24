@@ -65,37 +65,10 @@
 <div id="header"></div>
 <div id="siteHeader"></div>
 <div class="container">
-    <div class="hero">
-        <div class="who">
-            <div class="avatar" id="avatar">ME</div>
-            <div class="hello">
-                <div class="name" id="helloName">- 님</div>
-                <div class="id" id="helloId">-</div>
-            </div>
-        </div>
-        <div class="badge" id="helloBadge">BABY</div>
-    </div>
-    <div class="summary">
-        <div class="kpi"><div class="label">포인트</div><div id="kpiPoints" class="value">0</div></div>
-        <a class="kpi" href="/mypage/coupons"><div class="label">보유 쿠폰</div><div id="kpiCoupons" class="value">0</div></a>
-        <div class="kpi"><div class="label">위시리스트</div><div id="kpiWish" class="value">0</div></div>
-    </div>
+    <div id="hero"></div>
+    <div id="kpi"></div>
     <div class="grid">
-        <div class="card">
-            <div class="hd"><a href="/mypage">마이페이지</a></div>
-            <div class="bd">
-                <ul class="menu">
-                    <li><a href="/orders/my">주문/배송 조회</a></li>
-                    <li><a href="/mypage/info">마이정보</a></li>
-                    <li><a href="/mypage/addresses">배송지 관리</a></li>
-                    <li><a href="/mypage/coupons">쿠폰</a></li>
-                    <li><a href="/mypage/wishlist">위시리스트</a></li>
-                    <li><a href="/mypage/points">포인트</a></li>
-                    <li><a href="/mypage/notification">알림 설정</a></li>
-                    <li><a href="/users/logout">로그아웃</a></li>
-                </ul>
-            </div>
-        </div>
+        <div id="sidebar"></div>
         <div>
             <section>
                 <div class="card">
@@ -134,6 +107,8 @@
     </div>
 </div>
 <script src="/js/header.js"></script>
+<script src="/js/fragment-loader.js"></script>
 <script src="/js/myaddresses.js"></script>
+<script src="/js/mypage.js"></script>
 </body>
 </html>
