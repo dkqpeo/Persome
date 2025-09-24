@@ -77,10 +77,24 @@
         }
 
 
-        /* 가격 표시 */
-        .price { color:#888; text-decoration: line-through; font-size:0.9em; }
-        .final-price { color:#d32f2f; font-weight:bold; }
+        .price-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
 
+        .price-box .original {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 14px;
+        }
+
+        .price-box .price {
+            color: #e60023;
+            font-weight: 700;
+            font-size: 14px;   /* ✅ 정가랑 동일한 크기 */
+            text-decoration: none; /* ✅ 줄 없애기 */
+        }
         /* 배송 */
         .shipping { font-size:0.9em; color:#444; }
 
@@ -150,14 +164,12 @@
         }
 
         /* 바로구매 강조 */
-        .btn-buy {
-            border: 1px solid #4CAF50;
-            color: #4CAF50;
-            font-weight: bold;
+        .buy-btn {
+            border-color:#A68DC0; color:#A68DC0;
         }
-        .btn-buy:hover {
-            background: #4CAF50;
-            color: #fff;
+
+        .wishlist-btn.active {
+            color: #A68DC0;
         }
 
         /* Empty cart layout (structured, not image) */

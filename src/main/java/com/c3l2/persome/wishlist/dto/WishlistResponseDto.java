@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WishlistResponseDto {
     private Long productId;          // 상품 ID
+    private String brandName;        // 브랜드명
     private String productName;      // 상품명
     private String productImageUrl;  // 상품 이미지 URL
 

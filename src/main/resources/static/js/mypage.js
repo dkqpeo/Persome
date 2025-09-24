@@ -1,7 +1,10 @@
 // My Page: fetch REST APIs and populate dashboard
 (function() {
-  const json = async (res) => { const t = await res.text(); try { return t ? JSON.parse(t) : null; } catch { return t; } };
-  const apiGet = async (url) => { const r = await fetch(url, { credentials: 'same-origin' }); if(!r.ok) throw new Error(await r.text()); return json(r); };
+  const apiGet = async (url) => {
+    const r = await fetch(url, { credentials: 'include' }); // same-origin 대신 include 권장
+    if(!r.ok) throw new Error(await r.text());
+    return r.json(); // ✅ json(r) 대신 이걸로
+  };
 
   function initials(name) {
     if (!name) return 'ME';
@@ -12,7 +15,7 @@
 
   async function loadProfile() {
     try {
-      const me = await apiGet('/users/me');
+      const me = await apiGet('/api/users/me');
       if (!me) throw new Error('NOT_AUTH');
       // Hero header
       const av = document.getElementById('avatar');
@@ -48,9 +51,13 @@
 
   async function loadWishlist() {
     try {
-      const list = await apiGet('/users/me/wishlist');
-      document.getElementById('kpiWish').textContent = String((list && list.length) || 0);
-    } catch {}
+      const res = await fetch("/api/users/me/wishlist/count", { credentials: "include" });
+      if (res.ok) {
+        document.getElementById("kpiWish").textContent = await res.text();
+      }
+    } catch (e) {
+      console.error("위시리스트 카운트 불러오기 실패", e);
+    }
   }
 
   async function loadOrders() {
@@ -78,10 +85,10 @@
   async function init() {
     const ok = await loadProfile();
     if (!ok) return;
-    loadPoints();
-    loadCoupons();
-    loadWishlist();
-    loadOrders();
+    await loadPoints();
+    await loadCoupons();
+    await loadWishlist();
+    await loadOrders();
   }
 
   document.addEventListener('DOMContentLoaded', init);

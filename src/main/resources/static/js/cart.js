@@ -28,11 +28,8 @@
         }
 
         cartBody.innerHTML = cart.items.map(item => {
-            // ✅ 수량 select (1~10 + 10+)
-            const qtyOptions = Array.from({length: 10}, (_, i) => {
-                const val = i + 1;
-                return `<option value="${val}" ${item.quantity === val ? "selected" : ""}>${val}</option>`;
-            }).join("") + `<option value="10+">10+</option>`;
+            const totalOriginal = item.originalPrice * item.quantity;
+            const totalSale = item.salePrice * item.quantity;
 
             return `
       <tr>
@@ -41,12 +38,14 @@
           <div class="product-info">
             <img src="${item.imageUrl || '/images/no_image.png'}" alt="상품 이미지" class="product-img"/>
             <div>
+              <div class="brand">${item.brandName || ""}</div>
               <div class="product-name">${item.productName}</div>
               <div class="product-option">옵션: ${item.optionName}</div>
             </div>
           </div>
         </td>
-        <td>${item.unitPrice.toLocaleString()}원</td>
+        <!-- 판매가: 1개 원가 -->
+        <td>${item.originalPrice.toLocaleString()}원</td>
         <td>
             <div class="qty-control">
                 <select class="qty-select" data-id="${item.id}" style="${item.quantity > 10 ? 'display:none;' : 'inline-block'};">
@@ -55,8 +54,6 @@
                     `).join('')}
                     <option value="10+" ${item.quantity > 10 ? 'selected' : ''}>10+</option>
                 </select>
-
-                <!-- 10+ 선택 시 표시되는 입력칸 -->
                 <div class="qty-custom" data-id="${item.id}" style="display:${item.quantity > 10 ? 'flex' : 'none'};">
                     <input type="number" min="11" 
                         value="${item.quantity > 10 ? item.quantity : ''}" 
@@ -65,7 +62,13 @@
                 </div>
             </div>
         </td>
-        <td class="final-price">${item.finalPrice.toLocaleString()}원</td>
+        <!-- 구매가: 수량 * 정가 (회색+줄), 아래에 수량 * 할인가 (빨간색) -->
+        <td>
+          <div class="price-box">
+            <span class="original">${totalOriginal.toLocaleString()}원</span>
+            <span class="price">${totalSale.toLocaleString()}원</span>
+          </div>
+        </td>
         <td class="shipping">${item.shippingFee === 0 ? "무료배송" : item.shippingFee.toLocaleString() + "원"}</td>
         <td class="actions">
           <button class="buy-btn" data-id="${item.id}">바로구매</button>
@@ -104,24 +107,47 @@
             });
         });
 
-        // ✅ 찜하기
+        // ✅ 찜하기 토글
         document.querySelectorAll(".wishlist-btn").forEach(btn => {
             btn.addEventListener("click", async (e) => {
-                const productId = e.target.dataset.productId;
+                const productId = btn.dataset.productId;
+                const isActive = btn.classList.contains("active");
+
                 try {
-                    const res = await fetch("/api/users/me/wishlist", {
-                        method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({productId}),
-                        credentials: "include"
-                    });
-                    if (res.ok) {
-                        alert("위시리스트에 추가되었습니다!");
+                    if (isActive) {
+                        // 이미 찜 상태 → 삭제
+                        const res = await fetch(`/api/users/me/wishlist/${productId}`, {
+                            method: "DELETE",
+                            credentials: "include"
+                        });
+                        if (res.ok) {
+                            alert("위시리스트에서 삭제되었습니다.");
+                            btn.classList.remove("active");
+                            btn.textContent = "♡쇼핑찜";
+                        } else {
+                            const err = await res.json().catch(() => null);
+                            alert(err?.message || "위시리스트 삭제 실패");
+                        }
                     } else {
-                        alert("위시리스트 추가 실패");
+                        // 찜 안 된 상태 → 추가
+                        const res = await fetch("/api/users/me/wishlist", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ productId }),
+                            credentials: "include"
+                        });
+                        if (res.ok) {
+                            alert("위시리스트에 추가되었습니다!");
+                            btn.classList.add("active");
+                            btn.textContent = "♥쇼핑찜";
+                        } else {
+                            const err = await res.json().catch(() => null);
+                            alert(err?.message || "위시리스트 처리 실패");
+                        }
                     }
                 } catch (err) {
-                    console.error("찜하기 실패:", err);
+                    console.error("찜 토글 실패:", err);
+                    alert("위시리스트 처리 중 오류가 발생했습니다.");
                 }
             });
         });
@@ -148,7 +174,7 @@
 
         // ✅ 품절상품 삭제 (추후 구현)
         document.getElementById("removeSoldout")?.addEventListener("click", () => {
-            alert("품절상품 삭제 기능은 아직 구현되지 않았습니다.");
+            alert("품절상품이 없습니다.");
         });
 
         // ✅ 선택주문
