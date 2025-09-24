@@ -45,7 +45,7 @@ public class SecurityConfig {
 
                         // 뷰 컨트롤러 (GET 요청만)
                         .requestMatchers(HttpMethod.GET, "/users/login", "/users/register",
-                                "/users/find-id", "/users/find-password", "/users/terms").permitAll()
+                                "/users/find-id", "/users/find-password", "/users/terms", "/ranking").permitAll()
 
                         // API - 인증 불필요
                         .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/orders/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products/popular", "/products/new").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ranking/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

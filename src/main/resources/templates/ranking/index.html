@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>랭킹 - PERSOME</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/ranking.css">
+</head>
+<body>
+<div id="header"></div>
+<main class="ranking-main">
+    <section class="ranking-banner">
+        <div class="banner-text">
+            <p class="banner-title">랭킹</p>
+            <p class="banner-subtitle">오늘의 인기 상품을 한눈에 만나보세요</p>
+        </div>
+    </section>
+
+    <section class="ranking-category">
+        <div class="category-tabs" id="ranking-tabs"></div>
+        <div class="subcategory-filters" id="subcategory-filters" hidden>
+            <div class="filter-group">
+                <p class="filter-title">2차 카테고리</p>
+                <div class="chip-group" id="second-chips"></div>
+            </div>
+            <div class="filter-group" id="third-filter" hidden>
+                <p class="filter-title">3차 카테고리</p>
+                <div class="chip-group" id="third-chips"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ranking-products">
+        <header class="ranking-products-header">
+            <h2 class="ranking-title" id="ranking-title">전체 랭킹</h2>
+            <p class="ranking-description" id="ranking-description">전체 카테고리에서 선정한 80개의 인기 상품입니다.</p>
+        </header>
+        <div class="ranking-grid" id="ranking-grid"></div>
+        <div class="ranking-empty" id="ranking-empty" hidden>선택한 카테고리의 상품을 찾지 못했습니다.</div>
+    </section>
+</main>
+
+<script src="/js/header.js"></script>
+<script src="/js/ranking.js"></script>
+</body>
+</html>
