@@ -47,7 +47,7 @@ public class UserPointController {
             start = LocalDate.now().minusMonths(1);
         }
         if (end == null) {
-            start = LocalDate.now();
+            end = LocalDate.now();
         }
 
         Page<PointTransactionResponseDto> transactions =

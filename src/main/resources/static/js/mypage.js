@@ -66,7 +66,6 @@
     await loadPoints();
     await loadCoupons();
     await loadWishlist();
-    await loadOrders();
   }
 
   document.addEventListener('DOMContentLoaded', init);
