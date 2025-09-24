@@ -20,6 +20,7 @@ import com.c3l2.persome.payment.service.PaymentService;
 import com.c3l2.persome.point.dto.PointChangeRequestDto;
 import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.entity.TransactionType;
+import com.c3l2.persome.point.repository.PointTransactionRepository;
 import com.c3l2.persome.point.service.UserPointService;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
@@ -55,6 +56,7 @@ public class OrderService {
     private final UserPointService userPointService;
     private final UserCouponService userCouponService;
     private final PaymentService paymentService;
+    private final PointTransactionRepository pointTransactionRepository;
 
     //주문 준비
     public OrderPrepareResponseDto prepareOrder(List<Long> cartItemIds) {
@@ -228,6 +230,18 @@ public class OrderService {
         Payment savedPayment = paymentRepository.save(payment);
         savedOrder.paid(); //주문 상태 변경 - 결제 완료
 
+        // ✅ 9. 포인트 적립 (PointTransaction에만 기록됨)
+        int earnAmount = afterPoint.multiply(BigDecimal.valueOf(0.005)) // 0.5% 적립
+                .intValue();
+        if (earnAmount > 0) {
+            PointChangeRequestDto earnDto = PointChangeRequestDto.builder()
+                    .orderId(savedOrder.getId())
+                    .amount(earnAmount)
+                    .type(TransactionType.EARN)
+                    .build();
+            userPointService.changePoints(user.getId(), earnDto);
+        }
+
         return OrderResponseDto.fromEntity(savedOrder,PaymentResponseDto.fromEntity(savedPayment));
     }
 
@@ -285,9 +299,21 @@ public class OrderService {
             userPointService.changePoints(userId, restoreDto);
         }
 
-        //3. 상태 변경
-        order.cancel();
+        // 3. 적립 포인트 회수 (PointTransaction 조회)
+        pointTransactionRepository.findByUser_IdAndOrderIdAndType(userId, orderId, TransactionType.EARN)
+                .ifPresent(earnTx -> {
+                    if (earnTx.getAmount() > 0) {
+                        PointChangeRequestDto revokeDto = PointChangeRequestDto.builder()
+                                .orderId(order.getId())
+                                .amount(earnTx.getAmount())
+                                .type(TransactionType.USE) // 회수 → 차감
+                                .build();
+                        userPointService.changePoints(userId, revokeDto);
+                    }
+                });
 
+        // 4. 상태 변경
+        order.cancel();
         orderRepository.save(order);
     }
 

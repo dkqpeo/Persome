@@ -25,9 +25,9 @@ public class PointTransactionService {
                                                                     LocalDate endDate,
                                                                     Pageable pageable) {
         LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = endDate.atTime(LocalTime.MAX);
+        LocalDateTime end = endDate.plusDays(1).atStartOfDay();
 
-        return pointTransactionRepository.findByUserIdAndOccurredAtBetween(userId, start, end, pageable)
+        return pointTransactionRepository.findByUser_IdAndOccurredAtBetween(userId, start, end, pageable)
                 .map(PointTransactionResponseDto::fromEntity);
     }
 

@@ -114,6 +114,7 @@
             align-items: center;
             gap: 4px;
         }
+
         .point-table th:nth-child(2),
         .point-table td:nth-child(2) {
             width: 55%;
@@ -121,6 +122,15 @@
         .point-table th:nth-child(3),
         .point-table td:nth-child(3) {
             width: 25%;
+        }
+        .point-table th {
+            background: #fafafa;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .point-table td:first-child {
+            text-align: center;
         }
         .filter-label {
             font-weight: 700;
@@ -160,6 +170,51 @@
             color: #666;
         }
         .point-guide p { margin: 4px 0; }
+
+        /* 금액 표시 */
+        .point-table td .order-no {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .point-table td.amount {
+            font-weight: 700;
+            text-align: right;
+            font-size: 16px;
+        }
+
+        .point-table td.amount.plus { color: #E63946; }  /* + 빨간색 */
+        .point-table td.amount.minus { color: #666; }    /* - 회색 */
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination .page-btn {
+            display: inline-block;
+            margin: 0 4px;
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination .page-btn:hover {
+            border-color: #A68DC0;
+            color: #A68DC0;
+        }
+
+        .pagination .page-btn.active {
+            background: #A68DC0;
+            border-color: #A68DC0;
+            color: #fff;
+        }
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -227,6 +282,9 @@
                     </tbody>
                 </table>
 
+                <!-- 내역 테이블 아래쪽 -->
+                <div id="pointPagination" class="pagination"></div>
+
                 <!-- 안내 문구 -->
                 <div class="point-guide">
                     <p>· 구매 반품/취소 시에는 지급받으신 포인트는 회수 처리 됩니다.</p>
@@ -265,11 +323,61 @@
         }
 
         // 거래 내역 불러오기
-        async function fetchTransactions(start, end) {
-            const qs = new URLSearchParams({ start, end });
+        async function fetchTransactions(start, end, page = 0) {
+            const qs = new URLSearchParams({ start, end, page, size: 20 });
             const res = await fetch(`/api/users/me/points/transactions?${qs}`, { credentials: "include" });
             if (!res.ok) throw new Error("거래 내역 불러오기 실패");
             return res.json();
+        }
+
+        function renderPagination(pageData, start, end) {
+            const paginationEl = document.getElementById("pointPagination");
+            if (!paginationEl) return;
+
+            const currentPage = pageData.number; // 현재 페이지 (0-based)
+            const totalPages = pageData.totalPages;
+
+            if (totalPages === 0) {
+                paginationEl.innerHTML = "";
+                return;
+            }
+
+            const pageGroupSize = 10; // 10개 단위로 묶음
+            const currentGroup = Math.floor(currentPage / pageGroupSize);
+
+            const startPage = currentGroup * pageGroupSize;
+            const endPage = Math.min(startPage + pageGroupSize, totalPages);
+
+            let html = "";
+
+            // << 이전 그룹
+            if (startPage > 0) {
+                html += `<button class="page-btn" data-page="${startPage - 1}">≪</button>`;
+            }
+
+            // 페이지 번호
+            for (let i = startPage; i < endPage; i++) {
+                html += `<button class="page-btn ${i === currentPage ? "active" : ""}" data-page="${i}">
+            ${i + 1}
+        </button>`;
+            }
+
+            // >> 다음 그룹
+            if (endPage < totalPages) {
+                html += `<button class="page-btn" data-page="${endPage}">≫</button>`;
+            }
+
+            paginationEl.innerHTML = html;
+
+            // 버튼 이벤트 바인딩
+            paginationEl.querySelectorAll(".page-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    const page = parseInt(btn.dataset.page, 10);
+                    const data = await fetchTransactions(start, end, page);
+                    renderTransactions(data);
+                    renderPagination(data, start, end);
+                });
+            });
         }
 
         // 거래 내역 테이블 렌더링
@@ -279,13 +387,23 @@
                 listEl.innerHTML = `<tr><td colspan="3">조회 내역이 없습니다.</td></tr>`;
                 return;
             }
-            listEl.innerHTML = page.content.map(tx => `
-      <tr>
-        <td>${tx.date}</td>
-        <td>${tx.description.replace(/\n/g, "<br/>")}</td>
-        <td>${tx.amount}</td>
-      </tr>
-    `).join("");
+            listEl.innerHTML = page.content.map(tx => {
+                const [mainDesc, orderNo] = tx.description.split("\n");
+
+                // + / - 구분해서 클래스 지정
+                const cssClass = tx.amount.trim().startsWith("+") ? "plus" : "minus";
+
+                return `
+                    <tr>
+                        <td>${tx.date.replace(/-/g, ".")}</td>
+                        <td>
+                            <div>${mainDesc}</div>
+                            ${orderNo ? `<div class="order-no">${orderNo}</div>` : ""}
+                        </td>
+                        <td class="amount ${cssClass}">${tx.amount}</td>
+                    </tr>
+                `;
+            }).join("");
         }
 
         // 날짜 select 박스 제어
@@ -313,11 +431,15 @@
             document.getElementById(prefix + "Day").value = date.getDate();
         }
 
-        function getDate(prefix) {
+        function formatDate(y, m, d) {
+            return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        }
+
+        function getDateString(prefix) {
             const y = parseInt(document.getElementById(prefix + "Year").value, 10);
             const m = parseInt(document.getElementById(prefix + "Month").value, 10);
             const d = parseInt(document.getElementById(prefix + "Day").value, 10);
-            return new Date(y, m - 1, d);
+            return formatDate(y, m, d); // ✅ 타임존 영향 없음
         }
 
         // 소멸 포인트 조회 버튼
@@ -325,8 +447,11 @@
 
         // 조회 버튼
         document.getElementById("searchBtn").addEventListener("click", async () => {
-            const start = getDate("start");
-            const end = getDate("end");
+            const startStr = getDateString("start");
+            const endStr = getDateString("end");
+
+            const start = new Date(startStr);
+            const end = new Date(endStr);
             const today = new Date();
 
             // 시작일 > 종료일 체크
@@ -350,11 +475,9 @@
             }
 
             try {
-                const data = await fetchTransactions(
-                    start.toISOString().split("T")[0],
-                    end.toISOString().split("T")[0]
-                );
+                const data = await fetchTransactions(startStr, endStr, 0); // API는 문자열 사용
                 renderTransactions(data);
+                renderPagination(data, startStr, endStr);
             } catch (err) {
                 console.error(err);
             }

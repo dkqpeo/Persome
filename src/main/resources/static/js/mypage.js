@@ -34,7 +34,7 @@
 
   async function loadPoints() {
     try {
-      const p = await apiGet('/users/me/points');
+      const p = await apiGet('/api/users/me/points');
       const val = (p && (p.balance != null ? p.balance : p.currentPoint)) || 0;
       document.getElementById('kpiPoints').textContent = String(val);
     } catch {}

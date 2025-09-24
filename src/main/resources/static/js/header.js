@@ -21,7 +21,7 @@ async function setupHeader() {
         if (res.ok) {
             const user = await res.json();
             nav.innerHTML = `
-                <span>${user.displayName}</span>
+                <span>${user.data.displayName}</span>
                 | <a href="/users/logout">로그아웃</a>
                 | <a href="/mypage">마이페이지</a>
                 | <a href="/cart">장바구니 (<span id="cartCount">0</span>)</a>

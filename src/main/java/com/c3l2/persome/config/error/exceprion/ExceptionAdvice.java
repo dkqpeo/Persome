@@ -5,6 +5,8 @@ import com.c3l2.persome.config.error.ErrorResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -34,5 +36,11 @@ public class ExceptionAdvice {
         log.info("runtime error handler");
         ErrorResult errorResult = ErrorResult.of("E-000", e.getMessage() + "\n 서버 에러. 담당자에게 문의 바랍니다.");
         return ApiResponse.error(e.getMessage(), errorResult, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class})
+    public ResponseEntity<ApiResponse<ErrorResult>> handleAuthExceptions(RuntimeException e) {
+        ErrorResult errorResult = ErrorResult.of("AUTH-001", "아이디 또는 비밀번호가 올바르지 않습니다.");
+        return ApiResponse.error("아이디 또는 비밀번호가 올바르지 않습니다.", errorResult, HttpStatus.UNAUTHORIZED);
     }
 }
