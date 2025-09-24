@@ -48,4 +48,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p.id FROM Product p ORDER BY p.createdAt DESC")
     List<Long> findLatestProductIds(Pageable pageable); // 홈 신규 섹션: 생성일 최신순
 
+    /**
+     * 전달받은 카테고리 계층에 맞춰 랜덤한 상품 ID 목록을 가져온다.
+     */
+    @Query("""
+            SELECT DISTINCT p.id FROM Product p
+            WHERE (:thirdId IS NOT NULL AND p.category.id = :thirdId)
+               OR (:thirdId IS NULL AND :secondId IS NOT NULL AND (
+                       p.category.id = :secondId
+                       OR (p.category.parent IS NOT NULL AND p.category.parent.id = :secondId)
+               ))
+               OR (:thirdId IS NULL AND :secondId IS NULL AND :firstId IS NOT NULL AND (
+                       p.category.id = :firstId
+                       OR (p.category.parent IS NOT NULL AND p.category.parent.id = :firstId)
+                       OR (p.category.parent.parent IS NOT NULL AND p.category.parent.parent.id = :firstId)
+               ))
+            ORDER BY function('RAND')
+            """)
+    List<Long> findRandomProductIdsByHierarchy(@Param("firstId") Long firstId,
+                                               @Param("secondId") Long secondId,
+                                               @Param("thirdId") Long thirdId,
+                                               Pageable pageable);
+
 }

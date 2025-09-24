@@ -216,4 +216,8 @@ public class ProductService {
                 .map(ProductAllResponse::from)
                 .toList();
     }
+
+    public List<ProductAllResponse> getProductsByIdsPreservingOrder(List<Long> productIds) {
+        return buildProductResponses(productIds);
+    }
 }
