@@ -4,140 +4,32 @@
     <meta charset="UTF-8">
     <title>주문 / 결제</title>
     <style>
-        body {
-            font-family: "Noto Sans KR", Arial, sans-serif;
-            margin: 0;
-        }
-        .order-header {
-            background: #f3e9fa;
-            padding: 30px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .order-header-inner {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .order-title {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #111;
-        }
-        .step-indicator {
-            font-size: 1em;
-            color: #999;
-        }
-        .step-indicator .step {
-            margin: 0 6px;
-        }
-        .step-indicator .active {
-            font-weight: bold;
-            color: #111;
-        }
-        .step-indicator .arrow {
-            margin: 0 4px;
-            color: #bbb;
-        }
-        .order-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px;
-        }
-        h2 {
-            font-size: 1.3em;
-            margin: 0 0 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
-        }
-        .section {
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
-            background: #fff;
-        }
-        .section h2 {
-            background: #fafafa;
-            margin: 0;
-            padding: 15px;
-            font-size: 1.1em;
-            border-bottom: 1px solid #ddd;
-        }
-        .form-table, .summary-table, .product-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .form-table th, .form-table td,
-        .summary-table th, .summary-table td {
-            border-bottom: 1px solid #eee;
-            padding: 12px 15px;
-            text-align: left;
-        }
-        .form-table th {
-            width: 150px;
-            background: #fafafa;
-            font-weight: normal;
-            color: #444;
-        }
-        .product-table th, .product-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-        }
-        .product-table th {
-            background: #fafafa;
-        }
-        .product-table td img {
-            max-width: 80px;
-            max-height: 80px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-        .highlight {
-            color: #e60023;
-            font-weight: bold;
-        }
-        .payment-bar {
-            margin-top: 40px;
-            background: #fff;
-            padding: 20px;
-            border: 1px solid #ddd;
-        }
-        .summary-table th {
-            width: 200px;
-            background: #fafafa;
-        }
-        .summary-table td {
-            text-align: right;
-        }
-        .summary-table .total th,
-        .summary-table .total td {
-            font-size: 1.2em;
-            font-weight: bold;
-            border-top: 2px solid #A68DC0;
-            background: #f3e9fa;
-        }
-        .payment-bar button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 16px;
-            font-size: 1.2em;
-            font-weight: bold;
-            background: #A68DC0;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .payment-bar button:hover {
-            background: #9a74c3;
-        }
-        .summary-table .discount {
-            color: #e60023;
-            font-weight: bold;
-        }
-
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0}
+        .order-header{background:#f3e9fa;padding:30px 0;border-bottom:1px solid #ddd}
+        .order-header-inner{max-width:1000px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
+        .order-title{font-size:1.8em;font-weight:bold;color:#111}
+        .step-indicator{font-size:1em;color:#999}
+        .step-indicator .step{margin:0 6px}
+        .step-indicator .active{font-weight:bold;color:#111}
+        .step-indicator .arrow{margin:0 4px;color:#bbb}
+        .order-container{max-width:1000px;margin:0 auto;padding:40px}
+        h2{font-size:1.3em;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #eee}
+        .section{margin-bottom:30px;border:1px solid #ddd;background:#fff}
+        .section h2{background:#fafafa;margin:0;padding:15px;font-size:1.1em;border-bottom:1px solid #ddd}
+        .form-table,.summary-table,.product-table{width:100%;border-collapse:collapse}
+        .form-table th,.form-table td,.summary-table th,.summary-table td{border-bottom:1px solid #eee;padding:12px 15px;text-align:left}
+        .form-table th{width:150px;background:#fafafa;font-weight:normal;color:#444}
+        .product-table th,.product-table td{border:1px solid #ddd;padding:12px;text-align:center}
+        .product-table th{background:#fafafa}
+        .product-table td img{max-width:80px;max-height:80px;border-radius:6px;object-fit:cover}
+        .highlight{color:#e60023;font-weight:bold}
+        .payment-bar{margin-top:40px;background:#fff;padding:20px;border:1px solid #ddd}
+        .summary-table th{width:200px;background:#fafafa}
+        .summary-table td{text-align:right}
+        .summary-table .total th,.summary-table .total td{font-size:1.2em;font-weight:bold;border-top:2px solid #A68DC0;background:#f3e9fa}
+        .payment-bar button{margin-top:20px;width:100%;padding:16px;font-size:1.2em;font-weight:bold;background:#A68DC0;color:#fff;border:none;border-radius:6px;cursor:pointer}
+        .payment-bar button:hover{background:#9a74c3}
+        .summary-table .discount{color:#e60023;font-weight:bold}
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>

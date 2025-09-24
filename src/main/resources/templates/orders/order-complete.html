@@ -4,60 +4,16 @@
     <meta charset="UTF-8">
     <title>주문 완료</title>
     <style>
-        body {
-            font-family: "Noto Sans KR", Arial, sans-serif;
-            margin: 0;
-            background-color: #fafafa;
-        }
-        .complete-container {
-            max-width: 600px;
-            margin: 100px auto;
-            padding: 40px;
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-        .complete-title {
-            font-size: 2em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .complete-message {
-            font-size: 1.2em;
-            color: #555;
-            margin-bottom: 30px;
-        }
-        .btn-area {
-            margin-top: 30px;
-        }
-        .btn-area a {
-            display: inline-block;
-            margin: 0 10px;
-            padding: 14px 28px;
-            font-size: 1em;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: 0.2s;
-        }
-        .btn-home {
-            background: #A68DC0;
-            color: #fff;
-        }
-        .btn-home:hover {
-            background: #9a74c3;
-        }
-        .btn-orders {
-            background: #f3e9fa;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-        .btn-orders:hover {
-            background: #e6dff3;
-        }
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;}
+        .complete-container{max-width:600px;margin:100px auto;padding:40px;background:#fff;border:1px solid #eee;border-radius:12px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+        .complete-title{font-size:2em;font-weight:bold;color:#333;margin-bottom:20px}
+        .complete-message{font-size:1.2em;color:#555;margin-bottom:30px}
+        .btn-area{margin-top:30px}
+        .btn-area a{display:inline-block;margin:0 10px;padding:14px 28px;font-size:1em;font-weight:bold;text-decoration:none;border-radius:6px;transition:.2s}
+        .btn-home{background:#A68DC0;color:#fff}
+        .btn-home:hover{background:#9a74c3}
+        .btn-orders{background:#f3e9fa;color:#333;border:1px solid #ddd}
+        .btn-orders:hover{background:#e6dff3}
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -79,14 +35,16 @@
     document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get("orderId");
-        console.log(orderId)
 
-        if (orderId) {
-            document.getElementById("view-detail").addEventListener("click", (e) => {
-                e.preventDefault();
+        document.getElementById("view-detail").addEventListener("click", (e) => {
+            e.preventDefault();
+            if (orderId) {
                 window.location.href = `/orders/detail?orderId=${orderId}`;
-            });
-        }
+            }else{
+                window.location.href = "/orders/my";
+            }
+        });
+
     });
 </script>
 </body>
