@@ -1,33 +1,63 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>주문 내역 | Persome</title>
     <style>
-        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;color:#333}
-        .order-container{max-width:1000px;margin:40px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
-        h2{margin-bottom:20px;font-size:1.6em;font-weight:bold;color:#A68DC0;border-bottom:2px solid #eee;padding-bottom:10px}
-        table{width:100%;border-collapse:collapse}
-        th,td{padding:14px 10px;border-bottom:1px solid #eee;text-align:center}
-        th{background-color:#f2f2f2;font-weight:bold}
-        .btn-detail{padding:6px 12px;background-color:#A68DC0;color:#fff;border:none;border-radius:6px;cursor:pointer;text-decoration:none;font-size:.9em}
-        .btn-detail:hover{background-color:#8b73a5}
-        .empty{text-align:center;padding:30px 10px;color:#777}
-        .pagination{margin-top:20px;text-align:center}
-        .pagination button{margin:0 4px;padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer}
+        .order-container{border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04);padding:20px}
+        .order-container h2{margin:0 0 16px;font-size:18px;font-weight:700;color:#222;border-bottom:1px solid #f0f0f0;padding-bottom:8px}
+        .order-container table{width:100%;border-collapse:collapse;font-size:14px}
+        .order-container th,.order-container td{padding:14px 14px;border-bottom:1px solid #f7f7f7;text-align:center}
+        .order-container th{background:#fafafa;font-weight:600;color:#333}
+        .order-container .btn-detail{padding:6px 12px;background-color:#A68DC0;color:#fff;border-radius:6px;font-size:13px;text-decoration:none;transition:0.2s}
+        .order-container .btn-detail:hover{background-color:#8b73a5}
+        .order-container .empty{text-align:center;padding:20px;color:#777;font-size:14px}
+        .pagination{margin-top:16px;text-align:center}
+        .pagination button{margin:0 3px;padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer;font-size:13px}
         .pagination button.active{background:#A68DC0;color:#fff;border-color:#A68DC0}
-        .pagination button:disabled{color:#aaa;cursor:not-allowed;background:#f2f2f2}
+        .pagination button:disabled{color:#aaa;cursor:not-allowed;background:#f5f5f5}
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;background:#fff}
+        .container{max-width:1100px;margin:20px auto;padding:0 16px}
+        .grid{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px}
+        .card{border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .card .hd{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-weight:700}
+        .card .bd{padding:16px}
+        .menu li a{display:block;padding:12px 14px;text-decoration:none;color:#333;border-radius:8px;font-size:15px;font-weight:500;transition:0.2s}
+        .menu li a:hover{background:#F6F3FF;color:#A68DC0;font-weight:600}
+        .card .hd a{font-size:18px;font-weight:700;text-decoration:none;color:#222}
+        .card .hd a:hover{color:#A68DC0}
+        .orders ul{list-style:none;padding:0;margin:0}
+        .orders li{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f7f7f7;font-size:14px}
+        .orders .empty{color:#777;text-align:center;padding:20px 0;font-size:14px}
+        .muted{color:#777;font-size:13px}
+        .center{text-align:center}
+        .btn{display:inline-block;background:#A68DC0;color:#fff;text-decoration:none;padding:10px 14px;border-radius:6px;transition:0.2s}
+        .btn:hover{background:#8c75a6}
+        .mt16{margin-top:16px}
+        @media(max-width:768px){.grid{grid-template-columns:1fr}}
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
 <div id="header"></div>
-<div class="order-container">
-    <h2>주문 내역</h2>
-    <div id="orderList"></div>
-    <div id="pagination" class="pagination"></div>
+<div id="siteHeader"></div>
+<div class="container">
+    <div id="hero"></div>
+    <div id="kpi"></div>
+    <div class="grid">
+        <div id="sidebar"></div>
+        <div class="order-container">
+            <h2>주문 내역</h2>
+            <div id="orderList"></div>
+            <div id="pagination" class="pagination"></div>
+        </div>
+    </div>
+    <div id="mpAlert" class="muted mt16"></div>
 </div>
 <script src="/js/header.js"></script>
+<script src="/js/fragment-loader.js"></script>
+<script src="/js/mypage.js"></script>
 <script>
     let currentPage = 0;
     const pageSize = 10;

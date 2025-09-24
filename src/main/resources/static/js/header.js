@@ -25,7 +25,7 @@ async function setupHeader() {
                 | <a href="/users/logout">로그아웃</a>
                 | <a href="/mypage">마이페이지</a>
                 | <a href="/cart">장바구니 (<span id="cartCount">0</span>)</a>
-                | <a href="/orders/my">주문배송</a>
+                | <a href="/mypage/orders">주문배송</a>
                 | <a href="/help">고객센터</a>
             `;
             await loadCartCount();
@@ -34,7 +34,7 @@ async function setupHeader() {
                 <a href="/users/terms">회원가입</a> |
                 <a href="/users/login">로그인</a>
                 | <a href="/cart">장바구니</a>
-                | <a href="/orders/my">주문배송</a>
+                | <a href="mypage/orders">주문배송</a>
                 | <a href="/help">고객센터</a>
             `;
         }
