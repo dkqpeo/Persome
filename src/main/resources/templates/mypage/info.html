@@ -5,21 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>마이정보 | Persome</title>
     <style>
-        body { font-family:"Noto Sans KR", Arial, sans-serif; margin:0; background:#fff; }
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
-        .grid { display:grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top:18px; }
-        .side .hd { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:700; }
-        .side .bd { padding:12px 14px; }
-        .menu li a { display: block; padding: 12px 14px; text-decoration: none; color: #333; border-radius: 8px; font-size: 15px; font-weight: 500; transition: 0.2s; }
-        .menu li a:hover { background: #F6F3FF; color: #A68DC0; font-weight: 600; }
-        .card .hd a { font-size: 18px; font-weight: 700; text-decoration: none; color: #222; }
-        .card .hd a:hover { color: #A68DC0; }
-        .card { border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.04)}
-        .card .hd { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:700; }
-        .card .bd { padding:16px; }
-        .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-        .form-grid label { display:block; font-size:13px; color:#555; margin-bottom:4px; }
-        .form-grid input[type="text"] { width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; }
+        body {font-family:"Noto Sans KR",Arial,sans-serif;margin:0;color:#333}
+        .container {max-width:1100px;margin:30px auto;padding:0 16px}
+        .grid {display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px}
+        .card {border:1px solid #eee;border-radius:16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);overflow:hidden}
+        .card .hd {padding:16px 20px;border-bottom:1px solid #f0f0f0;font-weight:700;font-size:18px;color:#222;background:linear-gradient(90deg,#F6F3FF,#fff)}
+        .card .bd {padding:20px}
+        .info-list {list-style:none;margin:0;padding:0;display:grid;gap:16px}
+        .info-list li {padding:14px 16px;border:1px solid #f0f0f0;border-radius:8px;background:#fafafa;display:flex;flex-direction:column}
+        .info-list label {font-size:13px;color:#666;font-weight:600;margin-bottom:6px}
+        .info-list span {font-size:15px;color:#222;font-weight:600}
+        .info-list input {padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box}
+        .info-list input:focus {border-color:#A68DC0;outline:none;box-shadow:0 0 0 2px rgba(166,141,192,0.2)}
+        #infoActions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+        .btn {background:#A68DC0;color:#fff;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:background 0.2s}
+        .btn:hover {background:#8c75a6}
+        .btn-cancel {background:#ccc;color:#333}
+        .btn-cancel:hover {background:#999}
+        @media(max-width:768px) {.grid {grid-template-columns:1fr}}
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -31,31 +34,37 @@
     <div id="kpi"></div>
     <div class="grid">
         <div id="sidebar"></div>
-        <section>
-            <div class="card">
-                <div class="hd">회원 정보</div>
-                <div class="bd">
-                    <div class="form-grid">
-                        <div>
-                            <label>이름</label>
-                            <input id="u_name" type="text" placeholder="-" disabled />
-                        </div>
-                        <div>
-                            <label>아이디</label>
-                            <input id="u_loginId" type="text" placeholder="-" disabled />
-                        </div>
-                        <div>
-                            <label>이메일</label>
-                            <input id="u_email" type="text" placeholder="-" disabled />
-                        </div>
-                        <div>
-                            <label>생년월일</label>
-                            <input id="u_birth" type="text" placeholder="-" disabled />
-                        </div>
-                    </div>
+        <div class="card">
+            <div class="hd">회원 정보</div>
+            <div class="bd">
+                <ul class="info-list">
+                    <li>
+                        <label>이름</label>
+                        <span id="v_name" class="view-mode">-</span>
+                        <input id="i_name" class="edit-mode" type="text" style="display:none" />
+                    </li>
+                    <li>
+                        <label>아이디</label>
+                        <span id="v_loginId" class="view-mode">-</span>
+                        <input id="i_loginId" class="edit-mode" type="text" disabled style="display:none" />
+                    </li>
+                    <li>
+                        <label>이메일</label>
+                        <span id="v_email" class="view-mode">-</span>
+                        <input id="i_email" class="edit-mode" type="text" style="display:none" />
+                    </li>
+                    <li>
+                        <label>생년월일</label>
+                        <span id="v_birth" class="view-mode">-</span>
+                        <input id="i_birth" class="edit-mode" type="text" style="display:none" />
+                    </li>
+                </ul>
+                <div id="infoActions">
+                    <button id="btnEdit" class="btn">수정</button>
+                    <button class="btn" onclick="location.href='/mypage/password'">비밀번호 변경</button>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
 </div>
 <script src="/js/header.js"></script>

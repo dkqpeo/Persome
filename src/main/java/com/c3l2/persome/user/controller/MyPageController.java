@@ -30,4 +30,7 @@ public class MyPageController {
 
     @GetMapping("/orders")
     String myOrderPage(){ return "orders/order-list"; }
+
+    @GetMapping("/password")
+    public String myPasswordPage(){ return "/mypage/password-edit"; }
 }
