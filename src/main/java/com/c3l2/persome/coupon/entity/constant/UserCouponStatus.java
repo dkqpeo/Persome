@@ -1,10 +1,21 @@
 package com.c3l2.persome.coupon.entity.constant;
 
+import lombok.Getter;
+
+@Getter
 public enum UserCouponStatus {
 
-    ISSUED, USED, EXPIRED ;
+    ISSUED("발급됨"),
+    USED("사용완료"),
+    EXPIRED("만료됨");
 
-    public static UserCouponStatus of(String usercouponstatus) {
-        return UserCouponStatus.valueOf(usercouponstatus);
+    private final String label;
+
+    UserCouponStatus(String label) {
+        this.label = label;
     }
+
+    public static UserCouponStatus of(String userCouponStatus) {
+        return UserCouponStatus.valueOf(userCouponStatus);
     }
+}

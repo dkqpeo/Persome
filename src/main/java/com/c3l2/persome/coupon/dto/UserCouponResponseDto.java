@@ -18,6 +18,8 @@ public class UserCouponResponseDto {
     private String couponName;
     private String status;
     private LocalDateTime expiredAt;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 
     private DiscountType discountType;   // RATE or FIXED
     private BigDecimal discountValue;    // 30 (30% or 30원)
@@ -28,10 +30,12 @@ public class UserCouponResponseDto {
                 .userId(userCoupon.getUser().getId())
                 .couponId(userCoupon.getCoupon().getId())
                 .couponName(userCoupon.getCoupon().getName())
-                .status(userCoupon.getStatus().name())
+                .status(userCoupon.getStatus().getLabel())
                 .expiredAt(userCoupon.getExpiredAt())
                 .discountType(userCoupon.getCoupon().getDiscountType())
                 .discountValue(userCoupon.getCoupon().getDiscountValue())
+                .startDate(userCoupon.getCoupon().getStartDate())
+                .endDate(userCoupon.getCoupon().getEndDate())
                 .build();
     }
 }

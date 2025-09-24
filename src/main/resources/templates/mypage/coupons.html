@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>쿠폰 | Persome</title>
     <style>
-        body { font-family:"Noto Sans KR", Arial, sans-serif; margin:0; background:#fff; }
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
-        .hero { background: linear-gradient(90deg, #F6F3FF, #FFFFFF); border:1px solid #eee; border-radius:14px; padding:18px; display:flex; align-items:center; justify-content:space-between; }
-        .hero .who { display:flex; align-items:center; gap:12px; }
-        .avatar { width:60px; height:60px; border-radius:50%; background:#EDE7FF; display:flex; align-items:center; justify-content:center; color:#4C3579; font-weight:800; font-size:22px; }
-        .hello .name { font-size:20px; font-weight:800; color:#222; }
-        .hello .id { font-size:13px; color:#666; }
-        .badge { background:#4C3579; color:#fff; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; }
-        .summary { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-top:16px; }
-        .kpi { padding:18px; border:1px solid #eee; border-radius:12px; background:#fafafa; text-align:center; text-decoration:none; color:inherit; transition:0.2s; }
-        .kpi:hover { background:#F6F3FF; }
-        .kpi .label { color:#666; font-size:13px; }
-        .kpi .value { font-size:24px; font-weight:800; color:#4C3579; margin-top:6px; }
-        .grid { display:grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top:18px; }
-        .card { border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
-        .card .hd { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:700; }
-        .card .bd { padding:16px; }
-        .menu { list-style:none; margin: 0; padding:0; }
-        .menu li a { display: block; padding: 12px 14px; text-decoration: none; color: #333; border-radius: 8px; font-size: 15px; font-weight: 500; transition: 0.2s; }
-        .menu li a:hover { background: #F6F3FF; color: #A68DC0; font-weight: 600; }
-        .card .hd a { font-size: 18px; font-weight: 700; text-decoration: none; color: #222; }
-        .card .hd a:hover { color: #A68DC0; }
-        .coupon { border:1px dashed #A68DC0; border-radius:10px; padding:10px; margin-bottom:10px; background:#faf7ff; }
-        .coupon .name { font-weight:700; }
-        .coupon .meta { color:#666; font-size:12px; }
-
-        .mt16 { margin-top:16px; }
-        @media (max-width: 768px) {
-            .grid { grid-template-columns: 1fr; }
-            .summary { grid-template-columns: 1fr; }
-        }
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;background:#fff}
+        .container{max-width:1100px;margin:20px auto;padding:0 16px}
+        .hero{background:linear-gradient(90deg,#F6F3FF,#FFFFFF);border:1px solid #eee;border-radius:14px;padding:18px;display:flex;align-items:center;justify-content:space-between}
+        .hero .who{display:flex;align-items:center;gap:12px}
+        .avatar{width:60px;height:60px;border-radius:50%;background:#EDE7FF;display:flex;align-items:center;justify-content:center;color:#4C3579;font-weight:800;font-size:22px}
+        .hello .name{font-size:20px;font-weight:800;color:#222}
+        .hello .id{font-size:13px;color:#666}
+        .badge{background:#4C3579;color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600}
+        .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+        .kpi{padding:18px;border:1px solid #eee;border-radius:12px;background:#fafafa;text-align:center;text-decoration:none;color:inherit;transition:0.2s}
+        .kpi:hover{background:#F6F3FF}
+        .kpi .label{color:#666;font-size:13px}
+        .kpi .value{font-size:24px;font-weight:800;color:#4C3579;margin-top:6px}
+        .grid{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px}
+        .card{border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .card .hd{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-weight:700}
+        .card .bd{padding:16px}
+        .menu{list-style:none;margin:0;padding:0}
+        .menu li a{display:block;padding:12px 14px;text-decoration:none;color:#333;border-radius:8px;font-size:15px;font-weight:500;transition:0.2s}
+        .menu li a:hover{background:#F6F3FF;color:#A68DC0;font-weight:600}
+        .card .hd a{font-size:18px;font-weight:700;text-decoration:none;color:#222}
+        .card .hd a:hover{color:#A68DC0}
+        .coupon{position:relative;border:1px solid #A68DC0;border-radius:12px;padding:16px;margin-bottom:14px;background:linear-gradient(90deg,rgba(166,141,192,0.08),#fff);display:flex;justify-content:space-between;align-items:center;transition:0.2s}
+        .coupon:hover{box-shadow:0 4px 12px rgba(166,141,192,0.2);transform:translateY(-2px)}
+        .coupon::before,.coupon::after{content:"";position:absolute;top:50%;width:18px;height:18px;background:#fff;border:1px solid #A68DC0;border-radius:50%;transform:translateY(-50%)}
+        .coupon::before{left:-10px}
+        .coupon::after{right:-10px}
+        .coupon .name{font-size:16px;font-weight:700;color:#4C3579;margin-bottom:6px}
+        .coupon .discount{font-size:22px;font-weight:800;color:#A68DC0}
+        .coupon .meta{font-size:12px;color:#777;margin-top:4px}
+        .coupon.expired{border-color:#ccc;background:#f9f9f9;color:#aaa}
+        .coupon.expired .name,.coupon.expired .discount,.coupon.expired .meta{color:#aaa}
+        .mt16{margin-top:16px}
+        @media(max-width:768px){.grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr}}
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -54,9 +57,18 @@
         <div class="badge" id="helloBadge">BABY</div>
     </div>
     <div class="summary">
-        <div class="kpi"><div class="label">포인트</div><div id="kpiPoints" class="value">0</div></div>
-        <a class="kpi" href="/mypage/coupons"><div class="label">보유 쿠폰</div><div id="kpiCoupons" class="value">0</div></a>
-        <div class="kpi"><div class="label">위시리스트</div><div id="kpiWish" class="value">0</div></div>
+        <div class="kpi">
+            <div class="label">포인트</div>
+            <div id="kpiPoints" class="value">0</div>
+        </div>
+        <a class="kpi" href="/mypage/coupons">
+            <div class="label">보유 쿠폰</div>
+            <div id="kpiCoupons" class="value">0</div>
+        </a>
+        <div class="kpi">
+            <div class="label">위시리스트</div>
+            <div id="kpiWish" class="value">0</div>
+        </div>
     </div>
     <div class="grid">
         <div class="card">
@@ -76,8 +88,18 @@
         </div>
         <div>
             <section>
-                <div class="card"><div class="hd">보유 쿠폰</div><div class="bd" id="couponList"><div class="muted">로딩 중…</div></div></div>
-                <div class="card" style="margin-top:14px;"><div class="hd">사용 가능 쿠폰</div><div class="bd" id="availableList"><div class="muted">로딩 중…</div></div></div>
+                <div class="card">
+                    <div class="hd">보유 쿠폰</div>
+                    <div class="bd" id="couponList">
+                        <div class="muted">로딩 중…</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:14px;">
+                    <div class="hd">사용 가능 쿠폰</div>
+                    <div class="bd" id="availableList">
+                        <div class="muted">로딩 중…</div>
+                    </div>
+                </div>
             </section>
         </div>
     </div>
@@ -86,9 +108,92 @@
 <script src="/js/header.js"></script>
 <script src="/js/app.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function(){
-        if (window.Persome) window.Persome.loadMyPage?.();
+    document.addEventListener("DOMContentLoaded", async () => {
+        const couponList = document.getElementById("couponList");
+        const availableList = document.getElementById("availableList");
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "-";
+            return new Date(dateStr).toISOString().split("T")[0]; // YYYY-MM-DD
+        }
+
+        //사용자 전체 쿠폰 조회
+        async function loadUserCoupons() {
+            try {
+                const res = await fetch("/api/users/me/coupons", {credentials: "include"});
+                if (!res.ok) throw new Error("쿠폰을 불러올 수 없습니다.");
+                const {data} = await res.json();
+
+                if (!data || data.length === 0) {
+                    couponList.innerHTML = `<div class="muted">보유한 쿠폰이 없습니다.</div>`;
+                    return;
+                }
+                //정렬: 사용 가능 → 만료/사용완료 순
+                const sorted = [...data].sort((a, b) => {
+                    const aExpired = a.status === "만료됨" || a.status === "사용완료";
+                    const bExpired = b.status === "만료됨" || b.status === "사용완료";
+                    if (aExpired === bExpired) return 0;
+                    return aExpired ? 1 : -1; // 만료된 건 뒤로
+                });
+
+                couponList.innerHTML = sorted.map(coupon => {
+                    const isExpired = coupon.status === '만료됨' || coupon.status === '사용완료';
+                    return `
+                        <div class="coupon ${isExpired ? 'expired' : ''}">
+                          <div>
+                            <div class="name">${coupon.couponName}</div>
+                            <div class="discount">
+                              ${coupon.discountType === "RATE" ? coupon.discountValue + "%" : coupon.discountValue.toLocaleString() + "원"} 할인
+                            </div>
+                            <div class="meta">
+                              사용기간: ${formatDate(coupon.startDate)} ~ ${formatDate(coupon.endDate)} | ${coupon.status}
+                            </div>
+                          </div>
+                        </div>
+                      `;
+                }).join("");
+            } catch (err) {
+                console.error(err);
+                couponList.innerHTML = `<div class="muted">쿠폰 불러오기 실패</div>`;
+            }
+        }
+
+        //적용 가능한 쿠폰 조회
+        async function loadAvailableCoupons() {
+            try {
+                const res = await fetch("/api/users/me/coupons/available", {credentials: "include"});
+                if (!res.ok) throw new Error("적용 가능한 쿠폰을 불러올 수 없습니다.");
+                const {data} = await res.json();
+
+                if (!data || data.length === 0) {
+                    availableList.innerHTML = `<div class="muted">적용 가능한 쿠폰이 없습니다.</div>`;
+                    return;
+                }
+
+                availableList.innerHTML = data.map(coupon => `
+                    <div class="coupon">
+                      <div>
+                        <div class="name">${coupon.couponName}</div>
+                        <div class="discount">
+                          ${coupon.discountType === "RATE" ? coupon.discountValue + "%" : coupon.discountValue.toLocaleString() + "원"} 할인
+                        </div>
+                        <div class="meta">
+                          사용기간: ${formatDate(coupon.startDate)} ~ ${formatDate(coupon.endDate)}
+                        </div>
+                      </div>
+                    </div>
+                `).join("");
+            } catch (err) {
+                console.error(err);
+                availableList.innerHTML = `<div class="muted">적용 가능 쿠폰 불러오기 실패</div>`;
+            }
+        }
+
+        // 실행
+        await loadUserCoupons();
+        await loadAvailableCoupons();
     });
 </script>
+
 </body>
 </html>
