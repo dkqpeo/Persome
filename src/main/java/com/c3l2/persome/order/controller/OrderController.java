@@ -1,6 +1,7 @@
 package com.c3l2.persome.order.controller;
 
 import com.c3l2.persome.common.ApiResponse;
+import com.c3l2.persome.order.dto.response.OrderCountDto;
 import com.c3l2.persome.order.dto.response.OrderPrepareResponseDto;
 import com.c3l2.persome.order.dto.response.OrderResponseDto;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
@@ -42,22 +43,22 @@ public class OrderController {
     public ResponseEntity<ApiResponse<Page<OrderSummaryDto>>> getOrders(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ){
-        Page<OrderSummaryDto> orders = orderService.getUserOrders(userDetails.getId(), page, size);
-        return ApiResponse.ok("주문 내역 조회 성공.",orders);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate
+    ) {
+        Page<OrderSummaryDto> orders = orderService.getUserOrders(userDetails.getId(), page, size, fromDate);
+        return ApiResponse.ok("주문 내역 조회 성공.", orders);
     }
 
-    //주문 기간별 조회
-    // 기간별 주문 조회 (페이지 없음)
+    //기간별 주문 count 조회
     @GetMapping("/my/range")
-    public ResponseEntity<ApiResponse<List<OrderSummaryDto>>> getOrdersByRange(
+    public ResponseEntity<ApiResponse<List<OrderCountDto>>> getOrderStatusCountsByRange(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
-        List<OrderSummaryDto> orders = orderService.getUserOrdersByRange(userDetails.getId(), fromDate, toDate);
-        return ApiResponse.ok("기간별 주문 내역 조회 성공", orders);
+        List<OrderCountDto> counts = orderService.getUserOrderStatusCounts(userDetails.getId(), fromDate, toDate);
+        return ApiResponse.ok("기간별 주문 상태 카운트 조회 성공", counts);
     }
 
     //주문 상세 조회
