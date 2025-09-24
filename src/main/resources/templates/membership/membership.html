@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERSOME 멤버십</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .membership-header {
+            text-align: left;
+            margin-bottom: 60px;
+            background: #f8f9fa;
+            color: #333;
+            padding: 80px 40px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0;
+        }
+        
+        .membership-header::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            right: 60px;
+            width: 50px;
+            height: 50px;
+            background: #ff6b35;
+            border-radius: 50%;
+        }
+        
+        .membership-header::after {
+            content: '';
+            position: absolute;
+            top: 100px;
+            right: 140px;
+            width: 70px;
+            height: 35px;
+            background: #4ecdc4;
+            border-radius: 20px;
+        }
+        
+        .header-decoration {
+            position: absolute;
+            top: 50px;
+            right: 200px;
+            width: 80px;
+            height: 50px;
+            background: #ffe66d;
+            border-radius: 25px 25px 0 25px;
+        }
+        
+        .membership-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .membership-header p {
+            font-size: 18px;
+            margin: 0 0 40px 0;
+            color: #666;
+            font-weight: 400;
+        }
+        
+        .header-buttons {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+        
+        .header-btn.primary {
+            background: #666;
+            color: white;
+        }
+        
+        .header-btn.secondary {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .header-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .membership-notice {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .membership-notice h3 {
+            color: #333;
+            margin: 0 0 20px 0;
+            font-size: 20px;
+        }
+        
+        .notice-btn {
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .membership-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+        
+        .level-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--level-color);
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .level-card.baby { --level-color: #ff9a9e; }
+        .level-card.pink { --level-color: #f093fb; }
+        .level-card.green { --level-color: #4facfe; }
+        .level-card.black { --level-color: #43e97b; }
+        .level-card.gold { --level-color: #fad0c4; }
+        
+        .level-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            color: var(--level-color);
+        }
+        
+        .level-condition {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .level-benefits {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .level-benefits li {
+            background: #f8f9fa;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .benefits-section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .benefits-section h2 {
+            font-size: 28px;
+            margin: 0 0 30px 0;
+            text-align: center;
+            color: #333;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .benefit-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 20px;
+            color: white;
+        }
+        
+        .benefit-content h3 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .benefit-content p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .join-section {
+            text-align: center;
+            background: white;
+            border-radius: 16px;
+            padding: 60px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .join-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .join-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .membership-header {
+                padding: 40px 20px;
+            }
+            
+            .membership-header h1 {
+                font-size: 32px;
+            }
+            
+            .membership-levels {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    
+    <div class="container">
+        <!-- 헤더 섹션 -->
+        <div class="membership-header">
+            <div class="header-decoration"></div>
+            <h1>PERSOME 멤버십 라운지</h1>
+            <p>쇼핑하는 재미! PERSOME만의 더 특별한 혜택</p>
+            <div class="header-buttons">
+                <a href="/membership" class="header-btn primary">PERSOME 멤버십</a>
+                <a href="/coupons" class="header-btn secondary">쿠폰/혜택</a>
+            </div>
+        </div>
+        
+        <!-- 안내 메시지 -->
+        <div class="membership-notice">
+            <h3>로그인 후 고객님의 등급과 특별한 혜택을 확인하세요</h3>
+            <a href="/users/login" class="notice-btn">로그인하기</a>
+        </div>
+        
+        <!-- 멤버십 등급 -->
+        <!--<div id="levels" class="membership-levels">
+            <div class="level-card baby">
+                <h3 class="level-name">BABY</h3>
+                <p class="level-condition">10만원 미만</p>
+                <ul class="level-benefits">
+                    <li>신규 가입 축하 쿠폰</li>
+                    <li>생일 축하 쿠폰</li>
+                    <li>무료 배송 혜택</li>
+                </ul>
+            </div>
+            
+            <div class="level-card pink">
+                <h3 class="level-name">PINK</h3>
+                <p class="level-condition">10만원 이상 ~ 40만원 미만</p>
+                <ul class="level-benefits">
+                    <li>2% 추가 적립</li>
+                    <li>월 1회 할인 쿠폰</li>
+                    <li>우선 배송 서비스</li>
+                    <li>특별 이벤트 참여</li>
+                </ul>
+            </div>
+            
+            <div class="level-card green">
+                <h3 class="level-name">GREEN</h3>
+                <p class="level-condition">40만원 이상 ~ 70만원 미만</p>
+                <ul class="level-benefits">
+                    <li>3% 추가 적립</li>
+                    <li>월 2회 할인 쿠폰</li>
+                    <li>무료 샘플 증정</li>
+                    <li>VIP 고객센터</li>
+                    <li>신제품 미리보기</li>
+                </ul>
+            </div>
+            
+            <div class="level-card black">
+                <h3 class="level-name">BLACK</h3>
+                <p class="level-condition">70만원 이상 ~ 100만원 미만</p>
+                <ul class="level-benefits">
+                    <li>5% 추가 적립</li>
+                    <li>월 3회 할인 쿠폰</li>
+                    <li>전용 상품 라인</li>
+                    <li>개인 맞춤 추천</li>
+                    <li>무료 교환/반품</li>
+                    <li>특별 할인 이벤트</li>
+                </ul>
+            </div>
+            
+            <div class="level-card gold">
+                <h3 class="level-name">GOLD</h3>
+                <p class="level-condition">100만원 이상</p>
+                <ul class="level-benefits">
+                    <li>10% 추가 적립</li>
+                    <li>무제한 할인 쿠폰</li>
+                    <li>프리미엄 배송</li>
+                    <li>전담 컨설턴트</li>
+                    <li>한정판 상품 우선 구매</li>
+                    <li>연간 스페셜 기프트</li>
+                    <li>VIP 전용 이벤트</li>
+                </ul>
+            </div>
+        </div>-->
+        
+        <!-- 공통 혜택 -->
+        <div id="benefits" class="benefits-section">
+            <h2>PERSOME 멤버십 신규 가입 & 첫 구매 혜택</h2>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎁</div>
+                    <div class="benefit-content">
+                        <h3>PERSOME 멤버십 신규 가입 쿠폰</h3>
+                        <p>10% 할인 쿠폰 (최대 5천원)</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">💰</div>
+                    <div class="benefit-content">
+                        <h3>온라인 무료배송 쿠폰</h3>
+                        <p>3만원 미만 구매시에도 무료배송</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🌟</div>
+                    <div class="benefit-content">
+                        <h3>CJ ONE 포인트 적립</h3>
+                        <p>구매금액의 1% 기본 적립</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🎯</div>
+                    <div class="benefit-content">
+                        <h3>생일 쿠폰</h3>
+                        <p>매년 생일마다 특별 할인 혜택</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">🚚</div>
+                    <div class="benefit-content">
+                        <h3>온라인 무료배송 쿠폰</h3>
+                        <p>매월 제공되는 무료배송 혜택</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-content">
+                        <h3>오늘드림 무료배송 쿠폰</h3>
+                        <p>당일 배송 서비스 무료 이용</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PERSOME 멤버십 등급별 다양한 혜택 -->
+        <div class="benefits-section">
+            <h2>PERSOME 멤버십 등급별 다양한 혜택을 확인하세요</h2>
+            <div style="text-align: center; margin: 40px 0;">
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: white;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 15px; border: 1px solid #ddd; text-align: center;">등급별 혜택</th>
+                            <th style="padding: 15px; border: 1px solid #ddd; text-align: center; color: #674ea7;">BABY</th>
+                            <th style="padding: 15px; border: 1px solid #ddd; text-align: center; color: #ff6b9d;">PINK</th>
+                            <th style="padding: 15px; border: 1px solid #ddd; text-align: center; color: #37b042;">GREEN</th>
+                            <th style="padding: 15px; border: 1px solid #ddd; text-align: center; color: #333;">BLACK</th>
+                            <th style="padding: 15px; border: 1px solid #ddd; text-align: center; color: #ffd700;">GOLD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-weight: 600;">연간 기준<br>(최근 12개월 구매 금액)</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">10만원 미만</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">10만원 이상<br>40만원 미만</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">40만원 이상<br>70만원 미만</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">70만원 이상<br>100만원 미만</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">100만원 이상</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-weight: 600;">CJ ONE 포인트 적립률</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">1.0%</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">1.0%</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">1.0%</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">1.5%</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">1.5%</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-weight: 600;">생일 쿠폰<br>(매년 생일 시즌에 제공)</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">2천원 상품권<br>쿠폰북</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">1만 상품권<br>쿠폰북</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">순간 무료배송<br>쿠폰북</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">2만원 상품권<br>1만원 쿠폰</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">1만원 매일<br>쿠폰북</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-weight: 600;">온라인 무료배송 쿠폰</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-weight: 600;">오늘드림 무료배송 쿠폰</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">○</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/header.js"></script>
+</body>
+</html>
