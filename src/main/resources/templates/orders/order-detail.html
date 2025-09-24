@@ -1,155 +1,147 @@
 <!DOCTYPE html>
-<html lang="ko" >
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>주문 상세</title>
+    <title>주문 상세 | Persome</title>
     <style>
-        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;color:#333}
-        .container{max-width:1000px;margin:40px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
-        h2{font-size:1.5em;margin-bottom:15px;border-bottom:2px solid #eee;padding-bottom:10px}
-        table{width:100%;border-collapse:collapse;margin-bottom:30px}
-        th,td{border:1px solid #ddd;padding:12px;text-align:left}
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;background:#fff;color:#333}
+        .container{max-width:1100px;margin:20px auto;padding:0 16px}
+        .grid{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px}
+        .card{border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .card .hd{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-weight:700}
+        .card .bd{padding:16px}
+        .menu li a{display:block;padding:12px 14px;text-decoration:none;color:#333;border-radius:8px;font-size:15px;font-weight:500;transition:.2s}
+        .menu li a:hover{background:#F6F3FF;color:#A68DC0;font-weight:600}
+        .card .hd a{font-size:18px;font-weight:700;text-decoration:none;color:#222}
+        .card .hd a:hover{color:#A68DC0}
+        .order-container{padding:20px}
+        .order-container h2{font-size:16px;margin:16px 0 10px;color:#A68DC0;border-bottom:1px solid #f0f0f0;padding-bottom:6px;font-weight:700}
+        table{width:100%;border-collapse:collapse;margin-bottom:24px}
+        th,td{border:1px solid #ddd;padding:12px;text-align:left;font-size:14px}
         th{background:#fafafa;width:180px}
-        .highlight{color:#e60023;font-weight:bold}
+        .highlight{color:#e60023;font-weight:700}
         .product-img{max-width:80px;max-height:80px;border-radius:6px;object-fit:cover}
         .btn-area{text-align:center;margin-top:20px}
-        .btn-area a{display:inline-block;padding:12px 24px;margin:0 10px;background:#A68DC0;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold}
-        .btn-area a:hover{background:#9a74c3}
-        .payment-table th,.payment-table td{border:none;padding:10px 12px;text-align:left;font-size:1em}
+        .btn-area a{display:inline-block;padding:10px 20px;margin:0 6px;background:#A68DC0;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px}
+        .btn-area a:hover{background:#8c75a6}
+        .payment-table th,.payment-table td{border:none;padding:8px 12px;text-align:left;font-size:14px}
         .payment-table th{font-weight:normal;color:#555;width:200px}
-        .payment-table td{text-align:right;font-weight:bold}
+        .payment-table td{text-align:right;font-weight:600}
         .payment-table .discount{color:#e60023;font-weight:normal}
-        .payment-table .highlight{color:#e60023;font-weight:bold;font-size:1.2em}
-        .payment-table .total-label{font-weight:bold;color:#000}
+        .payment-table .highlight{color:#e60023;font-weight:700;font-size:1.2em}
+        .payment-table .total-label{font-weight:700;color:#000}
         .payment-table .divider td{border-top:1px dashed #ddd;padding:6px 0}
+        @media(max-width:768px){.grid{grid-template-columns:1fr}}
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
 <div id="header"></div>
+<div id="siteHeader"></div>
 <div class="container">
-    <h2>주문 상세 내역</h2>
+    <div id="hero"></div>
+    <div id="kpi"></div>
+    <div class="grid">
+        <div id="sidebar"></div>
+        <div class="card">
+            <div class="hd">주문 상세 내역</div>
+            <div class="bd order-container">
+                <!-- 주문 정보 -->
+                <h2>주문 정보</h2>
+                <table>
+                    <tr><th>주문 번호</th><td id="order-id"></td></tr>
+                    <tr><th>주문일자</th><td id="order-date"></td></tr>
+                    <tr><th>주문 상태</th><td id="order-status"></td></tr>
+                </table>
 
-    <!-- 주문 정보 -->
-    <table>
-        <tr><th>주문 번호</th><td id="order-id"></td></tr>
-        <tr><th>주문일자</th><td id="order-date"></td></tr>
-        <tr><th>주문 상태</th><td id="order-status"></td></tr>
-    </table>
+                <!-- 배송 정보 -->
+                <h2>배송지 정보</h2>
+                <table>
+                    <tr><th>받는 분</th><td id="receiver-name"></td></tr>
+                    <tr><th>연락처</th><td id="receiver-phone"></td></tr>
+                    <tr><th>주소</th><td id="address"></td></tr>
+                    <tr><th>요청사항</th><td id="request-message"></td></tr>
+                </table>
 
-    <!-- 배송 정보 -->
-    <h2>배송지 정보</h2>
-    <table>
-        <tr><th>받는 분</th><td id="receiver-name"></td></tr>
-        <tr><th>연락처</th><td id="receiver-phone"></td></tr>
-        <tr><th>주소</th><td id="address"></td></tr>
-        <tr><th>요청사항</th><td id="request-message"></td></tr>
-    </table>
+                <!-- 상품 목록 -->
+                <h2>주문 상품</h2>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>상품 이미지</th>
+                        <th>상품명</th>
+                        <th>단가</th>
+                        <th>수량</th>
+                        <th>총액</th>
+                    </tr>
+                    </thead>
+                    <tbody id="order-items"></tbody>
+                </table>
 
-    <!-- 상품 목록 -->
-    <h2>주문 상품</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>상품 이미지</th>
-            <th>상품명</th>
-            <th>단가</th>
-            <th>수량</th>
-            <th>총액</th>
-        </tr>
-        </thead>
-        <tbody id="order-items"></tbody>
-    </table>
+                <!-- 결제 정보 -->
+                <h2>결제 정보</h2>
+                <table class="payment-table">
+                    <tr><th>총 상품금액</th><td id="original-price"></td></tr>
+                    <tr><th>총 배송비</th><td id="delivery-fee"></td></tr>
+                    <tr class="divider"><td colspan="2"></td></tr>
+                    <tr><th>쿠폰 할인</th><td id="coupon-discount" class="discount"></td></tr>
+                    <tr><th>포인트 사용</th><td id="point-used" class="discount"></td></tr>
+                    <tr class="divider"><td colspan="2"></td></tr>
+                    <tr><th class="total-label">총 결제금액</th><td id="payment-amount" class="highlight"></td></tr>
+                    <tr><th>결제 수단</th><td id="payment-method"></td></tr>
+                    <tr><th>결제 상태</th><td id="payment-status"></td></tr>
+                    <tr><th>결제일</th><td id="paid-at"></td></tr>
+                </table>
 
-    <!-- 결제 정보 -->
-    <h2>결제 정보</h2>
-    <table class="payment-table">
-        <tr><th>총 상품금액</th><td id="original-price"></td></tr>
-        <tr><th>총 배송비</th><td id="delivery-fee"></td></tr>
-
-        <tr class="divider"><td colspan="2"></td></tr>
-
-        <tr><th>쿠폰 할인</th><td id="coupon-discount" class="discount"></td></tr>
-        <tr><th>포인트 사용</th><td id="point-used" class="discount"></td></tr>
-
-        <tr class="divider"><td colspan="2"></td></tr>
-
-        <tr><th class="total-label">총 결제금액</th><td id="payment-amount" class="highlight"></td></tr>
-        <tr><th>결제 수단</th><td id="payment-method"></td></tr>
-        <tr><th>결제 상태</th><td id="payment-status"></td></tr>
-        <tr><th>결제일</th><td id="paid-at"></td></tr>
-    </table>
-
-    <div class="btn-area">
-        <a href="/">홈으로</a>
-        <a href="/orders/my">주문 내역</a>
+                <div class="btn-area">
+                    <a href="/">홈으로</a>
+                    <a href="/mypage/orders">주문 내역</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script src="/js/header.js"></script>
+<script src="/js/fragment-loader.js"></script>
+<script src="/js/mypage.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get("orderId");
-
-        if (!orderId) {
-            alert("잘못된 접근입니다.");
-            window.location.href = "/";
-            return;
-        }
-
-        try {
-            const res = await fetch(`/api/orders/${orderId}`);
-            if (!res.ok) throw new Error("주문 정보를 불러올 수 없습니다.");
-            const { data } = await res.json();
-
-            //주문 기본 정보
-            document.getElementById("order-id").textContent = data.orderId;
-            document.getElementById("order-date").textContent = new Date(data.orderDate).toLocaleString();
-            document.getElementById("order-status").textContent = data.orderStatus;
-
-            //배송 정보
-            if (data.deliveryInfo) {
-                document.getElementById("receiver-name").textContent = data.deliveryInfo.receiverName;
-                document.getElementById("receiver-phone").textContent = data.deliveryInfo.receiverPhone;
-                document.getElementById("address").textContent = `${data.deliveryInfo.address} ${data.deliveryInfo.addressDetail || ''}`;
+        if (!orderId){alert("잘못된 접근입니다.");location.href="/";return;}
+        try{
+            const res=await fetch(`/api/orders/${orderId}`);
+            if(!res.ok)throw new Error("주문 정보를 불러올 수 없습니다.");
+            const {data}=await res.json();
+            document.getElementById("order-id").textContent=data.orderId;
+            document.getElementById("order-date").textContent=new Date(data.orderDate).toLocaleString();
+            document.getElementById("order-status").textContent=data.orderStatus;
+            if(data.deliveryInfo){
+                document.getElementById("receiver-name").textContent=data.deliveryInfo.receiverName;
+                document.getElementById("receiver-phone").textContent=data.deliveryInfo.receiverPhone;
+                document.getElementById("address").textContent=`${data.deliveryInfo.address} ${data.deliveryInfo.addressDetail||''}`;
             }
-            document.getElementById("request-message").textContent = data.requestMessage || "-";
-
-            //주문 상품
-            const tbody = document.getElementById("order-items");
-            tbody.innerHTML = data.items.map(item => `
+            document.getElementById("request-message").textContent=data.requestMessage||"-";
+            const tbody=document.getElementById("order-items");
+            tbody.innerHTML=data.items.map(item=>`
                 <tr>
-                    <td><img src="${item.imageUrl || '/images/no-image.png'}" class="product-img"></td>
+                    <td><img src="${item.imageUrl||'/images/no-image.png'}" class="product-img"></td>
                     <td>${item.productName}</td>
                     <td>${Number(item.unitPrice).toLocaleString()}원</td>
                     <td>${item.quantity}</td>
                     <td class="highlight">${Number(item.totalPrice).toLocaleString()}원</td>
-                </tr>
-            `).join("");
-
-            //결제 정보
-            document.getElementById("original-price").textContent =
-                (data.originalPrice ? Number(data.originalPrice).toLocaleString() : "0") + "원";
-            document.getElementById("delivery-fee").textContent =
-                (data.originalPrice ? Number(data.shippingFee).toLocaleString() : "0") + "원";
-
-            document.getElementById("coupon-discount").textContent =
-                data.couponDiscountAmount ? "-" + Number(data.couponDiscountAmount).toLocaleString() + "원" : "- 0원";
-
-            document.getElementById("point-used").textContent =
-                data.pointUsedAmount ? "-" + Number(data.pointUsedAmount).toLocaleString() + "원" : "- 0원";
-
-            if (data.payment) {
-                document.getElementById("payment-amount").textContent =
-                    Number(data.payment.amount).toLocaleString() + "원";
-                document.getElementById("payment-method").textContent = data.payment.method;
-                document.getElementById("payment-status").textContent = data.payment.status;
-                document.getElementById("paid-at").textContent = new Date(data.payment.paidAt).toLocaleString();
+                </tr>`).join("");
+            document.getElementById("original-price").textContent=(data.originalPrice?Number(data.originalPrice).toLocaleString():"0")+"원";
+            document.getElementById("delivery-fee").textContent=(data.shippingFee?Number(data.shippingFee).toLocaleString():"0")+"원";
+            document.getElementById("coupon-discount").textContent=data.couponDiscountAmount?"-"+Number(data.couponDiscountAmount).toLocaleString()+"원":"- 0원";
+            document.getElementById("point-used").textContent=data.pointUsedAmount?"-"+Number(data.pointUsedAmount).toLocaleString()+"원":"- 0원";
+            if(data.payment){
+                document.getElementById("payment-amount").textContent=Number(data.payment.amount).toLocaleString()+"원";
+                document.getElementById("payment-method").textContent=data.payment.method;
+                document.getElementById("payment-status").textContent=data.payment.status;
+                document.getElementById("paid-at").textContent=new Date(data.payment.paidAt).toLocaleString();
             }
-        } catch (error) {
-            alert(error.message);
-            window.location.href = "/";
-        }
+        }catch(e){alert(e.message);location.href="/";}
     });
 </script>
 </body>

@@ -2,34 +2,35 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>마이페이지 | Persome</title>
+    <link rel="stylesheet" href="/css/header.css">
     <style>
-        body { font-family:"Noto Sans KR", Arial, sans-serif; margin:0; background:#fff; }
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
-        .grid { display:grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top:18px; }
-        .card { border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
-        .card .hd { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:700; }
-        .card .bd { padding:16px; }
-        .menu li a { display: block; padding: 12px 14px; text-decoration: none; color: #333; border-radius: 8px; font-size: 15px; font-weight: 500; transition: 0.2s; }
-        .menu li a:hover { background: #F6F3FF; color: #A68DC0; font-weight: 600; }
-        .card .hd a { font-size: 18px; font-weight: 700; text-decoration: none; color: #222; }
-        .card .hd a:hover { color: #A68DC0; }
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;background:#fff;color:#333}
+        .container{max-width:1100px;margin:20px auto;padding:0 16px}
+        .grid{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px}
+        .card{border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .card .hd{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-weight:700;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+        .card .bd{padding:20px}
 
-        .orders ul { list-style:none; padding:0; margin:0; }
-        .orders li { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f7f7f7; font-size: 14px; }
-        .orders .empty { color:#777; text-align:center; padding:20px 0; font-size:14px; }
-        .muted { color:#777; font-size: 13px; }
-        .center { text-align:center; }
-        .btn { display:inline-block; background:#A68DC0; color:#fff; text-decoration:none; padding:10px 14px; border-radius:6px; transition:0.2s; }
-        .btn:hover { background:#8c75a6; }
+        /* 주문/배송 상태 플로우 */
+        .order-status{display:flex;justify-content:space-between;align-items:center;background:#fafafa;border:1px solid #eee;border-radius:12px;padding:20px;gap:10px}
+        .order-step{flex:1;text-align:center;position:relative}
+        .order-step strong{display:block;font-size:20px;font-weight:700;color:#A68DC0;margin-bottom:6px}
+        .order-step span{font-size:13px;color:#555}
+        .order-step::after{content:"›";position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:#ccc;font-size:20px;font-weight:700}
+        .order-step:last-child::after{display:none}
 
-        .mt16 { margin-top:16px; }
-        @media (max-width: 768px) {
-            .grid { grid-template-columns: 1fr; }
+        .center{text-align:center;margin-top:16px}
+        .btn{display:inline-block;background:#A68DC0;color:#fff;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:.2s;text-decoration:none}
+        .btn:hover{background:#8c75a6}
+        .btn-sm{padding:6px 12px;font-size:13px}
+
+        @media(max-width:768px){
+            .grid{grid-template-columns:1fr}
+            .order-status{flex-direction:column;gap:16px}
+            .order-step::after{display:none}
         }
     </style>
-    <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
 <div id="header"></div>
@@ -41,13 +42,32 @@
         <div id="sidebar"></div>
         <div>
             <div class="card mt16">
-                <div class="hd">최근 주문</div>
-                <div class="bd orders">
-                    <ul id="orderList">
-                        <li class="empty">최근 주문이 없습니다 🙁</li>
-                    </ul>
-                    <div class="center mt16">
-                        <a class="btn" href="/orders/my">주문 더보기</a>
+                <div class="hd">
+                    <span>주문/배송 조회</span>
+                    <a class="btn btn-sm" href="/mypage/orders">더보기</a>
+                </div>
+                <div class="bd">
+                    <div class="order-status">
+                        <div class="order-step">
+                            <strong id="cntPending">0</strong>
+                            <span>결제대기</span>
+                        </div>
+                        <div class="order-step">
+                            <strong id="cntPaid">0</strong>
+                            <span>결제완료</span>
+                        </div>
+                        <div class="order-step">
+                            <strong id="cntProcessing">0</strong>
+                            <span>상품 준비중</span>
+                        </div>
+                        <div class="order-step">
+                            <strong id="cntShipping">0</strong>
+                            <span>배송중</span>
+                        </div>
+                        <div class="order-step">
+                            <strong id="cntDelivered">0</strong>
+                            <span>배송완료</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -55,13 +75,11 @@
     </div>
     <div id="mpAlert" class="muted mt16"></div>
 </div>
+
 <script src="/js/header.js"></script>
 <script src="/js/fragment-loader.js"></script>
 <script src="/js/mypage.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function(){
-        if (window.Persome) window.Persome.loadMyPage?.();
-    });
-</script>
+<script src="/js/myorders.js"></script>
+<script>document.addEventListener("DOMContentLoaded", loadRecentOrdersStatus(12));</script>
 </body>
 </html>

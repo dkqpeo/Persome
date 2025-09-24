@@ -18,4 +18,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             LocalDateTime time
     ); //1시간 지난 주문 조회
     Page<Order> findByUserId(Long userId, Pageable pageable); //페이지네이션
+    Page<Order> findByUserIdAndOrderDateAfter(Long userId, LocalDateTime fromDate, Pageable pageable); //기간별 조회
+
+    List<Order> findByUserIdAndOrderDateBetween(Long userId, LocalDateTime fromDate, LocalDateTime toDate); //기간별 조회 페이징x
 }
