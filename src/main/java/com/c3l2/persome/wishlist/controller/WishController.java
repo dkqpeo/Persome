@@ -13,7 +13,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/users/me/wishlist")
+@RequestMapping("/api/users/me/wishlist")
 @RequiredArgsConstructor
 public class WishController {
 
@@ -27,11 +27,18 @@ public class WishController {
         return ResponseEntity.ok(wishlistResponseDto);
     }
 
+    // 위시리스트 상품 갯수 조회
+    @GetMapping("/count")
+    public ResponseEntity<Long> getCartCount(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        long count = wishlistService.getWishlistCount(userDetails.getId());
+        return ResponseEntity.ok(count);
+    }
+
     // 위시리스트 상품 추가
     @PostMapping
     public ResponseEntity<WishlistResponseDto> addWishlist(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam WishlistAddRequestDto wishlistAddRequestDto
+            @RequestBody WishlistAddRequestDto wishlistAddRequestDto
     ) {
         WishlistResponseDto wishlistResponseDto = wishlistService.addWishlist(userDetails.getId(), wishlistAddRequestDto);
 

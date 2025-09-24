@@ -6,6 +6,8 @@ import com.c3l2.persome.order.service.PricingService;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductImg;
 import com.c3l2.persome.product.entity.ProductOption;
+import com.c3l2.persome.product.entity.ProductPrice;
+import com.c3l2.persome.product.entity.constant.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,13 +22,16 @@ public class CartItemResponseDto {
     private Long productId;
     private String productName;
     private String optionName;
-    private int quantity;
-    private int unitPrice;    // 단가
-    private int totalPrice;   // 총액 (단가*수량)
-    private int discount;     // 할인금액
-    private int finalPrice;   // 최종 결제 금액
-    private int shippingFee;  // ✅ 개별 배송비
     private String imageUrl;
+    private String brandName;
+
+    private int originalPrice; // 원가
+    private int salePrice;     // 할인가
+    private int discount;
+    private int quantity;
+    private int totalPrice;    // 할인 전 총액 (originalPrice * quantity)
+    private int finalPrice;    // 총액 (salePrice * quantity)
+    private int shippingFee;
 
     public static CartItemResponseDto fromEntity(CartItem cartItem, PricingService pricingService) {
         ProductOption option = cartItem.getProductOption();
@@ -35,8 +40,20 @@ public class CartItemResponseDto {
         PriceCalculationResult result =
                 pricingService.calculateFinalPrice(product, option, cartItem.getQuantity());
 
+        int salePrice = result.getUnitPrice().intValue();
         int finalPrice = result.getFinalPrice().intValue();
-        int shippingFee = (finalPrice >= 30000) ? 0 : 2500; // ✅ 장바구니 규칙 반영
+        int shippingFee = (finalPrice >= 30000) ? 0 : 2500;
+
+        // ✅ ProductPrice에서 정가 가져오기
+        int originalPrice = product.getProductPrices().stream()
+                .filter(p -> p.getType() == ProductType.ORIGINAL)
+                .findFirst()
+                .map(ProductPrice::getPrice)
+                .orElse(salePrice); // 없으면 할인가 그대로 사용
+
+        // ✅ 할인 금액
+        int discount = Math.max(originalPrice - salePrice, 0);
+        int totalPrice = originalPrice * cartItem.getQuantity();
 
         // ✅ ProductImg 리스트에서 imgOrder가 가장 작은(=대표 이미지) 선택
         String imageUrl = product.getProductImgs().stream()
@@ -54,10 +71,12 @@ public class CartItemResponseDto {
                 .productId(product.getId())
                 .productName(product.getName())
                 .optionName(option.getName())
+                .brandName(product.getBrand().getName())
                 .quantity(cartItem.getQuantity())
-                .unitPrice(result.getUnitPrice().intValue())
-                .totalPrice(result.getTotalPrice().intValue())
-                .discount(result.getPromoDiscount().intValue())
+                .originalPrice(originalPrice)
+                .salePrice(salePrice)
+                .discount(discount)
+                .totalPrice(totalPrice)
                 .finalPrice(finalPrice)
                 .shippingFee(shippingFee)
                 .imageUrl(imageUrl)
