@@ -318,8 +318,50 @@
         
         <!-- 안내 메시지 -->
         <div class="membership-notice">
-            <h3>로그인 후 고객님의 등급과 특별한 혜택을 확인하세요</h3>
-            <a href="/users/login" class="notice-btn">로그인하기</a>
+            <!-- 비로그인 상태 메시지 -->
+            <div class="guest-notice" style="display: block;">
+                <h3>로그인 후 고객님의 등급과 특별한 혜택을 확인하세요</h3>
+                <a href="/users/login" class="notice-btn">로그인하기</a>
+            </div>
+            
+            <!-- 로그인 상태 메시지 -->
+            <div class="logged-in-notice" style="display: none;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                    <div class="user-grade-info" style="text-align: center;">
+                        <div style="width: 80px; height: 80px; margin: 0 auto 15px auto;">
+                            <img src="/images/baby-olive-badge.png" alt="BABY OLIVE 등급" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="display: none; width: 80px; height: 80px; background: #7cb342; border-radius: 50%; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">🌱</div>
+                        </div>
+                        <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">회원이름의 등급</h3>
+                        <div style="font-size: 24px; font-weight: 700; color: #7cb342; margin: 0;">회원의 등급이 표시됩니다.</div>
+                    </div>
+                    
+                    <div class="grade-benefits" style="text-align: left; max-width: 400px;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 16px; color: #333;">이번 달 혜택</h4>
+                        <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.6; font-size: 14px;">
+                            <li>월간 할인쿠폰 3천원 (3만원 이상 구매시)</li>
+                            <li>무료배송 쿠폰</li>
+                            <li>CJ ONE 포인트 1% 적립</li>
+                        </ul>
+                        <div style="margin-top: 15px;">
+                            <a href="/membership/coupons" class="notice-btn" style="font-size: 13px; padding: 8px 16px;">내 쿠폰 보기</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 다음 등급까지 진행률 -->
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <span style="font-size: 14px; color: #666;">다음 등급(PINK)까지 <strong>50,000원</strong> 더 구매하세요!</span>
+                    </div>
+                    <div style="background: #f5f5f5; height: 12px; border-radius: 6px; overflow: hidden; max-width: 400px; margin: 0 auto;">
+                        <div style="background: linear-gradient(90deg, #7cb342, #4caf50); height: 100%; width: 30%; border-radius: 6px; transition: width 0.3s ease;"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #999;">
+                        현재 구매금액: 30,000원 / 다음 등급: 100,000원
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- 멤버십 등급 -->
@@ -502,5 +544,165 @@
     </div>
     
     <script src="/js/header.js"></script>
+    <script>
+        // 로그인 상태 확인 및 메시지 표시 로직
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatusAndUpdateUI();
+        });
+        
+        async function checkLoginStatusAndUpdateUI() {
+            const guestNotice = document.querySelector('.guest-notice');
+            const loggedInNotice = document.querySelector('.logged-in-notice');
+            
+            try {
+                const res = await fetch("/api/users/me", { credentials: "include" });
+                
+                if (res.ok) {
+                    // 로그인 상태: 사용자 정보를 가져와서 UI 업데이트
+                    const user = await res.json();
+                    updateLoggedInContent(user);
+                    guestNotice.style.display = 'none';
+                    loggedInNotice.style.display = 'block';
+                } else if (res.status === 401) {
+                    // 비로그인 상태: 비로그인 메시지 표시
+                    guestNotice.style.display = 'block';
+                    loggedInNotice.style.display = 'none';
+                }
+            } catch (e) {
+                console.error("로그인 상태 확인 실패", e);
+                // 에러 발생시 비로그인 상태로 처리
+                guestNotice.style.display = 'block';
+                loggedInNotice.style.display = 'none';
+            }
+        }
+        
+        function updateLoggedInContent(user) {
+            console.log('updateLoggedInContent 호출됨:', user);
+            
+            // 사용자 정보로 로그인 상태 메시지 업데이트
+            const userNameElement = document.querySelector('.logged-in-notice .user-grade-info h3');
+            const levelDisplayElement = document.querySelector('.logged-in-notice .user-grade-info > div:last-child');
+            const levelImageElement = document.querySelector('.logged-in-notice .user-grade-info img');
+            
+            console.log('DOM 요소들:', {
+                userNameElement,
+                levelDisplayElement, 
+                levelImageElement
+            });
+            
+            // 사용자 이름 업데이트
+            if (userNameElement) {
+                userNameElement.textContent = `${user.displayName || user.name || '고객'}의 등급`;
+                console.log('사용자 이름 업데이트 완료');
+            }
+            
+            // 멤버십 등급 정보 업데이트
+            const membershipLevel = user.membershipLevel || 'BABY';
+            console.log('멤버십 레벨:', membershipLevel);
+            const levelInfo = getLevelInfo(membershipLevel);
+            console.log('레벨 정보:', levelInfo);
+            
+            // 등급명 표시 업데이트
+            if (levelDisplayElement) {
+                levelDisplayElement.textContent = levelInfo.displayName;
+                levelDisplayElement.style.color = levelInfo.color;
+                console.log('등급명 업데이트 완료:', levelInfo.displayName);
+            }
+            
+            // 등급 이미지 업데이트
+            if (levelImageElement) {
+                levelImageElement.src = levelInfo.imagePath;
+                levelImageElement.alt = `${levelInfo.displayName} 등급`;
+                console.log('등급 이미지 업데이트 완료:', levelInfo.imagePath);
+            }
+            
+            // 혜택 정보 업데이트
+            updateBenefits(membershipLevel);
+        }
+        
+        function getLevelInfo(level) {
+            const levelMap = {
+                'BABY': {
+                    displayName: 'BABY',
+                    color: '#7cb342',
+                    imagePath: '/images/baby-olive-badge.png'
+                },
+                'PINK': {
+                    displayName: 'PINK',
+                    color: '#ff6b9d',
+                    imagePath: '/images/pink-olive-badge.png'
+                },
+                'GREEN': {
+                    displayName: 'GREEN',
+                    color: '#37b042',
+                    imagePath: '/images/green-olive-badge.png'
+                },
+                'BLACK': {
+                    displayName: 'BLACK',
+                    color: '#333',
+                    imagePath: '/images/black-olive-badge.png'
+                },
+                'GOLD': {
+                    displayName: 'GOLD',
+                    color: '#ffd700',
+                    imagePath: '/images/gold-olive-badge.png'
+                }
+            };
+            
+            return levelMap[level] || levelMap['BABY'];
+        }
+        
+        function updateBenefits(level) {
+            console.log('updateBenefits 호출됨:', level);
+            const benefitsList = document.querySelector('.logged-in-notice .grade-benefits ul');
+            console.log('혜택 리스트 요소:', benefitsList);
+            
+            if (!benefitsList) {
+                console.log('혜택 리스트 요소를 찾을 수 없음');
+                return;
+            }
+            
+            const benefitsMap = {
+                'BABY': [
+                    '월간 할인쿠폰 3천원 (3만원 이상 구매시)',
+                    '무료배송 쿠폰',
+                    'CJ ONE 포인트 1% 적립'
+                ],
+                'PINK': [
+                    '월간 할인쿠폰 5천원 (5만원 이상 구매시)',
+                    '무료배송 쿠폰',
+                    'CJ ONE 포인트 1% 적립',
+                    '우선 배송 서비스'
+                ],
+                'GREEN': [
+                    '월간 할인쿠폰 1만원 (7만원 이상 구매시)',
+                    '무료배송 쿠폰',
+                    'CJ ONE 포인트 1% 적립',
+                    '무료 샘플 증정',
+                    'VIP 고객센터'
+                ],
+                'BLACK': [
+                    '월간 할인쿠폰 2만원 (10만원 이상 구매시)',
+                    '무료배송 쿠폰',
+                    'CJ ONE 포인트 1.5% 적립',
+                    '전용 상품 라인',
+                    '개인 맞춤 추천'
+                ],
+                'GOLD': [
+                    '월간 할인쿠폰 3만원 (15만원 이상 구매시)',
+                    '무료배송 쿠폰',
+                    'CJ ONE 포인트 1.5% 적립',
+                    '프리미엄 배송',
+                    '전담 컨설턴트',
+                    'VIP 전용 이벤트'
+                ]
+            };
+            
+            const benefits = benefitsMap[level] || benefitsMap['BABY'];
+            console.log('혜택 목록:', benefits);
+            benefitsList.innerHTML = benefits.map(benefit => `<li>${benefit}</li>`).join('');
+            console.log('혜택 리스트 업데이트 완료');
+        }
+    </script>
 </body>
 </html>
