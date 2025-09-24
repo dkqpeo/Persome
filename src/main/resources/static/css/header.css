@@ -186,23 +186,21 @@ html {
 }
 
 .dropdown-content {
-    position: fixed;
-    top: 150px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: absolute;
+    top: 100%;
+    left: 0;
     background-color: white;
     box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     border: 1px solid #ddd;
     border-radius: 8px;
     z-index: 1000;
-    width: 70vw;
-    max-width: 1200px;
+    width: 1000px;
     min-height: 400px;
-    max-height: 60vh;
+    max-height: none;
+    overflow-y: visible;
     padding: 20px;
-    overflow-y: auto;
     box-sizing: border-box;
-    /* 초기 상태에서 숨김 처리 */
+
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
@@ -217,16 +215,14 @@ html {
 
 /* 카테고리 메뉴 레이아웃 */
 .category-menu {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    justify-content: space-between;
     width: 100%;
 }
 
 .category-column {
-    flex: 1;
-    min-width: 200px;
-    max-width: 300px;
+    min-width: 0;
 }
 
 .category-column h3 {
