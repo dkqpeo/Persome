@@ -5,13 +5,18 @@
     <title>주문 / 결제</title>
     <style>
         body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0}
-        .order-header{background:#f3e9fa;padding:30px 0;border-bottom:1px solid #ddd}
-        .order-header-inner{max-width:1000px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
-        .order-title{font-size:1.8em;font-weight:bold;color:#111}
-        .step-indicator{font-size:1em;color:#999}
-        .step-indicator .step{margin:0 6px}
-        .step-indicator .active{font-weight:bold;color:#111}
-        .step-indicator .arrow{margin:0 4px;color:#bbb}
+        .order-header{background:#A68DC0;padding:40px 0;border-bottom:1px solid #9374b5;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+        .order-header-inner{max-width:1000px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;align-items:center;gap:20px}
+        .order-title{font-size:2em;font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 5px rgba(0,0,0,0.25)}
+        .step-indicator{display:flex;justify-content:center;align-items:center;gap:50px;width:100%}
+        .step-indicator .step-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+        .step-indicator .circle{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);color:#fff;display:flex;justify-content:center;align-items:center;font-weight:600;font-size:15px;margin-bottom:8px;transition:.3s}
+        .step-indicator .label{font-size:14px;color:#fdfdfd;opacity:.9;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,0.2)}
+        .step-indicator .step-item.active .circle{background:#fff;color:#A68DC0;box-shadow:0 0 0 6px rgba(255,255,255,0.3)}
+        .step-indicator .step-item.active .label{color:#fff;opacity:1;font-weight:700}
+        .step-indicator .step-line{flex:1;height:3px;background:rgba(255,255,255,0.3);position:relative;top:-20px;border-radius:2px}
+        .step-indicator .step-item.active~.step-line{background:#fff}
+
         .order-container{max-width:1000px;margin:0 auto;padding:40px}
         h2{font-size:1.3em;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #eee}
         .section{margin-bottom:30px;border:1px solid #ddd;background:#fff}
@@ -58,11 +63,20 @@
     <div class="order-header-inner">
         <div class="order-title">주문/결제</div>
         <div class="step-indicator">
-            <span class="step">01 장바구니</span>
-            <span class="arrow">›</span>
-            <span class="step active">02 주문/결제</span>
-            <span class="arrow">›</span>
-            <span class="step">03 주문완료</span>
+            <div class="step-item active">
+                <span class="circle">1</span>
+                <span class="label">장바구니</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item active">
+                <span class="circle">2</span>
+                <span class="label">주문/결제</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item">
+                <span class="circle">3</span>
+                <span class="label">주문완료</span>
+            </div>
         </div>
     </div>
 </div>

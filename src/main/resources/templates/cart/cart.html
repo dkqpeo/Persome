@@ -6,293 +6,82 @@
     <title>장바구니 | Persome</title>
     <link rel="stylesheet" href="/css/header.css">
     <style>
-        body { font-family: "Noto Sans KR", Arial, sans-serif; margin:0; }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 12px; }
-        /* ✅ 단계 표시 바 */
-        .cart-header {
-            background: #f3e9fa;
-            padding: 30px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .cart-header-inner {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .cart-title {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #111;
-        }
-        .step-indicator {
-            font-size: 1em;
-            color: #999;
-        }
-        .step-indicator .step {
-            margin: 0 6px;
-        }
-        .step-indicator .active {
-            font-weight: bold;
-            color: #111;
-        }
-        .step-indicator .arrow {
-            margin: 0 4px;
-            color: #bbb;
-        }
-
-        .table { width:100%; border-collapse: collapse; }
-        .table th, .table td { border-bottom: 1px solid #eee; padding: 12px 8px; text-align: center; vertical-align: middle;}
-        .muted { color: #666; }
-        .empty { padding: 20px; text-align:center; color: #666; }
-
-        /* 상품 정보 */
-        .product-info {
-            display: flex;
-            align-items: center;
-            text-align: left;
-        }
-
-        .product-img {
-            width: 70px;   /* ✅ 적당히 키움 */
-            height: 70px;
-            margin-right: 12px;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-
-        .product-name {
-            font-size: 1em;
-            font-weight: bold;
-            margin-bottom: 3px;
-            color: #333;
-        }
-
-        .product-option {
-            font-size: 0.85em;
-            color: #777;
-        }
-
-
-        .price-box {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .price-box .original {
-            color: #999;
-            text-decoration: line-through;
-            font-size: 14px;
-        }
-
-        .price-box .price {
-            color: #e60023;
-            font-weight: 700;
-            font-size: 14px;   /* ✅ 정가랑 동일한 크기 */
-            text-decoration: none; /* ✅ 줄 없애기 */
-        }
-        /* 배송 */
-        .shipping { font-size:0.9em; color:#444; }
-
-        /* ✅ 수량 조절 버튼 */
-        .qty-control {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .qty-control input {
-            width: 45px;
-            height: 30px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .qty-control input::-webkit-inner-spin-button,
-        .qty-control input::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .qty-custom {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 6px;
-        }
-
-        .qty-custom input {
-            width: 50px;
-            text-align: center;
-            border: 1px solid #ddd;
-            margin-bottom: 6px;
-        }
-
-        .qty-custom .qty-update-btn {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: #fff;
-            cursor: pointer;
-        }
-        .qty-custom .qty-update-btn:hover {
-            border-color: #A68DC0;
-            color: #A68DC0;
-        }
-
-
-        /* 삭제 버튼 */
-        .actions {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .actions button {
-            padding: 6px 10px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        .actions button:hover {
-            border-color: #A68DC0;
-            color: #A68DC0;
-        }
-
-        /* 바로구매 강조 */
-        .buy-btn {
-            border-color:#A68DC0; color:#A68DC0;
-        }
-
-        .wishlist-btn.active {
-            color: #A68DC0;
-        }
-
-        /* Empty cart layout (structured, not image) */
-        #emptyCartView { display: none; }
-        .empty-wrap {
-            margin: 40px auto;
-            width: 100%;
-            max-width: 922px;
-            min-height: 540px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            background: #fff;
-        }
-        .empty-icon {
-            width: 160px; height: 160px;
-            border-radius: 50%;
-            background: #F6F3FF;
-            display: flex; align-items: center; justify-content: center;
-            color: #4C3579;
-            font-size: 72px; /* emoji/icon size */
-            box-shadow: 0 4px 16px rgba(0,0,0,0.05) inset;
-            margin-bottom: 18px;
-        }
-        .empty-title { font-size: 22px; font-weight: 700; color: #222; margin: 6px 0; }
-        .empty-desc { font-size: 14px; color: #666; margin: 4px 0 12px; }
-        .actions { margin-top: 10px; }
-        .btn-primary {
-            display: inline-block;
-            background: #000; color: #fff; text-decoration: none;
-            padding: 12px 18px; border-radius: 6px;
-        }
-
-        /* 합계 */
-        .summary {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            text-align: right;
-            font-size: 1em;
-            color: #333;
-        }
-        .summary span { font-weight: bold; color: #A68DC0; }
-
-        .cart-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 30px 0;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .cart-footer-left button,
-        .cart-footer-right button {
-            padding: 12px 20px;
-            font-size: 0.95em;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-left: 8px;
-        }
-
-        /* 회색 버튼 */
-        .btn-secondary {
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            color: #333;
-        }
-        .btn-secondary:hover {
-            border-color: #A68DC0;
-            color: #A68DC0;
-        }
-
-        /* 보라색 버튼 */
-        .btn-primary {
-            background: #A68DC0;
-            border: none;
-            color: #fff;
-            font-weight: bold;
-        }
-        .btn-primary:hover {
-            background: #8a75b0;
-        }
-
-        /* 강조 버튼 (빨강) */
-        .btn-accent {
-            background: #d32f2f;
-            border: none;
-            color: #fff;
-            font-weight: bold;
-        }
-        .btn-accent:hover {
-            background: #b71c1c;
-        }
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0}
+        .container{max-width:1200px;margin:20px auto;padding:0 12px}
+        .order-header{background:#A68DC0;padding:40px 0;border-bottom:1px solid #9374b5;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+        .order-header-inner{max-width:1000px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;align-items:center;gap:20px}
+        .order-title{font-size:2em;font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 5px rgba(0,0,0,0.25)}
+        .step-indicator{display:flex;justify-content:center;align-items:center;gap:50px;width:100%}
+        .step-indicator .step-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+        .step-indicator .circle{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);color:#fff;display:flex;justify-content:center;align-items:center;font-weight:600;font-size:15px;margin-bottom:8px;transition:.3s}
+        .step-indicator .label{font-size:14px;color:#fdfdfd;opacity:.9;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,0.2)}
+        .step-indicator .step-item.active .circle{background:#fff;color:#A68DC0;box-shadow:0 0 0 6px rgba(255,255,255,0.3)}
+        .step-indicator .step-item.active .label{color:#fff;opacity:1;font-weight:700}
+        .step-indicator .step-line{flex:1;height:3px;background:rgba(255,255,255,0.3);position:relative;top:-20px;border-radius:2px}
+        .step-indicator .step-item.active~.step-line{background:#fff}
+        .table{width:100%;border-collapse:collapse}
+        .table th,.table td{border-bottom:1px solid #eee;padding:12px 8px;text-align:center;vertical-align:middle}
+        .muted{color:#666}
+        .empty{padding:20px;text-align:center;color:#666}
+        .product-info{display:flex;align-items:center;text-align:left}
+        .product-img{width:70px;height:70px;margin-right:12px;border:1px solid #eee;border-radius:6px;object-fit:cover}
+        .product-name{font-size:1em;font-weight:bold;margin-bottom:3px;color:#333}
+        .product-option{font-size:.85em;color:#777}
+        .price-box{display:flex;flex-direction:column;gap:2px}
+        .price-box .original{color:#999;text-decoration:line-through;font-size:14px}
+        .price-box .price{color:#e60023;font-weight:700;font-size:14px;text-decoration:none}
+        .shipping{font-size:.9em;color:#444}
+        .qty-control{display:flex;align-items:center;gap:6px}
+        .qty-control input{width:45px;height:30px;text-align:center;border:1px solid #ddd;border-radius:4px}
+        .qty-control input::-webkit-inner-spin-button,.qty-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+        .actions{display:flex;flex-direction:column;gap:6px}
+        .actions button{padding:6px 10px;border:1px solid #ddd;background:#fff;border-radius:6px;cursor:pointer;font-size:.9em}
+        .actions button:hover{border-color:#A68DC0;color:#A68DC0}
+        .buy-btn{border-color:#A68DC0;color:#A68DC0}
+        .wishlist-btn.active{color:#A68DC0}
+        #emptyCartView{display:none}
+        .empty-wrap{margin:40px auto;width:100%;max-width:922px;min-height:540px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #eee;border-radius:12px;background:#fff}
+        .empty-icon{width:160px;height:160px;border-radius:50%;background:#F6F3FF;display:flex;align-items:center;justify-content:center;color:#4C3579;font-size:72px;box-shadow:0 4px 16px rgba(0,0,0,0.05) inset;margin-bottom:18px}
+        .empty-title{font-size:22px;font-weight:700;color:#222;margin:6px 0}
+        .empty-desc{font-size:14px;color:#666;margin:4px 0 12px}
+        .actions{margin-top:10px}
+        .btn-primary{display:inline-block;background:#A68DC0;color:#fff;text-decoration:none;padding:12px 18px;border-radius:6px;font-weight:bold;border:none}
+        .btn-primary:hover{background:#8a75b0}
+        .summary{margin-top:20px;padding:15px;border-radius:8px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.05);text-align:right;font-size:1em;color:#333}
+        .summary span{font-weight:bold;color:#A68DC0}
+        .cart-footer{display:flex;justify-content:space-between;align-items:center;margin:30px 0;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+        .cart-footer-left button,.cart-footer-right button{padding:12px 20px;font-size:.95em;border-radius:6px;cursor:pointer;margin-left:8px}
+        .btn-secondary{background:#f5f5f5;border:1px solid #ddd;color:#333}
+        .btn-secondary:hover{border-color:#A68DC0;color:#A68DC0}
+        .btn-accent{background:#d32f2f;border:none;color:#fff;font-weight:bold}
+        .btn-accent:hover{background:#b71c1c}
     </style>
 </head>
 <body>
-<!-- ✅ 헤더는 header.js에서 로딩 -->
 <div id="header"></div>
-
-<div class="container">
-    <div class="cart-header">
-        <div class="cart-header-inner">
-            <div class="cart-title">장바구니</div>
-            <div class="step-indicator">
-                <span class="step active">01 장바구니</span>
-                <span class="arrow">›</span>
-                <span class="step">02 주문/결제</span>
-                <span class="arrow">›</span>
-                <span class="step">03 주문완료</span>
+<div class="order-header">
+    <div class="order-header-inner">
+        <div class="order-title">장바구니</div>
+        <div class="step-indicator">
+            <div class="step-item active">
+                <span class="circle">1</span>
+                <span class="label">장바구니</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item">
+                <span class="circle">2</span>
+                <span class="label">주문/결제</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item">
+                <span class="circle">3</span>
+                <span class="label">주문완료</span>
             </div>
         </div>
     </div>
-
+</div>
+<div class="container">
     <div id="cartAlert" class="muted" style="margin-bottom:10px;"></div>
-
     <table id="cartTable" class="table" aria-label="장바구니 항목">
         <thead>
         <tr>
@@ -309,15 +98,11 @@
         <tr><td colspan="7" class="empty">로딩 중…</td></tr>
         </tbody>
     </table>
-
-    <!-- ✅ 합계 영역 -->
     <div class="summary" id="cartSummary" style="display:none;">
         총 판매가: <span id="totalBasePrice">0</span>원 −
         총 할인금액: <span id="totalDiscount">0</span>원 =
         총 결제금액: <span id="finalAmount">0</span>원
     </div>
-
-    <!-- ✅ 하단 버튼 영역 -->
     <div class="cart-footer">
         <div class="cart-footer-left">
             <button class="btn-secondary" id="removeSelected">선택상품 삭제</button>
@@ -328,8 +113,6 @@
             <button class="btn-accent" id="orderAll">전체주문</button>
         </div>
     </div>
-
-    <!-- Empty view -->
     <div id="emptyCartView">
         <div class="empty-wrap">
             <div class="empty-icon" aria-hidden="true">🛒</div>
@@ -339,7 +122,6 @@
         </div>
     </div>
 </div>
-
 <script src="/js/header.js"></script>
 <script src="/js/cart.js"></script>
 </body>
