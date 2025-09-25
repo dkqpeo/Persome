@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>이벤트 | Persome</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <style>
+        .event-main { max-width: 1160px; margin: 0 auto; padding: 32px 20px 72px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif; }
+
+        /* 상단 배너 */
+        .event-banner { position: relative; background: linear-gradient(130deg, #A68DC0 0%, #7d5bc5 55%, #5a3ea3 100%); color: #fff; border-radius: 18px; padding: 40px 50px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; margin-bottom: 32px; }
+        .event-banner::before, .event-banner::after { content: ""; position: absolute; border-radius: 999px; opacity: 0.35; transform: rotate(12deg); }
+        .event-banner::before { width: 260px; height: 260px; top: -60px; right: -50px; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0)); }
+        .event-banner::after { width: 220px; height: 220px; bottom: -90px; left: -50px; background: radial-gradient(circle at 70% 70%, rgba(255, 207, 230, 0.45), rgba(255, 255, 255, 0)); }
+        .event-banner .banner-title { font-size: 36px; font-weight: 700; letter-spacing: 0.05em; }
+        .event-banner .banner-subtitle { font-size: 18px; color: rgba(255, 255, 255, 0.9); }
+
+        /* 이벤트 카드 리스트 */
+        .event-list { display:grid; grid-template-columns: repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
+        .event-card { border:1px solid #eee; border-radius:12px; background:#fff; overflow:hidden; transition:0.2s; cursor:pointer; }
+        .event-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.1); transform:translateY(-2px); }
+        .event-card img { width:100%; height:180px; object-fit:cover; display:block; }
+        .event-body { padding:14px; }
+        .event-title { font-size:1.05em; font-weight:700; margin:0 0 6px; color:#222; display:flex; align-items:center; gap:6px; }
+        .event-desc { font-size:0.9em; color:#555; margin:0 0 6px; }
+        .event-date { font-size:0.85em; color:#888; }
+
+        /* 상태 배지 */
+        .status-badge { padding:2px 8px; border-radius:10px; font-size:12px; font-weight:600; color:#fff; }
+        .status-badge.active { background:#28a745; }
+        .status-badge.scheduled { background:#ffc107; color:#222; }
+        .status-badge.ended { background:#dc3545; }
+    </style>
+</head>
+<body>
+<div id="header"></div>
+<main class="event-main">
+    <!-- 상단 배너 -->
+    <section class="event-banner">
+        <p class="banner-title">이벤트</p>
+        <p class="banner-subtitle">Persome에서 즐기는 특별한 혜택 🎉</p>
+    </section>
+
+    <!-- 이벤트 카드 리스트 -->
+    <section>
+        <div class="event-list" id="eventList"></div>
+    </section>
+</main>
+
+<script src="/js/header.js"></script>
+<script>
+    function mapEventStatus(status) {
+        switch (status) {
+            case "ACTIVE": return { text: "진행 중", className: "active" };
+            case "SCHEDULED": return { text: "예정", className: "scheduled" };
+            case "ENDED": return { text: "종료", className: "ended" };
+            default: return { text: "종료", className: "ended" };
+        }
+    }
+
+    async function loadEvents() {
+        try {
+            const res = await fetch("/api/events");
+            if (!res.ok) throw new Error("이벤트 조회 실패");
+            const data = await res.json();
+
+            const list = document.getElementById("eventList");
+            list.innerHTML = data.data.map(evt => {
+                const statusInfo = mapEventStatus(evt.status);
+                return `
+        <div class="event-card" onclick="location.href='/events/event-detail?id=${evt.id}'">
+          <img src="${evt.thumbnailUrl}" alt="${evt.name}">
+          <div class="event-body">
+            <p class="event-title">
+              ${evt.name}
+              <span class="status-badge ${statusInfo.className}">${statusInfo.text}</span>
+            </p>
+            <p class="event-desc">${evt.description}</p>
+            <p class="event-date">${evt.startDate.split("T")[0]} ~ ${evt.endDate.split("T")[0]}</p>
+          </div>
+        </div>
+      `;
+            }).join("");
+        } catch (e) {
+            console.error("이벤트 불러오기 실패", e);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", loadEvents);
+</script>
+</body>
+</html>

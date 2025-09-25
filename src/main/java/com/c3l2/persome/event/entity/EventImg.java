@@ -19,10 +19,10 @@ public class EventImg {
     private Long id;
 
     @Column(name = "img_url", nullable = false)
-    private String img_url;
+    private String imgUrl;
 
     @Column(name = "img_order", nullable = false)
-    private Integer img_order;
+    private Integer imgOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id",  nullable = false)

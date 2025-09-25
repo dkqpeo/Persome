@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이벤트 상세 | Persome</title>
+  <link rel="stylesheet" href="/css/header.css">
+  <style>
+    .event-detail-main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 20px 72px;
+      font-family: "Noto Sans KR", Arial, sans-serif;
+    }
+
+    .event-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .event-date {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    .event-banner-slider img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .event-desc {
+      font-size: 16px;
+      color: #444;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .promo-section, .coupon-section { margin-bottom: 32px; }
+    .promo-section h3, .coupon-section h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .promo-list { list-style: none; padding: 0; margin: 0; }
+    .promo-list li {
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: #fafafa;
+      font-size: 15px;
+    }
+
+    /* ✅ 쿠폰 카드 스타일 */
+    .coupon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .coupon-card {
+      border-radius: 12px;
+      background: #fff;
+      border: 2px solid #A68DC0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .coupon-card.expired {
+      border-color: #ccc;
+      opacity: 0.6;
+    }
+    .coupon-badge {
+      font-size: 12px;
+      font-weight: 600;
+      background: #A68DC0;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .coupon-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    .coupon-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #A68DC0;
+      margin: 8px 0;
+    }
+    .coupon-condition {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .coupon-btn {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .coupon-btn.download {
+      background: #A68DC0;
+      color: #fff;
+    }
+    .coupon-btn.expired {
+      background: #eee;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    /* ✅ 상태 배지 스타일 */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .status-badge.active { background-color: #28a745; }    /* 진행 중 (초록) */
+    .status-badge.scheduled { background-color: #ffc107; color: #222; } /* 예정 (노랑) */
+    .status-badge.ended { background-color: #dc3545; }     /* 종료 (빨강) */
+  </style>
+</head>
+<body>
+<div id="header"></div>
+<main class="event-detail-main">
+  <!-- ✅ 이벤트 제목 + 상태 배지 -->
+  <h1 class="event-title">
+    <span id="eventTitle"></span>
+    <span id="eventStatus" class="status-badge"></span>
+  </h1>
+
+  <p class="event-date" id="eventDate"></p>
+  <div class="event-banner-slider" id="eventImages"></div>
+  <p class="event-desc" id="eventDesc"></p>
+
+  <section class="promo-section">
+    <h3>프로모션</h3>
+    <ul class="promo-list" id="promoList"></ul>
+  </section>
+
+  <section class="coupon-section">
+    <h3>쿠폰</h3>
+    <div class="coupon-grid" id="couponList"></div>
+  </section>
+</main>
+
+<script src="/js/header.js"></script>
+<script>
+  function mapEventStatus(status) {
+    switch (status) {
+      case "ACTIVE": return { text: "진행 중", className: "active" };
+      case "SCHEDULED": return { text: "예정", className: "scheduled" };
+      case "ENDED": return { text: "종료", className: "ended" };
+      default: return { text: "종료", className: "ended" };
+    }
+  }
+  function mapPromotionStatus(status) {
+    switch (status) {
+      case "ACTIVE": return "진행 중";
+      case "SCHEDULED": return "예정";
+      case "ENDED": return "종료";
+      default: return "종료";
+    }
+  }
+  function formatDiscount(type, value) {
+    return type === "RATE" ? (value * 100) + "%" : value + "원";
+  }
+
+  async function loadEventDetail() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const eventId = params.get("id");
+      if (!eventId) return;
+
+      const res = await fetch(`/api/events/${eventId}/details`);
+      if (!res.ok) throw new Error("이벤트 상세 조회 실패");
+      const { data } = await res.json();
+
+      // 제목 + 상태
+      document.getElementById("eventTitle").textContent = data.name;
+      const statusInfo = mapEventStatus(data.status);
+      const statusEl = document.getElementById("eventStatus");
+      statusEl.textContent = statusInfo.text;
+      statusEl.className = `status-badge ${statusInfo.className}`;
+
+      // 날짜 & 설명
+      document.getElementById("eventDate").textContent =
+              data.startDate.split("T")[0] + " ~ " + data.endDate.split("T")[0];
+      document.getElementById("eventDesc").textContent = data.description;
+
+      // 이미지
+      const imgContainer = document.getElementById("eventImages");
+      imgContainer.innerHTML = (data.images?.length > 0)
+              ? data.images.map(url => `<img src="${url}" alt="${data.name}">`).join("")
+              : "";
+
+      // 프로모션
+      const promoList = document.getElementById("promoList");
+      promoList.innerHTML = (data.promotions?.length > 0)
+              ? data.promotions.map(p => {
+                const discountText = formatDiscount(p.discountType, p.discountValue);
+                const targets = p.targets.map(t => `[${t.targetType}] ${t.targetName}`).join(", ");
+                return `<li>${targets} ${discountText} 할인 (${mapPromotionStatus(p.status)})</li>`;
+              }).join("")
+              : `<li>적용 가능한 프로모션이 없습니다.</li>`;
+
+      // 쿠폰
+      const couponList = document.getElementById("couponList");
+      couponList.innerHTML = (data.coupons?.length > 0)
+              ? data.coupons.map(c => {
+                const isActive = c.status === "ACTIVE";
+                return `
+              <div class="coupon-card ${isActive ? "" : "expired"}">
+                <div class="coupon-badge">COUPON</div>
+                <div class="coupon-label">${c.name}</div>
+                <div class="coupon-value">${formatDiscount(c.discountType, c.discountValue)}</div>
+                <div class="coupon-condition">${c.minOrderPrice}원 이상 적용 가능</div>
+                <button class="coupon-btn ${isActive ? "download" : "expired"}" ${isActive ? "" : "disabled"}>
+                  ${isActive ? "쿠폰 다운로드" : "기간 만료"}
+                </button>
+              </div>`;
+              }).join("")
+              : `<p>발급 가능한 쿠폰이 없습니다.</p>`;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  document.addEventListener("DOMContentLoaded", loadEventDetail);
+</script>
+</body>
+</html>
