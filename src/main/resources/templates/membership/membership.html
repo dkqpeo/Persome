@@ -609,11 +609,12 @@
                 console.log('등급명 업데이트 완료:', levelInfo.displayName);
             }
             
-            // 등급 이미지 업데이트
+            // fallback div 색상 업데이트
             if (levelImageElement) {
-                levelImageElement.src = levelInfo.imagePath;
-                levelImageElement.alt = `${levelInfo.displayName} 등급`;
-                console.log('등급 이미지 업데이트 완료:', levelInfo.imagePath);
+                const fallbackDiv = levelImageElement.nextElementSibling;
+                if (fallbackDiv) {
+                    fallbackDiv.style.background = levelInfo.color;
+                }
             }
             
             // 혜택 정보 업데이트
@@ -624,28 +625,23 @@
             const levelMap = {
                 'BABY': {
                     displayName: 'BABY',
-                    color: '#7cb342',
-                    imagePath: '/images/baby-olive-badge.png'
+                    color: '#674ea7'
                 },
                 'PINK': {
                     displayName: 'PINK',
-                    color: '#ff6b9d',
-                    imagePath: '/images/pink-olive-badge.png'
+                    color: '#ff6b9d'
                 },
                 'GREEN': {
                     displayName: 'GREEN',
-                    color: '#37b042',
-                    imagePath: '/images/green-olive-badge.png'
+                    color: '#37b042'
                 },
                 'BLACK': {
                     displayName: 'BLACK',
-                    color: '#333',
-                    imagePath: '/images/black-olive-badge.png'
+                    color: '#333'
                 },
                 'GOLD': {
                     displayName: 'GOLD',
-                    color: '#ffd700',
-                    imagePath: '/images/gold-olive-badge.png'
+                    color: '#ffd700'
                 }
             };
             
@@ -666,32 +662,32 @@
                 'BABY': [
                     '월간 할인쿠폰 3천원 (3만원 이상 구매시)',
                     '무료배송 쿠폰',
-                    'CJ ONE 포인트 1% 적립'
+                    '포인트 1% 적립'
                 ],
                 'PINK': [
                     '월간 할인쿠폰 5천원 (5만원 이상 구매시)',
                     '무료배송 쿠폰',
-                    'CJ ONE 포인트 1% 적립',
+                    '포인트 1% 적립',
                     '우선 배송 서비스'
                 ],
                 'GREEN': [
                     '월간 할인쿠폰 1만원 (7만원 이상 구매시)',
                     '무료배송 쿠폰',
-                    'CJ ONE 포인트 1% 적립',
+                    '포인트 1% 적립',
                     '무료 샘플 증정',
                     'VIP 고객센터'
                 ],
                 'BLACK': [
                     '월간 할인쿠폰 2만원 (10만원 이상 구매시)',
                     '무료배송 쿠폰',
-                    'CJ ONE 포인트 1.5% 적립',
+                    '1.5% 적립',
                     '전용 상품 라인',
                     '개인 맞춤 추천'
                 ],
                 'GOLD': [
                     '월간 할인쿠폰 3만원 (15만원 이상 구매시)',
                     '무료배송 쿠폰',
-                    'CJ ONE 포인트 1.5% 적립',
+                    '1.5% 적립',
                     '프리미엄 배송',
                     '전담 컨설턴트',
                     'VIP 전용 이벤트'
