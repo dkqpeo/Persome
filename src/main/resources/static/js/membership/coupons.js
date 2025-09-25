@@ -105,7 +105,7 @@ async function updateCouponsForLevel(level) {
         couponsData.forEach(coupon => {
             let valueLabel = "";
             if (coupon.discountType === "RATE") {
-                valueLabel = `${(coupon.discountValue * 100).toFixed(0)}%`;
+                valueLabel = `${coupon.discountValue}%`;
             } else if (coupon.discountType === "FIXED") {
                 valueLabel = coupon.name.includes("무료배송")
                     ? "무료배송"
@@ -124,9 +124,43 @@ async function updateCouponsForLevel(level) {
                     <div class="coupon-condition">${coupon.minOrderPrice.toLocaleString()}원 이상 적용가능</div>
                 </div>
                 <div class="coupon-actions">
-                    <button class="download-btn" data-id="${coupon.id}">쿠폰 다운받기 ⬇</button>
+                    <button class="download-btn" data-id="${coupon.id}">${coupon.issued ? "쿠폰 발급 완료" : "쿠폰 다운받기 ⬇"}</button>
                 </div>
             `;
+
+            //쿠폰 발급
+            const btn = couponCard.querySelector(".download-btn");
+            if (coupon.issued) {
+                couponCard.style.opacity = "0.8";
+                couponCard.style.filter = "grayscale(100%)";
+                btn.disabled = true;
+                btn.style.backgroundColor = "#ccc";
+                btn.style.cursor = "not-allowed";
+            } else {
+                btn.addEventListener("click", async () => {
+                    try {
+                        const res = await fetch("/api/users/me/coupons", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({ couponId: coupon.id })
+                        });
+                        if (!res.ok) {
+                            const errMsg = await res.text();
+                            alert("쿠폰 발급 실패: " + errMsg);
+                            return;
+                        }
+                        alert("쿠폰이 발급되었습니다! 🎉");
+                        btn.textContent = "이미 발급됨";
+                        btn.disabled = true;
+                        btn.style.backgroundColor = "#ccc";
+                        btn.style.cursor = "not-allowed";
+                    } catch (e) {
+                        console.error(e);
+                        alert("쿠폰 발급 중 오류가 발생했습니다.");
+                    }
+                });
+            }
             couponGrid.appendChild(couponCard);
         });
     } catch (e) {
