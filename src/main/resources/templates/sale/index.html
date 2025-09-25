@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>세일 - PERSOME</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/sale.css">
+</head>
+<body>
+<div id="header"></div>
+<main class="sale-main">
+    <section class="sale-hero">
+        <div class="sale-hero__text">
+            <p class="sale-hero__title">세일 스페셜</p>
+            <p class="sale-hero__subtitle">핫 세일! 퍼솜에서 세일하는 상품! 이건 꼭 사야 해!</p>
+        </div>
+    </section>
+
+    <section class="sale-toolbar">
+        <div class="sale-toolbar__info">
+            <h2 id="sale-title">세일 상품</h2>
+            <p id="sale-description">현재 진행 중인 세일 상품을 확인하세요.</p>
+        </div>
+        <div class="sale-toolbar__sort" id="sale-sort">
+            <button type="button" data-sort="popular" class="active">인기순</button>
+            <button type="button" data-sort="price_high">높은가격순</button>
+            <button type="button" data-sort="price_low">낮은가격순</button>
+        </div>
+    </section>
+
+    <section class="sale-products">
+        <div class="sale-grid" id="sale-grid"></div>
+        <div class="sale-empty" id="sale-empty" hidden>세일 상품을 불러오는 중입니다.</div>
+    </section>
+</main>
+
+<script src="/js/header.js"></script>
+<script src="/js/sale.js"></script>
+</body>
+</html>
