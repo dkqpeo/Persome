@@ -88,6 +88,7 @@
         if (footer) footer.style.display = "flex";
 
         bindEvents();
+        markWishlistItems();
     }
 
     function bindEvents() {
@@ -145,6 +146,7 @@
                             alert(err?.message || "위시리스트 처리 실패");
                         }
                     }
+                    markWishlistItems();
                 } catch (err) {
                     console.error("찜 토글 실패:", err);
                     alert("위시리스트 처리 중 오류가 발생했습니다.");
@@ -283,6 +285,27 @@
     async function loadCart() {
         const cart = await fetchCart();
         renderCart(cart);
+    }
+    async function markWishlistItems() {
+        try {
+            const res = await fetch("/api/users/me/wishlist", { credentials: "include" });
+            if (!res.ok) return;
+            const wishlist = await res.json();
+
+            document.querySelectorAll(".wishlist-btn").forEach(btn => {
+                const productId = parseInt(btn.dataset.productId, 10);
+                const inWish = wishlist.some(w => w.productId === productId);
+                if (inWish) {
+                    btn.classList.add("active");
+                    btn.textContent = "♥쇼핑찜";
+                } else {
+                    btn.classList.remove("active");
+                    btn.textContent = "♡쇼핑찜";
+                }
+            });
+        } catch (e) {
+            console.error("위시리스트 동기화 실패:", e);
+        }
     }
 
     document.addEventListener("DOMContentLoaded", loadCart);
