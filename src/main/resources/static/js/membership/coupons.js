@@ -84,32 +84,55 @@ function getLevelInfo(level) {
     return levelMap[level] || levelMap['BABY'];
 }
 
-function updateCouponsForLevel(level) {
+async function updateCouponsForLevel(level) {
     const couponGrid = document.querySelector('.coupon-grid');
     if (!couponGrid) return;
-    
-    const levelInfo = getLevelInfo(level);
-    const couponsData = getCouponsForLevel(level);
-    
-    // 기존 쿠폰 카드를 모두 제거하고 새로 생성
-    couponGrid.innerHTML = '';
-    
-    couponsData.forEach(coupon => {
-        const couponCard = document.createElement('div');
-        couponCard.className = 'coupon-card';
-        couponCard.innerHTML = `
-            <div class="coupon-main" style="background: linear-gradient(135deg, ${levelInfo.color} 0%, ${levelInfo.color}CC 100%);">
-                <div class="coupon-badge">COUPON</div>
-                <div class="coupon-label">${coupon.label}</div>
-                <div class="coupon-value">${coupon.value}</div>
-                <div class="coupon-condition">${coupon.condition}</div>
-            </div>
-            <div class="coupon-actions">
-                <button class="download-btn">쿠폰 다운받기 ⬇</button>
-            </div>
-        `;
-        couponGrid.appendChild(couponCard);
-    });
+
+    try {
+        const res = await fetch(`/api/coupons/membership?level=${level}`, { credentials: "include" });
+        if (!res.ok) throw new Error("쿠폰 조회 실패");
+
+        const result = await res.json();
+        const couponsData = result.data || [];
+
+        couponGrid.innerHTML = '';
+
+        if (couponsData.length === 0) {
+            couponGrid.innerHTML = '<p style="color:#666;">발급 가능한 쿠폰이 없습니다.</p>';
+            return;
+        }
+
+        couponsData.forEach(coupon => {
+            let valueLabel = "";
+            if (coupon.discountType === "RATE") {
+                valueLabel = `${(coupon.discountValue * 100).toFixed(0)}%`;
+            } else if (coupon.discountType === "FIXED") {
+                valueLabel = coupon.name.includes("무료배송")
+                    ? "무료배송"
+                    : `${coupon.discountValue.toLocaleString()}원`;
+            }
+
+
+            const couponCard = document.createElement('div');
+
+            couponCard.className = 'coupon-card';
+            couponCard.innerHTML = `
+                <div class="coupon-main">
+                    <div class="coupon-badge">COUPON</div>
+                    <div class="coupon-label">${coupon.name}</div>
+                    <div class="coupon-value">${valueLabel}</div>
+                    <div class="coupon-condition">${coupon.minOrderPrice.toLocaleString()}원 이상 적용가능</div>
+                </div>
+                <div class="coupon-actions">
+                    <button class="download-btn" data-id="${coupon.id}">쿠폰 다운받기 ⬇</button>
+                </div>
+            `;
+            couponGrid.appendChild(couponCard);
+        });
+    } catch (e) {
+        console.error("쿠폰 불러오기 실패", e);
+        couponGrid.innerHTML = '<p style="color:red;">쿠폰 정보를 불러올 수 없습니다.</p>';
+    }
 }
 
 function getCouponsForLevel(level) {

@@ -20,6 +20,6 @@ public class CouponController {
     @GetMapping("/membership")
     public ResponseEntity<ApiResponse<List<CouponDto>>> getMembershipCoupons(@RequestParam String level) {
         List<CouponDto> coupons = couponService.getMembershipCoupons(level);
-        return ApiResponse.ok("",coupons);
+        return ApiResponse.ok("등급별 쿠폰 조회 성공.",coupons);
     }
 }
