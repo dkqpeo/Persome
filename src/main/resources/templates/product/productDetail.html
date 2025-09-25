@@ -157,9 +157,9 @@
         <!-- Breadcrumb -->
         <div class="breadcrumb">
             <a href="/">홈</a> >
-            <a href="/category">스킨케어</a> > 
-            <a href="/category">에센스/세럼/앰플</a> > 
-            <span>에센스</span>
+            <a href="/category">대분류</a> >
+            <a href="/category">중분류</a> >
+            <span>소분류</span>
         </div>
 
         <!-- Product Detail -->
@@ -414,8 +414,8 @@
             if (breadcrumb) {
                 breadcrumb.innerHTML = `
                     <a href="/">홈</a> >
-                    <a href="/category/${product.firstCategory}">${product.firstCategory}</a> >
-                    <a href="/category/${product.firstCategory}/${product.secondCategory}">${product.secondCategory}</a> > 
+                    <a href="/categories/products?firstCategory=${encodeURIComponent(product.firstCategory)}">${product.firstCategory}</a> >
+                    <a href="/categories/products?firstCategory=${encodeURIComponent(product.firstCategory)}&secondCategory=${encodeURIComponent(product.secondCategory)}">${product.secondCategory}</a> > 
                     <span>${product.thirdCategory}</span>
                 `;
             } else {
