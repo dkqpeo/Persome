@@ -33,11 +33,11 @@ function updateMemberInfo(user) {
     // 사용자 이름 업데이트
     const userTextElement = document.querySelector('.user-level-text');
     if (userTextElement) {
-        userTextElement.textContent = `${user.displayName || user.name || '고객'}의 등급은`;
+        userTextElement.textContent = `${user.data.displayName || user.data.name || '고객'}의 등급은`;
     }
     
     // 멤버십 등급 정보 업데이트
-    const membershipLevel = user.membershipLevel || 'BABY';
+    const membershipLevel = user.data.membershipLevel || 'BABY';
     const levelInfo = getLevelInfo(membershipLevel);
     
     // 등급명 표시 업데이트

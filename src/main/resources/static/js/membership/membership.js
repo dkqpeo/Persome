@@ -37,20 +37,14 @@ function updateLoggedInContent(user) {
     const levelDisplayElement = document.querySelector('.logged-in-notice .user-grade-info > div:last-child');
     const levelImageElement = document.querySelector('.logged-in-notice .user-grade-info img');
     
-    console.log('DOM 요소들:', {
-        userNameElement,
-        levelDisplayElement, 
-        levelImageElement
-    });
-    
     // 사용자 이름 업데이트
     if (userNameElement) {
-        userNameElement.textContent = `${user.displayName || user.name || '고객'}의 등급`;
+        userNameElement.textContent = `${user.data.displayName || user.data.name || '고객'}의 등급`;
         console.log('사용자 이름 업데이트 완료');
     }
     
     // 멤버십 등급 정보 업데이트
-    const membershipLevel = user.membershipLevel || 'BABY';
+    const membershipLevel = user.data.membershipLevel || 'BABY';
     console.log('멤버십 레벨:', membershipLevel);
     const levelInfo = getLevelInfo(membershipLevel);
     console.log('레벨 정보:', levelInfo);
