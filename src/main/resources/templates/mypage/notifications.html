@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>마이페이지 | Persome</title>
+    <style>
+        body { font-family:"Noto Sans KR", Arial, sans-serif; margin:0; background:#fff; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+        .hello .name { font-size:20px; font-weight:800; color:#222; }
+        .grid { display:grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top:18px; }
+        .menu li a { display: block; padding: 12px 14px; text-decoration: none; color: #333; border-radius: 8px; font-size: 15px; font-weight: 500; transition: 0.2s; }
+        .menu li a:hover { background: #F6F3FF; color: #A68DC0; font-weight: 600; }
+
+        .mt16 { margin-top:16px; }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        /* 알림설정 관련 css */
+        h2 { margin:0 0 20px; font-size:1.5em; font-weight:700; }
+        .consent-box { border:1px solid #eee; border-radius:12px; padding:20px; background:#fafafa; margin-bottom:24px; }
+        .consent-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+        .channels label { margin-right:16px; font-size:15px; }
+        .channels input { margin-right:6px; }
+        .table-wrap { overflow-x:auto; margin-top:14px; }
+        table { width:100%; border-collapse:collapse; font-size:14px; }
+        th, td { border:1px solid #ddd; padding:12px; text-align:center; }
+        th { background:#f7f7f7; font-weight:600; }
+        .btns { text-align:right; margin-top:20px; }
+        .btn { padding:10px 18px; border:none; border-radius:6px; cursor:pointer; }
+        .btn-save { background:#A68DC0; color:#fff; }
+        .btn-cancel { background:#eee; }
+        .empty { padding:40px; text-align:center; color:#888; }
+    </style>
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+<div id="header"></div>
+<div id="siteHeader"></div>
+<div class="container">
+    <div id="hero"></div>
+    <div id="kpi"></div>
+    <div class="grid">
+        <div id="sidebar"></div>
+        <div>
+            <section class="container">
+                <h2>알림 설정</h2>
+                <div class="consent-box">
+                    <div class="consent-header">
+                        <span>알림 수신 채널 선택</span>
+                        <label><input type="checkbox" id="consentAgree"> 동의합니다</label>
+                    </div>
+
+                    <div class="channels">
+                        <label><input type="checkbox" name="channel" value="sms"> 문자(SMS/LMS)</label>
+                        <label><input type="checkbox" name="channel" value="app"> APP PUSH</label>
+                        <label><input type="checkbox" name="channel" value="email"> 이메일</label>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>수집·이용 목적</th>
+                                <th>수집 항목</th>
+                                <th>보유 및 이용 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>각종 이벤트, 회원 혜택, 할인 행사 등의 사전 안내 및 이를 기반한 마케팅 활동</td>
+                                <td><strong>이름, 휴대전화, 배송지주소, 생년월일, 성별, 상품 구매정보, 서비스 이용 내역, 광고성 정보 수신채널</strong></td>
+                                <td><strong>회원 탈퇴 후 30일까지 또는 해당 서비스 동의 철회 시까지</strong></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="btns">
+                    <button type="button" class="btn btn-cancel">취소</button>
+                    <button type="button" class="btn btn-save">저장</button>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div id="mpAlert" class="muted mt16"></div>
+</div>
+<script src="/js/header.js"></script>
+<script src="/js/fragment-loader.js"></script>
+<script src="/js/mypage.js"></script>
+<script>
+    function syncConsentCheckbox() {
+        const sms = document.querySelector('input[value="sms"]').checked;
+        const app = document.querySelector('input[value="app"]').checked;
+        const email = document.querySelector('input[value="email"]').checked;
+
+        const consent = document.getElementById("consentAgree");
+        consent.checked = (sms || app || email);
+    }
+
+    async function loadNotifications() {
+        try {
+            const res = await fetch("/api/users/me/notifications", { credentials: "include" });
+            if (!res.ok) throw new Error("알림 설정 불러오기 실패");
+            const data = await res.json();
+            const n = data.data;
+
+            document.querySelector('input[value="sms"]').checked = n.smsEnabled ?? false;
+            document.querySelector('input[value="app"]').checked = n.pushEnabled ?? false;
+            document.querySelector('input[value="email"]').checked = n.emailEnabled ?? false;
+
+            syncConsentCheckbox();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    // "동의합니다" 체크박스 이벤트
+    document.getElementById("consentAgree").addEventListener("change", (e) => {
+        if (!e.target.checked) {
+            // OFF일 때 → 모든 채널 해제
+            document.querySelector('input[value="sms"]').checked = false;
+            document.querySelector('input[value="app"]').checked = false;
+            document.querySelector('input[value="email"]').checked = false;
+        }
+    });
+
+    async function saveNotifications() {
+        const sms = document.querySelector('input[value="sms"]').checked;
+        const app = document.querySelector('input[value="app"]').checked;
+        const email = document.querySelector('input[value="email"]').checked;
+
+        const body = {
+            emailEnabled: email,
+            smsEnabled: sms,
+            pushEnabled: app
+        };
+
+        try {
+            const res = await fetch("/api/users/me/notifications", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) throw new Error("알림 설정 수정 실패");
+            const data = await res.json();
+            alert("알림 설정이 저장되었습니다.");
+            console.log("서버 응답:", data);
+        } catch (err) {
+            console.error(err);
+            alert("❌ 저장 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 개별 채널 변경 → 동의합니다 상태 동기화
+    document.querySelectorAll('input[name="channel"]').forEach(chk => {
+        chk.addEventListener("change", syncConsentCheckbox);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadNotifications();
+        document.querySelector(".btn-save").addEventListener("click", saveNotifications);
+    });
+</script>
+</body>
+</html>
