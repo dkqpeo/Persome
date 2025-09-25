@@ -212,7 +212,8 @@ public class OrderService {
                     .receiverName(request.getReceiverName())
                     .receiverPhone(request.getReceiverPhone())
                     .zipCode(request.getZipCode())
-                    .address(request.getAddress())
+                    .jibunAddr(request.getJibunAddr())
+                    .roadAddr(request.getRoadAddr())
                     .addressDetail(request.getAddressDetail())
                     .delivery(delivery)
                     .build();

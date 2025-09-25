@@ -19,7 +19,8 @@ public class OrderRequestDto {
     private List<OrderProductDto> products;
     private String receiverName;
     private String receiverPhone;
-    private String address;
+    private String roadAddr;
+    private String jibunAddr;
     private String addressDetail;
     private String zipCode;
 

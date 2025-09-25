@@ -9,14 +9,16 @@ import lombok.*;
 public class DeliverySnapshotDto {
     private String receiverName;
     private String receiverPhone;
-    private String address;
+    private String roadAddr;
+    private String jibunAddr;
     private String addressDetail;
 
     public static DeliverySnapshotDto fromEntity(DeliverySnapshot snapshot) {
         return DeliverySnapshotDto.builder()
                 .receiverName(snapshot.getReceiverName())
                 .receiverPhone(snapshot.getReceiverPhone())
-                .address(snapshot.getAddress())
+                .jibunAddr(snapshot.getJibunAddr())
+                .roadAddr(snapshot.getRoadAddr())
                 .addressDetail(snapshot.getAddressDetail())
                 .build();
     }
