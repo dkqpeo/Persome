@@ -3,7 +3,7 @@
   const apiGet = async (url) => {
     const r = await fetch(url, { credentials: 'include' }); // same-origin 대신 include 권장
     if(!r.ok) throw new Error(await r.text());
-    return r.json(); // ✅ json(r) 대신 이걸로
+    return r.json();
   };
 
   function initials(name) {
@@ -43,7 +43,7 @@
   async function loadCoupons() {
     try {
       // available coupons count
-      const res = await apiGet('/users/me/coupons/available');
+      const res = await apiGet('/api/users/me/coupons/available');
       const list = res && res.data ? res.data : [];
       document.getElementById('kpiCoupons').textContent = String(list.length || 0);
     } catch {}

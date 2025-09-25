@@ -1,6 +1,7 @@
 <style>
     .sidebar { border:1px solid #eee; border-radius:12px; background:#fff; }
     .sidebar .hd { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-weight:700; }
+    .sidebar .hd a{text-decoration:none;color:#222;font-weight:700;font-size:16px}
     .sidebar .bd { padding:16px; }
     .sidebar .menu { list-style:none; margin:0; padding:0; }
     .sidebar .menu li a {
@@ -8,13 +9,14 @@
         border-radius:8px; font-size:15px; font-weight:500; transition:0.2s;
     }
     .sidebar .menu li a:hover { background:#F6F3FF; color:#A68DC0; font-weight:600; }
+    .sidebar .hd a:hover { color:#A68DC0; font-weight:600; }
 </style>
 
 <div class="sidebar">
     <div class="hd"><a href="/mypage">마이페이지</a></div>
     <div class="bd">
         <ul class="menu">
-            <li><a href="/orders/my">주문/배송 조회</a></li>
+            <li><a href="/mypage/orders">주문/배송 조회</a></li>
             <li><a href="/mypage/info">마이정보</a></li>
             <li><a href="/mypage/addresses">배송지 관리</a></li>
             <li><a href="/mypage/coupons">쿠폰</a></li>

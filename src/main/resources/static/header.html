@@ -12,8 +12,8 @@
 
         <!-- 검색창 -->
         <div class="search-box">
-            <form action="/search" method="get">
-                <input type="text" name="q" placeholder="상품, 브랜드, 성분 검색">
+            <form action="/products/search" method="get">
+                <input type="text" name="keyword" placeholder="상품, 브랜드, 성분 검색">
                 <button type="submit">🔍</button>
             </form>
         </div>
@@ -28,6 +28,7 @@
                 <p role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">카테고리</p>
                 <div class="dropdown-content">
                     <div class="category-menu">
+                        <!-- 1열: 스킨케어, 마스크팩, 선케어 -->
                         <div class="category-column">
                             <h3><a href="/categories/products?firstCategory=스킨케어">스킨케어</a></h3>
                             <ul>
@@ -39,7 +40,7 @@
                                 <li><a href="/categories/products?firstCategory=스킨케어&secondCategory=스킨케어세트">스킨케어세트</a></li>
                                 <li><a href="/categories/products?firstCategory=스킨케어&secondCategory=스킨케어 디바이스">스킨케어 디바이스</a></li>
                             </ul>
-                            
+
                             <h3><a href="/categories/products?firstCategory=마스크팩">마스크팩</a></h3>
                             <ul>
                                 <li><a href="/categories/products?firstCategory=마스크팩&secondCategory=시트팩">시트팩</a></li>
@@ -48,7 +49,19 @@
                                 <li><a href="/categories/products?firstCategory=마스크팩&secondCategory=코팩">코팩</a></li>
                                 <li><a href="/categories/products?firstCategory=마스크팩&secondCategory=패치">패치</a></li>
                             </ul>
-                            
+
+                            <h3><a href="/categories/products?firstCategory=선케어">선케어</a></h3>
+                            <ul>
+                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선크림">선크림</a></li>
+                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선스틱">선스틱</a></li>
+                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선쿠션">선쿠션</a></li>
+                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선스프레이/선패치">선스프레이/선패치</a></li>
+                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=태닝/애프터선">태닝/애프터선</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- 2열: 클렌징, 바디케어 -->
+                        <div class="category-column">
                             <h3><a href="/categories/products?firstCategory=클렌징">클렌징</a></h3>
                             <ul>
                                 <li><a href="/categories/products?firstCategory=클렌징&secondCategory=클렌징폼/젤">클렌징폼/젤</a></li>
@@ -59,69 +72,7 @@
                                 <li><a href="/categories/products?firstCategory=클렌징&secondCategory=립&아이리무버">립&아이리무버</a></li>
                                 <li><a href="/categories/products?firstCategory=클렌징&secondCategory=클렌징 디바이스">클렌징 디바이스</a></li>
                             </ul>
-                            
-                            <h3><a href="/categories/products?firstCategory=선케어">선케어</a></h3>
-                            <ul>
-                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선크림">선크림</a></li>
-                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선스틱">선스틱</a></li>
-                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선쿠션">선쿠션</a></li>
-                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=선스프레이/선패치">선스프레이/선패치</a></li>
-                                <li><a href="/categories/products?firstCategory=선케어&secondCategory=태닝/애프터선">태닝/애프터선</a></li>
-                            </ul>
-                        </div>
-                        
-                        <div class="category-column">
-                            <h3><a href="/categories/products?firstCategory=메이크업">메이크업</a></h3>
-                            <ul>
-                                <li><a href="/categories/products?firstCategory=메이크업&secondCategory=립메이크업">립메이크업</a></li>
-                                <li><a href="/categories/products?firstCategory=메이크업&secondCategory=베이스메이크업">베이스메이크업</a></li>
-                                <li><a href="/categories/products?firstCategory=메이크업&secondCategory=아이메이크업">아이메이크업</a></li>
-                            </ul>
-                            
-                            <h3><a href="/categories/products?firstCategory=뷰티소품">뷰티소품</a></h3>
-                            <ul>
-                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=메이크업소품">메이크업소품</a></li>
-                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=아이소품">아이소품</a></li>
-                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=스킨케어소품">스킨케어소품</a></li>
-                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=헤어소품">헤어소품</a></li>
-                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=네일/바디소품">네일/바디소품</a></li>
-                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=뷰티잡화">뷰티잡화</a></li>
-                            </ul>
-                            
-                            <h3><a href="/categories/products?firstCategory=더모 코스메틱">더모 코스메틱</a></h3>
-                            <ul>
-                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=스킨케어">스킨케어</a></li>
-                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=바디케어">바디케어</a></li>
-                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=클렌징">클렌징</a></li>
-                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=선케어">선케어</a></li>
-                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=마스크팩">마스크팩</a></li>
-                            </ul>
-                            
-                            <h3><a href="/categories/products?firstCategory=맨즈케어">맨즈케어</a></h3>
-                            <ul>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=스킨케어">스킨케어</a></li>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=메이크업">메이크업</a></li>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=쉐이빙/왁싱">쉐이빙/왁싱</a></li>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=바디케어">바디케어</a></li>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=헤어케어">헤어케어</a></li>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=프래그런스">프래그런스</a></li>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=패션/취미">패션/취미</a></li>
-                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=헬스용품/식품">헬스용품/식품</a></li>
-                            </ul>
-                        </div>
-                        
-                        <div class="category-column">
-                            <h3><a href="/categories/products?firstCategory=헤어케어">헤어케어</a></h3>
-                            <ul>
-                                <li><a href="/category/hair/shampoo">샴푸/린스</a></li>
-                                <li><a href="/category/hair/treatment">트리트먼트/팩</a></li>
-                                <li><a href="/category/hair/scalp">두피앰플/토닉</a></li>
-                                <li><a href="/category/hair/essence">헤어에센스</a></li>
-                                <li><a href="/category/hair/color">염색약/펌</a></li>
-                                <li><a href="/category/hair/tools">헤어기기/브러시</a></li>
-                                <li><a href="/category/hair/styling">스타일링</a></li>
-                            </ul>
-                            
+
                             <h3><a href="/categories/products?firstCategory=바디케어">바디케어</a></h3>
                             <ul>
                                 <li><a href="/categories/products?firstCategory=바디케어&secondCategory=샤워/입욕">샤워/입욕</a></li>
@@ -133,14 +84,36 @@
                                 <li><a href="/categories/products?firstCategory=바디케어&secondCategory=선물세트">선물세트</a></li>
                                 <li><a href="/categories/products?firstCategory=바디케어&secondCategory=베이비">베이비</a></li>
                             </ul>
-                            
-                            <h3><a href="/categories/products?firstCategory=향수/디퓨저">향수/디퓨저</a></h3>
+                        </div>
+
+                        <!-- 3열: 메이크업, 뷰티소품, 더모 코스메틱 -->
+                        <div class="category-column">
+                            <h3><a href="/categories/products?firstCategory=메이크업">메이크업</a></h3>
                             <ul>
-                                <li><a href="/categories/products?firstCategory=향수/디퓨져&secondCategory=향수">향수</a></li>
-                                <li><a href="/categories/products?firstCategory=향수/디퓨져&secondCategory=미니/고체향수">미니/고체향수</a></li>
-                                <li><a href="/categories/products?firstCategory=향수/디퓨져&secondCategory=홈프래그런스">홈프래그런스</a></li>
+                                <li><a href="/categories/products?firstCategory=메이크업&secondCategory=립메이크업">립메이크업</a></li>
+                                <li><a href="/categories/products?firstCategory=메이크업&secondCategory=베이스메이크업">베이스메이크업</a></li>
+                                <li><a href="/categories/products?firstCategory=메이크업&secondCategory=아이메이크업">아이메이크업</a></li>
                             </ul>
-                            
+
+                            <h3><a href="/categories/products?firstCategory=뷰티소품">뷰티소품</a></h3>
+                            <ul>
+                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=메이크업소품">메이크업소품</a></li>
+                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=아이소품">아이소품</a></li>
+                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=스킨케어소품">스킨케어소품</a></li>
+                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=헤어소품">헤어소품</a></li>
+                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=네일/바디소품">네일/바디소품</a></li>
+                                <li><a href="/categories/products?firstCategory=뷰티소품&secondCategory=뷰티잡화">뷰티잡화</a></li>
+                            </ul>
+
+                            <h3><a href="/categories/products?firstCategory=더모 코스메틱">더모 코스메틱</a></h3>
+                            <ul>
+                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=스킨케어">스킨케어</a></li>
+                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=바디케어">바디케어</a></li>
+                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=클렌징">클렌징</a></li>
+                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=선케어">선케어</a></li>
+                                <li><a href="/categories/products?firstCategory=더모 코스메틱&secondCategory=마스크팩">마스크팩</a></li>
+                            </ul>
+
                             <h3><a href="/categories/products?firstCategory=네일">네일</a></h3>
                             <ul>
                                 <li><a href="/categories/products?firstCategory=네일&secondCategory=일반네일">일반네일</a></li>
@@ -149,7 +122,41 @@
                                 <li><a href="/categories/products?firstCategory=네일&secondCategory=네일케어/리무버">네일케어/리무버</a></li>
                             </ul>
                         </div>
+
+                        <!-- 4열: 나머지 (맨즈케어, 헤어케어, 향수/디퓨저, 네일) -->
+                        <div class="category-column">
+                            <h3><a href="/categories/products?firstCategory=맨즈케어">맨즈케어</a></h3>
+                            <ul>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=스킨케어">스킨케어</a></li>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=메이크업">메이크업</a></li>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=쉐이빙/왁싱">쉐이빙/왁싱</a></li>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=바디케어">바디케어</a></li>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=헤어케어">헤어케어</a></li>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=프래그런스">프래그런스</a></li>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=패션/취미">패션/취미</a></li>
+                                <li><a href="/categories/products?firstCategory=멘즈케어&secondCategory=헬스용품/식품">헬스용품/식품</a></li>
+                            </ul>
+
+                            <h3><a href="/categories/products?firstCategory=헤어케어">헤어케어</a></h3>
+                            <ul>
+                                <li><a href="/category/hair/shampoo">샴푸/린스</a></li>
+                                <li><a href="/category/hair/treatment">트리트먼트/팩</a></li>
+                                <li><a href="/category/hair/scalp">두피앰플/토닉</a></li>
+                                <li><a href="/category/hair/essence">헤어에센스</a></li>
+                                <li><a href="/category/hair/color">염색약/펌</a></li>
+                                <li><a href="/category/hair/tools">헤어기기/브러시</a></li>
+                                <li><a href="/category/hair/styling">스타일링</a></li>
+                            </ul>
+
+                            <h3><a href="/categories/products?firstCategory=향수/디퓨저">향수/디퓨저</a></h3>
+                            <ul>
+                                <li><a href="/categories/products?firstCategory=향수/디퓨져&secondCategory=향수">향수</a></li>
+                                <li><a href="/categories/products?firstCategory=향수/디퓨져&secondCategory=미니/고체향수">미니/고체향수</a></li>
+                                <li><a href="/categories/products?firstCategory=향수/디퓨져&secondCategory=홈프래그런스">홈프래그런스</a></li>
+                            </ul>
+                        </div>
                     </div>
+
                 </div>
             </li>
             <li><a href="/ranking">랭킹</a></li>

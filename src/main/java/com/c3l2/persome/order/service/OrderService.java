@@ -40,9 +40,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.c3l2.persome.order.entity.OrderStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -247,15 +250,43 @@ public class OrderService {
 
     //주문 목록 조회
     @Transactional(readOnly = true)
-    public Page<OrderSummaryDto> getUserOrders(Long userId, int page, int size) {
+    public Page<OrderSummaryDto> getUserOrders(Long userId, int page, int size, LocalDate fromDate) {
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
-        return orderRepository.findByUserId(userId, pageable)
-                .map(order -> new OrderSummaryDto(
-                        order.getId(),
-                        order.getOrderDate(),
-                        order.getOrderTotalAmount(),
-                        order.getOrderStatus().getLabel()
-                ));
+        Page<Order> result;
+
+        if (fromDate != null) {
+            //fromDate 이후만 조회
+            LocalDateTime from = fromDate.atStartOfDay();
+            result = orderRepository.findByUserIdAndOrderDateAfter(userId, from, pageable);
+
+        } else {
+            //전체 조회
+            result = orderRepository.findByUserId(userId, pageable);
+        }
+
+        return result.map(order -> new OrderSummaryDto(
+                order.getId(),
+                order.getOrderDate(),
+                order.getOrderTotalAmount(),
+                order.getOrderStatus().getLabel()
+        ));
+    }
+
+    //기간별 주문 조회
+    @Transactional(readOnly = true)
+    public List<OrderCountDto> getUserOrderStatusCounts(Long userId, LocalDate fromDate, LocalDate toDate) {
+        LocalDateTime from = fromDate.atStartOfDay();
+        LocalDateTime to = (toDate != null ? toDate.plusDays(1).atStartOfDay() : LocalDateTime.now());
+
+        List<Order> orders = orderRepository.findByUserIdAndOrderDateBetween(userId, from, to);
+
+        Map<String, Long> grouped = orders.stream()
+                .collect(Collectors.groupingBy(o -> o.getOrderStatus().getLabel(), Collectors.counting()));
+
+        return grouped.entrySet().stream()
+                .map(e -> new OrderCountDto(e.getKey(), e.getValue()))
+                .toList();
     }
 
     //주문 상세 조회

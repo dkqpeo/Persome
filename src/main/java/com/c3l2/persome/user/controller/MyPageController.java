@@ -8,22 +8,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/mypage")
 public class MyPageController {
 
-    @GetMapping({"/mypage", "/mypage/"})
+    @GetMapping
     public String myPage() {
         return "/mypage/index";
     }
 
-    @GetMapping("/mypage/info")
+    @GetMapping("/info")
     public String myInfoPage() {
         return "mypage/info";
     }
 
-    @GetMapping({"/mypage/addresses", "/mypage/addresses/"})
+    @GetMapping("/addresses")
     public String myAddressesPage() {
         return "mypage/addresses";
     }
 
-    @GetMapping({"/mypage/coupons", "/mypage/coupons/"})
+    @GetMapping("/coupons")
     public String myCouponsPage() {
         return "/mypage/coupons";
     }
@@ -33,4 +33,10 @@ public class MyPageController {
 
     @GetMapping({"/wishlist", "/wishlist/"})
     public String wishlistPage() { return "mypage/wishlist"; }
+  
+    @GetMapping("/orders")
+    String myOrderPage(){ return "orders/order-list"; }
+
+    @GetMapping("/password")
+    public String myPasswordPage(){ return "/mypage/password-edit"; }
 }

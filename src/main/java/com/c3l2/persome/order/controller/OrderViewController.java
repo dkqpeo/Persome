@@ -17,7 +17,4 @@ public class OrderViewController {
 
     @GetMapping("/detail")
     String orderDetailPage(){ return "orders/order-detail"; }
-
-    @GetMapping("/my")
-    String myPage(){ return "orders/order-list"; }
 }
