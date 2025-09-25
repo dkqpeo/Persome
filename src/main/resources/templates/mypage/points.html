@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>포인트 | Persome</title>
+    <style>
+        body { font-family: "Noto Sans KR", Arial, sans-serif; margin: 0; background: #fff; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+        .grid { display: grid; grid-template-columns: 260px 1fr; gap: 24px; margin-top: 18px; }
+        .menu li a {
+            display: block;
+            padding: 12px 14px;
+            text-decoration: none;
+            color: #333;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .menu li a:hover { background: #F6F3FF; color: #A68DC0; font-weight: 600; }
+
+        .card .hd a {
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            color: #222;
+        }
+
+        .card .hd a:hover { color: #A68DC0; }
+        .mt16 { margin-top: 16px; }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        h2 { margin: 0 0 20px; font-size: 1.5em; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #fafafa; font-weight: 600; }
+
+        /* ✅ 포인트 요약 박스 */
+        .point-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            margin-bottom: 20px;
+        }
+        .point-balance {
+            flex: 1;
+            background: #f6f3ff;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            justify-content: center;
+        }
+        .point-balance strong {
+            display: block;
+            font-size: 32px;
+            font-weight: 800;
+            color: #A68DC0;
+            margin-top: 8px;
+        }
+        .expire-box {
+            margin-left: 16px;
+            padding: 16px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            background: #fafafa;
+            text-align: center;
+            width: 200px;
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .expire-box strong {
+            display: none;
+            font-size: 18px;
+            font-weight: 700;
+            color: #A68DC0;
+        }
+        .btn-link {
+            border: none;
+            background: none;
+            color: #4C3579;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 4px;
+            text-decoration: underline;
+        }
+
+        /* ✅ 조회 조건 */
+        .point-filter {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between; /* 조회 버튼 오른쪽 */
+            gap: 12px;
+            padding: 16px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .point-filter .left-side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .point-filter .date-range {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .point-table th:nth-child(2),
+        .point-table td:nth-child(2) {
+            width: 55%;
+        }
+        .point-table th:nth-child(3),
+        .point-table td:nth-child(3) {
+            width: 25%;
+        }
+        .point-table th {
+            background: #fafafa;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .point-table td:first-child {
+            text-align: center;
+        }
+        .filter-label {
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .period-buttons .btn-period {
+            border: 1px solid #ddd;
+            background: #fff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-period.active, .btn-period:hover {
+            background: #F6F3FF;
+        }
+        .date-range select {
+            margin: 0 2px;
+        }
+        .btn-search {
+            background: #A68DC0;
+            color: #fff;
+            padding: 16px 48px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 18px;
+            height: 100%;
+        }
+        .btn-search:hover { background: #4C3579; }
+
+        /* 안내 문구 */
+        .point-guide {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+        .point-guide p { margin: 4px 0; }
+
+        /* 금액 표시 */
+        .point-table td .order-no {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .point-table td.amount {
+            font-weight: 700;
+            text-align: right;
+            font-size: 16px;
+        }
+
+        .point-table td.amount.plus { color: #E63946; }  /* + 빨간색 */
+        .point-table td.amount.minus { color: #666; }    /* - 회색 */
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination .page-btn {
+            display: inline-block;
+            margin: 0 4px;
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination .page-btn:hover {
+            border-color: #A68DC0;
+            color: #A68DC0;
+        }
+
+        .pagination .page-btn.active {
+            background: #A68DC0;
+            border-color: #A68DC0;
+            color: #fff;
+        }
+    </style>
+    <link rel="stylesheet" href="/css/header.css">
+</head>
+<body>
+<div id="header"></div>
+<div id="siteHeader"></div>
+<div class="container">
+    <div id="hero"></div>
+    <div id="kpi"></div>
+    <div class="grid">
+        <div id="sidebar"></div>
+        <div>
+            <section class="container">
+                <h2 class="title">포인트</h2>
+
+                <!-- 요약 박스 -->
+                <div class="point-header">
+                    <div class="point-balance">
+                        <p>사용 가능 포인트</p>
+                        <strong id="pointBalance">0 P</strong>
+                    </div>
+                    <div class="expire-box">
+                        <p>이달 소멸 예정</p>
+                        <strong id="expireThisMonth">0 P</strong>
+                        <button id="expireBtn" class="btn-link">조회하기</button>
+                    </div>
+                </div>
+
+                <!-- 조회 조건 -->
+                <div class="point-filter">
+                    <div class="left-side">
+                        <label class="filter-label">구매기간</label>
+                        <div class="period-buttons">
+                            <button class="btn-period" data-period="1">1개월</button>
+                            <button class="btn-period" data-period="3">3개월</button>
+                            <button class="btn-period" data-period="6">6개월</button>
+                            <button class="btn-period" data-period="12">12개월</button>
+                        </div>
+                        <div class="date-range">
+                            <select id="startYear"></select>년
+                            <select id="startMonth"></select>월
+                            <select id="startDay"></select>일
+                            ~
+                            <select id="endYear"></select>년
+                            <select id="endMonth"></select>월
+                            <select id="endDay"></select>일
+                        </div>
+                    </div>
+                    <button id="searchBtn" class="btn-search">조회</button>
+                </div>
+
+                <!-- 내역 테이블 -->
+                <table class="point-table">
+                    <thead>
+                    <tr>
+                        <th>일자</th>
+                        <th>내용</th>
+                        <th>적립/사용</th>
+                    </tr>
+                    </thead>
+                    <tbody id="pointList">
+                    <tr>
+                        <td colspan="3">조회 내역이 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- 내역 테이블 아래쪽 -->
+                <div id="pointPagination" class="pagination"></div>
+
+                <!-- 안내 문구 -->
+                <div class="point-guide">
+                    <p>· 구매 반품/취소 시에는 지급받으신 포인트는 회수 처리 됩니다.</p>
+                    <p>· 지급되는 포인트에 따라 유효 기간이 다를 수 있습니다.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div id="mpAlert" class="muted mt16"></div>
+</div>
+<script src="/js/header.js"></script>
+<script src="/js/fragment-loader.js"></script>
+<script src="/js/mypage.js"></script>
+<script>
+    (async function () {
+        // 포인트 요약 불러오기
+        async function fetchSummary() {
+            const balanceRes = await fetch("/api/users/me/points", { credentials: "include" });
+            const balanceData = await balanceRes.json();
+            document.getElementById("pointBalance").textContent = `${balanceData.balance} P`;
+
+            document.getElementById("expireThisMonth").style.display = "none"; // 숨김
+            document.getElementById("expireBtn").style.display = "inline"; // 조회하기만 표시
+        }
+
+        // ⭐ 소멸 포인트 조회
+        async function fetchExpirePoints() {
+            const expireRes = await fetch("/api/users/me/points/expiring/this-month", { credentials: "include" });
+            const expireData = await expireRes.json();
+
+            // 조회하기 버튼 숨기고 포인트 표시
+            document.getElementById("expireBtn").style.display = "none";
+            const expireEl = document.getElementById("expireThisMonth");
+            expireEl.style.display = "block";
+            expireEl.textContent = `${expireData} P`;
+        }
+
+        // 거래 내역 불러오기
+        async function fetchTransactions(start, end, page = 0) {
+            const qs = new URLSearchParams({ start, end, page, size: 20 });
+            const res = await fetch(`/api/users/me/points/transactions?${qs}`, { credentials: "include" });
+            if (!res.ok) throw new Error("거래 내역 불러오기 실패");
+            return res.json();
+        }
+
+        function renderPagination(pageData, start, end) {
+            const paginationEl = document.getElementById("pointPagination");
+            if (!paginationEl) return;
+
+            const currentPage = pageData.number; // 현재 페이지 (0-based)
+            const totalPages = pageData.totalPages;
+
+            if (totalPages === 0) {
+                paginationEl.innerHTML = "";
+                return;
+            }
+
+            const pageGroupSize = 10; // 10개 단위로 묶음
+            const currentGroup = Math.floor(currentPage / pageGroupSize);
+
+            const startPage = currentGroup * pageGroupSize;
+            const endPage = Math.min(startPage + pageGroupSize, totalPages);
+
+            let html = "";
+
+            // << 이전 그룹
+            if (startPage > 0) {
+                html += `<button class="page-btn" data-page="${startPage - 1}">≪</button>`;
+            }
+
+            // 페이지 번호
+            for (let i = startPage; i < endPage; i++) {
+                html += `<button class="page-btn ${i === currentPage ? "active" : ""}" data-page="${i}">
+            ${i + 1}
+        </button>`;
+            }
+
+            // >> 다음 그룹
+            if (endPage < totalPages) {
+                html += `<button class="page-btn" data-page="${endPage}">≫</button>`;
+            }
+
+            paginationEl.innerHTML = html;
+
+            // 버튼 이벤트 바인딩
+            paginationEl.querySelectorAll(".page-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    const page = parseInt(btn.dataset.page, 10);
+                    const data = await fetchTransactions(start, end, page);
+                    renderTransactions(data);
+                    renderPagination(data, start, end);
+                });
+            });
+        }
+
+        // 거래 내역 테이블 렌더링
+        function renderTransactions(page) {
+            const listEl = document.getElementById("pointList");
+            if (!page.content || page.content.length === 0) {
+                listEl.innerHTML = `<tr><td colspan="3">조회 내역이 없습니다.</td></tr>`;
+                return;
+            }
+            listEl.innerHTML = page.content.map(tx => {
+                const [mainDesc, orderNo] = tx.description.split("\n");
+
+                // + / - 구분해서 클래스 지정
+                const cssClass = tx.amount.trim().startsWith("+") ? "plus" : "minus";
+
+                return `
+                    <tr>
+                        <td>${tx.date.replace(/-/g, ".")}</td>
+                        <td>
+                            <div>${mainDesc}</div>
+                            ${orderNo ? `<div class="order-no">${orderNo}</div>` : ""}
+                        </td>
+                        <td class="amount ${cssClass}">${tx.amount}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        // 날짜 select 박스 제어
+        function fillSelectBoxes() {
+            const now = new Date();
+            const years = [];
+            for (let y = 2012; y <= now.getFullYear(); y++) years.push(y);
+
+            const months = Array.from({ length: 12 }, (_, i) => i + 1);
+            const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+            function fill(id, arr) {
+                const sel = document.getElementById(id);
+                sel.innerHTML = arr.map(v => `<option value="${v}">${String(v).padStart(2, '0')}</option>`).join("");
+            }
+
+            ["startYear","endYear"].forEach(id => fill(id, years));
+            ["startMonth","endMonth"].forEach(id => fill(id, months));
+            ["startDay","endDay"].forEach(id => fill(id, days));
+        }
+
+        function setDate(prefix, date) {
+            document.getElementById(prefix + "Year").value = date.getFullYear();
+            document.getElementById(prefix + "Month").value = date.getMonth() + 1;
+            document.getElementById(prefix + "Day").value = date.getDate();
+        }
+
+        function formatDate(y, m, d) {
+            return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        }
+
+        function getDateString(prefix) {
+            const y = parseInt(document.getElementById(prefix + "Year").value, 10);
+            const m = parseInt(document.getElementById(prefix + "Month").value, 10);
+            const d = parseInt(document.getElementById(prefix + "Day").value, 10);
+            return formatDate(y, m, d); // ✅ 타임존 영향 없음
+        }
+
+        // 소멸 포인트 조회 버튼
+        document.getElementById("expireBtn").addEventListener("click", fetchExpirePoints);
+
+        // 조회 버튼
+        document.getElementById("searchBtn").addEventListener("click", async () => {
+            const startStr = getDateString("start");
+            const endStr = getDateString("end");
+
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const today = new Date();
+
+            // 시작일 > 종료일 체크
+            if (start > end) {
+                alert("검색 시작일은 종료일보다 앞서야 합니다.");
+                return;
+            }
+
+            // 검색 종료일 제한
+            if (end > today) {
+                alert("검색 종료일은 오늘을 넘길 수 없습니다.");
+                return;
+            }
+
+            // 검색 기간 1년 제한
+            const oneYearLater = new Date(start);
+            oneYearLater.setFullYear(start.getFullYear() + 1);
+            if (end > oneYearLater) {
+                alert("검색기간은 최대 1년입니다.");
+                return;
+            }
+
+            try {
+                const data = await fetchTransactions(startStr, endStr, 0); // API는 문자열 사용
+                renderTransactions(data);
+                renderPagination(data, startStr, endStr);
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        // 기간 버튼 이벤트
+        document.querySelectorAll(".btn-period").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".btn-period").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                const months = parseInt(btn.dataset.period, 10);
+                const end = new Date();
+                const start = new Date();
+                start.setMonth(start.getMonth() - months);
+
+                setDate("start", start);
+                setDate("end", end);
+                document.getElementById("searchBtn").click();
+            });
+        });
+
+        // 초기 로딩
+        fillSelectBoxes(); // select 박스 채우기
+        await fetchSummary(); // 포인트 요약
+        document.querySelector(".btn-period[data-period='1']").click(); // 기본값 1개월 조회
+        // ✅ 사용자가 직접 날짜를 바꾸면 active 해제
+        ["startYear","startMonth","startDay","endYear","endMonth","endDay"].forEach(id => {
+            document.getElementById(id).addEventListener("change", () => {
+                document.querySelectorAll(".btn-period").forEach(b => b.classList.remove("active"));
+            });
+        });
+    })();
+</script>
+</body>
+</html>

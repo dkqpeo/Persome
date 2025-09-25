@@ -31,11 +31,12 @@ public class UserService {
 
     // 로그인
     public User login(UserLoginDto loginDto) {
+        // 보안 때문에 아이디 비밀번호 틀리면 "아이디 또는 비밀번호가 틀렸습니다" 출력
         User user = userRepository.findByLoginId(loginDto.getLoginId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_LOGIN_CREDENTIALS));
 
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            throw new BusinessException(ErrorCode.NOT_EQUAL_PASSWORD);
+            throw new BusinessException(ErrorCode.INVALID_LOGIN_CREDENTIALS);
         }
 
         // 상태별 분기
@@ -59,9 +60,7 @@ public class UserService {
     // 회원가입
     @Transactional
     public void register(UserRegisterDto dto) {
-        if (checkLoginId(dto.getLoginId())) {
-            throw new BusinessException(ErrorCode.ALREADY_REGISTERED_USER);
-        }
+        checkLoginId(dto.getLoginId());
 
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new BusinessException(ErrorCode.ALREADY_EXISTS__EMAIL);
@@ -131,8 +130,10 @@ public class UserService {
     }
 
     // 아이디 중복 확인
-    public boolean checkLoginId(String loginId) {
-        return userRepository.existsByLoginId(loginId);
+    public void checkLoginId(String loginId) {
+        if (userRepository.existsByLoginId(loginId)) {
+            throw new BusinessException(ErrorCode.ALREADY_REGISTERED_USER);
+        }
     }
 
     // 알람설정
@@ -201,7 +202,7 @@ public class UserService {
     // 시큐리티용 로딩 로직
     @Transactional(readOnly = true)
     public User findByLoginIdOrThrow(String loginId) {
-        User user = userRepository.findByLoginId(loginId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
+        User user = userRepository.findByLoginId(loginId).orElseThrow(() -> new BusinessException(ErrorCode.INVALID_LOGIN_CREDENTIALS));
 
         if (user.getStatus() == Status.WITHDRAWN)
             throw new BusinessException(ErrorCode.WITHDRAWN_USER);

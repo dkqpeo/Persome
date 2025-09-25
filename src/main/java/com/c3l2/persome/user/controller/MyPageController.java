@@ -28,6 +28,12 @@ public class MyPageController {
         return "/mypage/coupons";
     }
 
+    @GetMapping({"/points", "/points/"})
+    public String myPointsPage() { return "mypage/points"; }
+
+    @GetMapping({"/wishlist", "/wishlist/"})
+    public String wishlistPage() { return "mypage/wishlist"; }
+  
     @GetMapping("/orders")
     String myOrderPage(){ return "orders/order-list"; }
 
