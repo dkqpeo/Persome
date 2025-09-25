@@ -2,7 +2,7 @@ package com.c3l2.persome.cs.dto;
 
 import com.c3l2.persome.cs.entity.Notice;
 import com.c3l2.persome.cs.entity.constant.Category;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.c3l2.persome.cs.entity.constant.FaqChannel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +19,7 @@ public class NoticeRequestDto {
     private Boolean important;
     private Boolean active;
     private Category category;
+    private FaqChannel channel;
 
     public Notice toEntity() {
         return Notice.builder()
@@ -28,6 +29,7 @@ public class NoticeRequestDto {
                 .isActive(active == null || active)
                 .viewCount(0)
                 .category(category == null ? Category.NORMAL : category)
+                .channel(channel == null ? FaqChannel.ONLINE : channel)
                 .build();
     }
 }

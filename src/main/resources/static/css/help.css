@@ -159,10 +159,31 @@ body {
 }
 
 .help-search__keywords .keyword {
+    appearance: none;
     background: #f4f4f6;
     border-radius: 999px;
     padding: 6px 14px;
     border: 1px solid #ececef;
+    cursor: pointer;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.2;
+    transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+}
+
+.help-search__keywords .keyword:hover {
+    border-color: #d5d5d9;
+}
+
+.help-search__keywords .keyword:focus-visible {
+    outline: 2px solid #222;
+    outline-offset: 2px;
+}
+
+.help-search__keywords .keyword.is-active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
 }
 
 .help-mode-toggle {
@@ -173,6 +194,7 @@ body {
 }
 
 .mode-button {
+    appearance: none;
     background: #f4f4f6;
     border: 1px solid transparent;
     border-radius: 999px;
