@@ -1,7 +1,6 @@
 package com.c3l2.persome.product.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -24,7 +23,7 @@ public class ProductViewController {
     @GetMapping("/search")
     public String search() {
 
-        return "product/producSearchtList";
+        return "product/productSearchtList";
     }
 
 }
