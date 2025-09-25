@@ -35,6 +35,14 @@
         .pagination button { border:1px solid #ddd; background:#fff; padding:6px 10px; cursor:pointer; }
         .pagination button.active { background:#111; color:#fff; border-color:#111; }
         .result-count { color:#666; margin: 14px 0; }
+        .category-filter { margin: 20px 0; padding: 0; background: #f8f8f8; border-radius: 4px; }
+        .category-filter-inner { padding: 15px; }
+        .filter-label { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: 500; }
+        .filter-tabs { display: flex; gap: 0; }
+        .filter-tabs button { background: #fff; border: 1px solid #ddd; color: #666; padding: 8px 16px; cursor: pointer; font-size: 13px; border-right: 0; }
+        .filter-tabs button:first-child { border-radius: 4px 0 0 4px; }
+        .filter-tabs button:last-child { border-radius: 0 4px 4px 0; border-right: 1px solid #ddd; }
+        .filter-tabs button.active { background: #4CAF50; color: #fff; border-color: #4CAF50; }
     </style>
 </head>
 <body>
@@ -53,6 +61,20 @@
     <!-- 상단 네비/타이틀 -->
 <!--    <div class="breadcrumbs">스킨케어 > 스킨/토너</div>-->
     <h1 class="page-title">카테고리명</h1>
+
+    <!-- 3차 카테고리 필터 영역 -->
+    <div class="category-filter" id="category-filter">
+        <div class="category-filter-inner">
+            <div class="filter-label">전체</div>
+            <div class="filter-tabs" id="category-tabs">
+                <button data-category="all" class="active">전체</button>
+                <button data-category="cream">크림</button>
+                <button data-category="eyecream">아이크림</button>
+                <button data-category="essence">에센스</button>
+                <button data-category="serum">세럼</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 툴바: 정렬/VIEW -->
     <div class="toolbar">
@@ -87,6 +109,7 @@
         
         const state = {
             keyword: urlParams.get('keyword') || 'none',
+            category: urlParams.get('category') || 'all',
             page: parseInt(urlParams.get('page') || '0', 10),
             size: parseInt(urlParams.get('size') || '24', 10),
             sort: urlParams.get('sort') || 'POPULAR'
@@ -95,6 +118,7 @@
         // 페이지 제목과 브레드크럼 업데이트
         document.addEventListener('DOMContentLoaded', function() {
             updatePageInfo();
+            updateCategoryFilter();
         });
 
         // API 엔드포인트 (실제 경로로 변경 가능)
@@ -140,9 +164,34 @@
             });
         });
 
+        // 카테고리 필터 업데이트 함수
+        function updateCategoryFilter() {
+            // URL 파라미터에 따라 활성화된 카테고리 버튼 설정
+            document.querySelectorAll('#category-tabs button').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.querySelector(`#category-tabs button[data-category="${state.category}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            } else {
+                document.querySelector('#category-tabs button[data-category="all"]').classList.add('active');
+            }
+        }
+
+        // 카테고리 필터 탭 이벤트
+        document.getElementById('category-tabs').addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') return;
+            document.querySelectorAll('#category-tabs button').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            state.category = e.target.dataset.category;
+            state.page = 0;
+            load();
+        });
+
         function qs(params) {
             const p = new URLSearchParams();
             p.set('keyword', state.keyword)
+            if (state.category && state.category !== 'all') {
+                p.set('category', state.category);
+            }
             p.set('page', state.page);
             p.set('size', state.size);
             if (state.sort) p.set('sort', state.sort);

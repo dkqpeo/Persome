@@ -35,6 +35,14 @@
         .pagination button { border:1px solid #ddd; background:#fff; padding:6px 10px; cursor:pointer; }
         .pagination button.active { background:#111; color:#fff; border-color:#111; }
         .result-count { color:#666; margin: 14px 0; }
+        .category-filter { margin: 20px 0; padding: 0; background: #f8f8f8; border-radius: 4px; }
+        .category-filter-inner { padding: 15px; }
+        .filter-label { font-size: 14px; color: #333; margin-bottom: 10px; font-weight: 500; }
+        .filter-tabs { display: flex; gap: 0; }
+        .filter-tabs button { background: #fff; border: 1px solid #ddd; color: #666; padding: 8px 16px; cursor: pointer; font-size: 13px; border-right: 0; }
+        .filter-tabs button:first-child { border-radius: 4px 0 0 4px; }
+        .filter-tabs button:last-child { border-radius: 0 4px 4px 0; border-right: 1px solid #ddd; }
+        .filter-tabs button.active { background: #4CAF50; color: #fff; border-color: #4CAF50; }
     </style>
 </head>
 <body>
@@ -53,6 +61,15 @@
     <!-- 상단 네비/타이틀 -->
     <div class="breadcrumbs">스킨케어 > 스킨/토너</div>
     <h1 class="page-title">카테고리명</h1>
+
+    <!-- 3차 카테고리 필터 영역 -->
+    <div class="category-filter" id="category-filter">
+        <div class="category-filter-inner">
+            <div class="filter-tabs" id="category-tabs">
+                <button data-category="all" class="active">전체</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 툴바: 정렬/VIEW -->
     <div class="toolbar">
@@ -97,6 +114,7 @@
         // 페이지 제목과 브레드크럼 업데이트
         document.addEventListener('DOMContentLoaded', function() {
             updatePageInfo();
+            updateCategoryFilter();
         });
 
         // API 엔드포인트 (실제 경로로 변경 가능)
@@ -120,11 +138,18 @@
             }
             breadcrumbs.textContent = breadcrumbText;
             
-            // 페이지 제목 업데이트
+            // 페이지 제목 업데이트 (3차 > 2차 > 1차 우선순위)
             const pageTitle = document.querySelector('.page-title');
-            const displayCategory = (state.secondCategory && state.secondCategory !== 'none') 
-                ? state.secondCategory 
-                : state.firstCategory;
+            let displayCategory;
+            
+            if (state.thirdCategory && state.thirdCategory !== 'none') {
+                displayCategory = state.thirdCategory;
+            } else if (state.secondCategory && state.secondCategory !== 'none') {
+                displayCategory = state.secondCategory;
+            } else {
+                displayCategory = state.firstCategory;
+            }
+            
             pageTitle.textContent = displayCategory;
             
             // 페이지 제목 태그 업데이트
@@ -151,6 +176,86 @@
                 load();
             });
         });
+
+        // 2차 카테고리별 3차 카테고리 매핑 (SQL 분석 기반)
+        const thirdCategoryMapping = {
+            '스킨/토너': [
+                { value: 'all', text: '전체' },
+                { value: '스킨/토너', text: '스킨/토너' }
+            ],
+            '에센스/세럼/앰플': [
+                { value: 'all', text: '전체' },
+                { value: '에센스/세럼/앰플', text: '에센스/세럼/앰플' }
+            ],
+            '크림': [
+                { value: 'all', text: '전체' },
+                { value: '크림', text: '크림' },
+                { value: '아이크림', text: '아이크림' }
+            ],
+            '로션': [
+                { value: 'all', text: '전체' },
+                { value: '로션', text: '로션' },
+                { value: '올인원', text: '올인원' }
+            ],
+            '미스트/오일': [
+                { value: 'all', text: '전체' },
+                { value: '미스트/픽서', text: '미스트/픽서' },
+                { value: '페이스오일', text: '페이스오일' }
+            ],
+            '스킨케어세트': [
+                { value: 'all', text: '전체' },
+                { value: '스킨케어세트', text: '스킨케어세트' }
+            ],
+            '스킨케어 디바이스': [
+                { value: 'all', text: '전체' },
+                { value: '스킨케어 디바이스', text: '스킨케어 디바이스' }
+            ]
+        };
+
+        // 카테고리 필터 업데이트 함수
+        function updateCategoryFilter() {
+            const categoryFilter = document.getElementById('category-filter');
+            const categoryTabs = document.getElementById('category-tabs');
+            
+            // 2차 카테고리가 없거나 매핑이 없으면 숨김
+            if (!state.secondCategory || state.secondCategory === 'none' || !thirdCategoryMapping[state.secondCategory]) {
+                categoryFilter.style.display = 'none';
+                return;
+            }
+            
+            categoryFilter.style.display = 'block';
+            
+            // 해당 2차 카테고리의 3차 카테고리들로 탭 업데이트
+            const thirdCategories = thirdCategoryMapping[state.secondCategory];
+            const tabsHtml = thirdCategories.map(cat => 
+                `<button data-category="${cat.value}" class="${cat.value === (state.thirdCategory || 'all') ? 'active' : ''}">${cat.text}</button>`
+            ).join('');
+            
+            categoryTabs.innerHTML = tabsHtml;
+            
+            // 이벤트 리스너 다시 등록
+            categoryTabs.addEventListener('click', handleCategoryClick);
+        }
+
+        // 카테고리 클릭 핸들러
+        function handleCategoryClick(e) {
+            if (e.target.tagName !== 'BUTTON') return;
+            
+            // 활성화 상태 변경
+            document.querySelectorAll('#category-tabs button').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            // 상태 업데이트
+            const selectedCategory = e.target.dataset.category;
+            state.thirdCategory = selectedCategory === 'all' ? 'none' : selectedCategory;
+            state.page = 0;
+            
+            // 페이지 정보 업데이트 (제목과 브레드크럼)
+            updatePageInfo();
+            
+            // 상품 다시 로드
+            load();
+        }
 
         function qs(params) {
             const p = new URLSearchParams();
