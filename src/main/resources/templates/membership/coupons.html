@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERSOME 쿠폰/혜택</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/membership/coupons.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <div class="container">
+        <!-- 헤더 섹션 -->
+        <div class="membership-header">
+            <div class="header-decoration"></div>
+            <h1>PERSOME 멤버십 라운지</h1>
+            <p>쇼핑하는 재미! PERSOME만의 더 특별한 혜택</p>
+            <div class="header-buttons">
+                <a href="/membership" class="header-btn primary">PERSOME 멤버십</a>
+                <a href="/membership/coupons" class="header-btn secondary">쿠폰/혜택</a>
+            </div>
+        </div>
+
+        <!-- 비로그인 상태 안내 -->
+        <div class="guest-notice" style="display: block;">
+            <div class="notice-card">
+                <h3>로그인 후 고객님의 등급과 쿠폰 혜택을 확인하세요</h3>
+                <a href="/users/login" class="login-btn">로그인하기</a>
+            </div>
+        </div>
+
+        <!-- 사용자 등급 표시 -->
+        <div class="user-level-section logged-in-content" style="display: none;">
+            <div class="user-avatar">👤</div>
+            <div class="user-level-text">고객님의 등급은</div>
+            <h2 class="user-level-name">BABY</h2>
+            <p style="color: #666; margin-top: 10px;">입니다</p>
+        </div>
+        
+        <!-- 쿠폰 등록 섹션 -->
+        <div class="coupon-register-section">
+            <div class="coupon-register-info">
+                <div class="coupon-register-icon">+</div>
+                <div class="coupon-register-text">쿠폰 등록 &nbsp;&nbsp; 받은 받으신 쿠폰을 등록해주세요</div>
+            </div>
+            <div>
+                <button class="coupon-register-btn">쿠폰등록</button>
+            </div>
+        </div>
+        
+        <!-- PERSOME 멤버십 쿠폰 -->
+        <div class="coupons-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-icon">+</div>
+                    <span>PERSOME 멤버십 쿠폰</span>
+                </div>
+                <a href="#" class="view-all-btn">쿠폰함내</a>
+            </div>
+            
+            <div class="coupon-grid">
+                <div class="coupon-card">
+                    <div class="coupon-main">
+                        <div class="coupon-badge">COUPON</div>
+                        <div class="coupon-label">[9월 BABY] 3만원이상 1천원 할인</div>
+                        <div class="coupon-value">1,000원</div>
+                        <div class="coupon-condition">30,000원 이상 적용가능</div>
+                    </div>
+                    <div class="coupon-actions">
+                        <button class="download-btn">쿠폰 다운받기 ⬇</button>
+                    </div>
+                </div>
+                
+                <!-- 추가 쿠폰들은 로그인 상태와 등급에 따라 동적으로 표시 -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/header.js"></script>
+    <script src="/js/membership/coupons.js"></script>
+</body>
+</html>
