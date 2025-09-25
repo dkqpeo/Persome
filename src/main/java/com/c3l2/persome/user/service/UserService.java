@@ -213,25 +213,6 @@ public class UserService {
         return user;
     }
 
-    // 약관동의 저장
-    @Transactional
-    public void saveUserConsents(Long userId, List<UserConsentDto> consents) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
-
-        for (UserConsentDto dto : consents) {
-            PolicyCode code = PolicyCode.valueOf(dto.getPolicyCode());
-
-            UserConsent consent = UserConsent.builder()
-                    .user(user)
-                    .policyCode(code)
-                    .isAgreed(dto.isAgreed())
-                    .build();
-
-            userConsentRepository.save(consent);
-        }
-    }
-
     // 아이디 찾기
     public String findIdByNameAndEmail(String name, String email) {
         User user = userRepository.findByNameAndEmail(name, email)
@@ -258,5 +239,23 @@ public class UserService {
 
     private String generateTempPassword() {
         return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    // 알림 설정 조회
+    @Transactional(readOnly = true)
+    public UserNotificationDto getUserNotifications(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
+
+        UserNotification un = user.getUserNotification();
+        if (un == null) {
+            throw new BusinessException(ErrorCode.USER_NOTIFICATION_NOT_FOUND);
+        }
+
+        return new UserNotificationDto(
+                un.isEmailEnabled(),
+                un.isSmsEnabled(),
+                un.isPushEnabled()
+        );
     }
 }

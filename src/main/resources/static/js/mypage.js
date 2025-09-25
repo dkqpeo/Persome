@@ -19,11 +19,13 @@
       if (!me) throw new Error('NOT_AUTH');
       // Hero header
       const av = document.getElementById('avatar');
-      if (av) av.textContent = initials(me.name || me.loginId);
+      if (av) av.textContent = initials(me.data.name || me.data.loginId);
       const helloName = document.getElementById('helloName');
       const helloId = document.getElementById('helloId');
-      if (helloName) helloName.textContent = `${me.name || me.loginId || '-'} 님`;
-      if (helloId) helloId.textContent = me.email || me.loginId || '-';
+      const helloBadge = document.getElementById('helloBadge');
+      if (helloName) helloName.textContent = `${me.data.name || me.data.loginId || '-'} 님`;
+      if (helloId) helloId.textContent = me.data.email || me.data.loginId || '-';
+      if (helloBadge) helloBadge.textContent = me.data.membershipLevel || 'BABY';
       return true;
     } catch (e) {
       const alertBox = document.getElementById('mpAlert');
