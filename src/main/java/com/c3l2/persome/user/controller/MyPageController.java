@@ -2,8 +2,10 @@ package com.c3l2.persome.user.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/mypage")
 public class MyPageController {
 
     @GetMapping({"/mypage", "/mypage/"})
@@ -25,4 +27,10 @@ public class MyPageController {
     public String myCouponsPage() {
         return "/mypage/coupons";
     }
+
+    @GetMapping({"/points", "/points/"})
+    public String myPointsPage() { return "mypage/points"; }
+
+    @GetMapping({"/wishlist", "/wishlist/"})
+    public String wishlistPage() { return "mypage/wishlist"; }
 }
