@@ -84,8 +84,50 @@
         .btn-cart:hover { background: #f8f7ff; }
         .btn-buy { background: #7B68EE; color: white; }
         .btn-buy:hover { background: #6a5acd; }
-        .btn-wishlist { background: white; border: 2px solid #ddd; color: #666; max-width: 60px; }
+        .btn-wishlist {
+            position: relative;        /* 중앙 배치 기준 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            max-width: 60px;
+            height: 48px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            color: #333;
+        }
         .btn-wishlist:hover { background: #f5f5f5; }
+        .btn-wishlist .heart {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 18px;
+            transform: translate(-50%, -50%);
+            color: currentColor;
+        }
+        .btn-wishlist .heart:before,
+        .btn-wishlist .heart:after {
+            content: '';
+            width: 12px;
+            height: 20px;
+            position: absolute;
+            left: 10px;
+            top: 0;
+            background: currentColor;
+            border-radius: 10px 10px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+        .btn-wishlist .heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+        .btn-wishlist.wishlisted .heart { color: #ff4757; }
         
         /* Promotion Banner */
         .promotion-banner { background: linear-gradient(135deg, #a8e6cf, #88d8a3); border-radius: 10px; padding: 20px; margin: 20px 0; text-align: center; }
@@ -194,7 +236,9 @@
                 <div class="action-buttons">
                     <button class="btn btn-cart" onclick="addToCart()">장바구니</button>
                     <button class="btn btn-buy" onclick="buyNow()">바로구매</button>
-                    <button class="btn btn-wishlist" onclick="addToWishlist()">찜하기</button>
+                    <button class="btn btn-wishlist" id="wishlistBtn" onclick="toggleWishlist()">
+                        <div class="heart"></div>
+                    </button>
                 </div>
 
                 <!-- Promotion Banner -->
@@ -242,6 +286,7 @@
         let currentPrice = 0;
         let currentImageIndex = 0;
         let imageList = [];
+        let isWishlisted = false;
 
         // 페이지 로드 시 상품 데이터 가져오기
         document.addEventListener('DOMContentLoaded', function() {
@@ -310,6 +355,9 @@
                 productData = await response.json();
                 console.log('받은 데이터:', productData);
                 renderProductData(productData);
+                
+                // 위시리스트 상태 확인
+                await checkWishlistStatus(productId);
                 showLoading(false);
                 
             } catch (error) {
@@ -756,13 +804,119 @@
             alert('주문 페이지로 이동합니다.');
         }
 
-        // 위시리스트 추가
-        function addToWishlist() {
+        // 위시리스트 상태 확인
+        async function checkWishlistStatus(productId) {
+            try {
+                const response = await fetch(`/api/wishlist/check/${productId}`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    isWishlisted = result.isWishlisted;
+                    updateWishlistButton();
+                } else {
+                    // 로그인되지 않았거나 확인 실패시 기본값
+                    isWishlisted = false;
+                    updateWishlistButton();
+                }
+            } catch (error) {
+                console.error('위시리스트 상태 확인 실패:', error);
+                isWishlisted = false;
+                updateWishlistButton();
+            }
+        }
+
+        // 위시리스트 버튼 UI 업데이트
+        function updateWishlistButton() {
+            const wishlistBtn = document.getElementById('wishlistBtn');
+            if (wishlistBtn) {
+                if (isWishlisted) {
+                    wishlistBtn.classList.add('wishlisted');
+                    wishlistBtn.style.borderColor = '#ff4757';
+                } else {
+                    wishlistBtn.classList.remove('wishlisted');
+                    wishlistBtn.style.borderColor = '#ddd';
+                }
+            }
+        }
+
+        // 위시리스트 토글
+        async function toggleWishlist() {
             if (!productData) return;
             
-            console.log('위시리스트 추가:', productData.product_id);
-            // TODO: 위시리스트 API 호출
-            alert('찜 목록에 추가되었습니다.');
+            try {
+                const url = isWishlisted ? 
+                    `/api/wishlist/remove/${productData.product_id}` : 
+                    `/api/wishlist/add/${productData.product_id}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    isWishlisted = !isWishlisted;
+                    updateWishlistButton();
+                    
+                    // 사용자에게 피드백 제공
+                    const message = isWishlisted ? '찜 목록에 추가되었습니다.' : '찜 목록에서 제거되었습니다.';
+                    showToast(message);
+                } else if (response.status === 401) {
+                    alert('로그인이 필요합니다.');
+                    // 로그인 페이지로 이동할 수 있음
+                    // window.location.href = '/users/login';
+                } else {
+                    alert('오류가 발생했습니다. 다시 시도해 주세요.');
+                }
+            } catch (error) {
+                console.error('위시리스트 토글 실패:', error);
+                alert('오류가 발생했습니다. 다시 시도해 주세요.');
+            }
+        }
+
+        // 토스트 메시지 표시 (간단한 알림)
+        function showToast(message) {
+            // 기존 토스트가 있으면 제거
+            const existingToast = document.getElementById('toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #333;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 5px;
+                z-index: 10000;
+                font-size: 14px;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+
+            document.body.appendChild(toast);
+
+            // 애니메이션 효과
+            setTimeout(() => {
+                toast.style.opacity = '1';
+            }, 100);
+
+            // 3초 후 자동 제거
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
         }
 
         // 선택된 옵션 정보 가져오기
