@@ -1,4 +1,5 @@
 let appliedPoint = 0;
+let appliedCoupon = { discount: 0, id: null };
 
 // 보유 포인트 조회
 async function loadUserPoints() {
@@ -14,7 +15,6 @@ async function loadUserPoints() {
     }
 }
 
-// 기존 배송지 불러오기
 // 기존 배송지 불러오기
 async function loadExistingAddresses() {
     const select = document.getElementById("existingAddressSelect");
@@ -128,18 +128,109 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("point-discount").textContent = "- 0원";
         document.getElementById("final-price").textContent = formatCurrency(summary.finalPrice);
 
-        // 결제 수단 불러오기
-        const pmRes = await fetch("/api/payments/methods");
-        if (pmRes.ok) {
-            const paymentMethods = await pmRes.json();
-            const container = document.getElementById("payment-methods");
-            container.innerHTML = paymentMethods.map((pm, idx) => `
-                <label>
-                    <input type="radio" name="payment" value="${pm.code}" ${idx === 0 ? "checked" : ""}>
-                    ${pm.label}
-                </label>
-            `).join(" ");
+        // 최종 금액 업데이트 함수
+        function updateFinalPrice() {
+            const discount = appliedCoupon.discount || 0;
+            const point = appliedPoint || 0;
+
+            document.getElementById("coupon-discount").textContent = "- " + formatCurrency(discount);
+            document.getElementById("point-discount").textContent = "- " + formatCurrency(point);
+
+            const discountedPrice = Math.max(0, summary.finalPrice - discount - point);
+            document.getElementById("final-price").textContent = formatCurrency(discountedPrice);
         }
+
+        // 쿠폰 불러오기
+        const couponSelect = document.querySelector("#couponSelect");
+        try {
+            const couponRes = await fetch("/api/users/me/coupons/available");
+            if (!couponRes.ok) throw new Error("쿠폰을 불러올 수 없습니다.");
+            const couponResult = await couponRes.json();
+            const coupons = couponResult.data || [];
+
+            if (coupons.length > 0) {
+                couponSelect.innerHTML = `
+                    <option value="">쿠폰을 선택하세요</option>
+                    ${coupons.map(c => {
+                    let label = "";
+                    if (c.discountType === "RATE") {
+                        label = `-${c.discountValue}%`;
+                    } else if (c.discountType === "FIXED") {
+                        label = `-${formatCurrency(c.discountValue)}`;
+                    }
+                    return `<option value="${c.userCouponId}" data-type="${c.discountType}" data-value="${c.discountValue}">
+                                    ${c.couponName} (${label})
+                                </option>`;
+                }).join("")}
+                    <option value="CANCEL">쿠폰 적용 취소</option>
+                `;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
+        // 쿠폰 적용
+        couponSelect.addEventListener("change", () => {
+            const selected = couponSelect.options[couponSelect.selectedIndex];
+            if (!selected || !selected.value) return;
+
+            if (selected.value === "CANCEL") {
+                appliedCoupon = { discount: 0, id: null };
+                updateFinalPrice();
+                couponSelect.value = "";
+                return;
+            }
+
+            const type = selected.dataset.type;
+            const value = Number(selected.dataset.value);
+
+            let discount = 0;
+            if (type === "RATE") {
+                discount = Math.floor(summary.finalPrice * (value / 100));
+            } else if (type === "FIXED") {
+                discount = value;
+            }
+
+            appliedCoupon = { discount, id: Number(selected.value) };
+            updateFinalPrice();
+        });
+
+        // 포인트 적용
+        const pointInput = document.getElementById("pointInput");
+        const applyPointBtn = document.getElementById("applyPointBtn");
+        const cancelPointBtn = document.getElementById("cancelPointBtn");
+        const useAllPointBtn = document.getElementById("useAllPointBtn");
+
+        function applyPoint(usePoint) {
+            const maxPoint = Number(pointInput.getAttribute("max")) || 0;
+            if (!usePoint || usePoint <= 0) return alert("포인트를 입력해주세요.");
+            if (usePoint > maxPoint) return alert("보유 포인트를 초과했습니다.");
+
+            appliedPoint = usePoint;
+            updateFinalPrice();
+
+            applyPointBtn.style.display = "none";
+            cancelPointBtn.style.display = "inline-block";
+            pointInput.setAttribute("readonly", true);
+        }
+
+        applyPointBtn.addEventListener("click", () => applyPoint(Number(pointInput.value)));
+        pointInput.addEventListener("keyup", e => { if (e.key === "Enter") applyPoint(Number(pointInput.value)); });
+        useAllPointBtn.addEventListener("click", () => {
+            const maxPoint = Number(pointInput.getAttribute("max")) || 0;
+            const finalPrice = summary.finalPrice;
+            const usePoint = Math.min(maxPoint, finalPrice);
+            pointInput.value = usePoint;
+            applyPoint(usePoint);
+        });
+        cancelPointBtn.addEventListener("click", () => {
+            appliedPoint = 0;
+            updateFinalPrice();
+            cancelPointBtn.style.display = "none";
+            applyPointBtn.style.display = "inline-block";
+            pointInput.removeAttribute("readonly");
+            pointInput.value = "";
+        });
 
         await loadUserPoints();
         initAddressModeToggle();
@@ -149,6 +240,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("setDefaultAddr").addEventListener("change", e => {
             setDefaultChecked = e.target.checked;
         });
+
+        // 결제 수단 불러오기
+        const pmRes = await fetch("/api/payments/methods");
+        if (pmRes.ok) {
+            const paymentMethods = await pmRes.json();
+            const container = document.getElementById("payment-methods");
+            container.innerHTML = paymentMethods.map((pm, idx) => `
+        <label>
+            <input type="radio" name="payment" value="${pm.code}" ${idx === 0 ? "checked" : ""}>
+            ${pm.label}
+        </label>
+    `).join(" ");
+        }
+
 
         // 주문 요청
         document.getElementById("orderBtn").addEventListener("click", async () => {
@@ -164,14 +269,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const requestMessage = document.getElementById("requestTextarea").value;
             const selectedPayment = document.querySelector("input[name='payment']:checked").value;
-            const selectedCouponId = document.getElementById("couponSelect").value || null;
 
             const orderData = {
                 products: data.items.map(i => ({ productOptionId: i.productOptionId, quantity: i.quantity })),
                 receiverName, receiverPhone, roadAddr, jibunAddr,
                 addressDetail: detailAddr, receiveType: "DELIVERY",
                 shippingFee: data.summary.shippingFee, requestMessage, zipCode,
-                userCouponId: selectedCouponId !== "CANCEL" ? Number(selectedCouponId) : null,
+                userCouponId: appliedCoupon.id,
                 usePointAmount: appliedPoint > 0 ? appliedPoint : null,
                 paymentMethod: selectedPayment
             };
@@ -192,46 +296,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // 배송지 저장/업데이트
             if (setDefaultChecked) {
+                const addressData = {
+                    label: addrLabel,
+                    receiverName,
+                    receiverPhone,
+                    roadAddr,
+                    jibunAddr,
+                    addrDetail: detailAddr,
+                    zip: zipCode,
+                    isDefault: true
+                };
+
+                const selectedId = document.getElementById("existingAddressSelect").value;
                 if (addrMode === "NEW") {
-                    const newAddr = {
-                        label: addrLabel,roadAddr, jibunAddr,
-                        addrDetail: detailAddr, zip: zipCode,
-                        isDefault: true
-                    };
                     await fetch("/api/users/me/addresses", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(newAddr)
+                        body: JSON.stringify(addressData)
                     });
-                } else if (addrMode === "EXISTING") {
-                    // 배송지 저장/업데이트
-                    if (setDefaultChecked) {
-                        const addressData = {
-                            label: addrLabel,
-                            roadAddr,
-                            jibunAddr,
-                            addrDetail: detailAddr,
-                            zip: zipCode,
-                            isDefault: true
-                        };
-
-                        const selectedId = document.getElementById("existingAddressSelect").value;
-
-                        if (addrMode === "NEW") {
-                            await fetch("/api/users/me/addresses", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(addressData)
-                            });
-                        } else if (addrMode === "EXISTING" && selectedId) {
-                            await fetch(`/api/users/me/addresses/${selectedId}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(addressData)
-                            });
-                        }
-                    }
-
+                } else if (addrMode === "EXISTING" && selectedId) {
+                    await fetch(`/api/users/me/addresses/${selectedId}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(addressData)
+                    });
                 }
             }
         });
