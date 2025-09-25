@@ -141,8 +141,9 @@ function showToast(message) {
     toast.textContent = message;
     toast.style.cssText = `
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);                
                 background: #333;
                 color: white;
                 padding: 12px 20px;
