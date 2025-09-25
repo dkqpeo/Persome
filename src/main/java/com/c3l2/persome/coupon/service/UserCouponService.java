@@ -131,8 +131,7 @@ public class UserCouponService {
 
         BigDecimal discountedPrice = orderPrice.subtract(discount).max(BigDecimal.ZERO);
 
-        userCoupon.setStatus(UserCouponStatus.USED);
-        userCoupon.setUsedAt(now);
+        userCoupon.markAsUsed();
 
         return discountedPrice;
     }
@@ -143,8 +142,7 @@ public class UserCouponService {
         if (userCoupon == null) return;
 
         if (userCoupon.getStatus() == UserCouponStatus.USED) {
-            userCoupon.setStatus(UserCouponStatus.ISSUED);
-            userCoupon.setUsedAt(null);
+            userCoupon.restore();
             userCouponRepository.save(userCoupon);
         }
     }

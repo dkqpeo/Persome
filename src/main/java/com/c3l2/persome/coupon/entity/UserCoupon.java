@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_coupon")
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,5 +42,15 @@ public class UserCoupon {
     @PrePersist
     public void prePersist(){
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void markAsUsed() { //쿠폰 사용
+        this.status = UserCouponStatus.USED;
+        this.usedAt = LocalDateTime.now();
+    }
+    public void markAsExpired() { this.status = UserCouponStatus.EXPIRED; } //쿠폰 만료
+    public void restore() { //쿠폰 복구
+        this.status = UserCouponStatus.ISSUED;
+        this.usedAt = null;
     }
 }
