@@ -18,4 +18,11 @@ public class CouponService {
                 .map(CouponDto::fromEntity)
                 .toList();
     }
+
+    //등급별 쿠폰 조회
+    public List<CouponDto> getMembershipCoupons(String level) {
+        return couponRepository.findByNameContaining(level).stream()
+                .map(CouponDto::fromEntity)
+                .toList();
+    }
 }
