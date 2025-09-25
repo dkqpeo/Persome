@@ -4,6 +4,7 @@ import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.cs.dto.FAQRequestDto;
 import com.c3l2.persome.cs.dto.FAQResponse;
 import com.c3l2.persome.cs.entity.constant.FaqCategory;
+import com.c3l2.persome.cs.entity.constant.FaqChannel;
 import com.c3l2.persome.cs.service.FAQService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,11 @@ public class FAQController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<FAQResponse>>> getFAQs(
-            @RequestParam(value = "category", required = false) FaqCategory category
+            @RequestParam(value = "category", required = false) FaqCategory category,
+            @RequestParam(value = "channel", required = false) FaqChannel channel,
+            @RequestParam(value = "keyword", required = false) String keyword
     ) {
-        List<FAQResponse> faqs = faqService.getFAQs(category);
+        List<FAQResponse> faqs = faqService.getFAQs(category, channel, keyword);
         return ApiResponse.ok("FAQ 목록 조회 성공", faqs);
     }
 

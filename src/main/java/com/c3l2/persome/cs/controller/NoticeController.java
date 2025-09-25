@@ -4,6 +4,7 @@ import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.cs.dto.NoticeRequestDto;
 import com.c3l2.persome.cs.dto.NoticeResponseDto;
 import com.c3l2.persome.cs.entity.constant.Category;
+import com.c3l2.persome.cs.entity.constant.FaqChannel;
 import com.c3l2.persome.cs.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,11 @@ public class NoticeController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<NoticeResponseDto>>> getNotices(
-            @RequestParam(value = "category", required = false) Category category
+            @RequestParam(value = "category", required = false) Category category,
+            @RequestParam(value = "channel", required = false) FaqChannel channel,
+            @RequestParam(value = "keyword", required = false) String keyword
     ) {
-        List<NoticeResponseDto> notices = noticeService.getNotices(category);
+        List<NoticeResponseDto> notices = noticeService.getNotices(category, channel, keyword);
         return ApiResponse.ok("공지사항 목록 조회 성공", notices);
     }
 

@@ -1,6 +1,7 @@
 package com.c3l2.persome.cs.entity;
 
 import com.c3l2.persome.cs.entity.constant.FaqCategory;
+import com.c3l2.persome.cs.entity.constant.FaqChannel;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,10 @@ public class Faq {
     @Column(name = "answer", columnDefinition = "TEXT")
     private String answer;
 
+    @Column(name = "channel", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private FaqChannel channel;
+
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
@@ -45,7 +50,7 @@ public class Faq {
     @Column(name = "updated_at", columnDefinition = "DATETIME(0)", nullable = false)
     private LocalDateTime updatedAt;
 
-    public void update(FaqCategory category, String question, String answer, Integer sortOrder, Boolean isActive) {
+    public void update(FaqCategory category, String question, String answer, Integer sortOrder, Boolean isActive, FaqChannel channel) {
         if (category != null) {
             this.category = category;
         }
@@ -54,6 +59,9 @@ public class Faq {
         }
         if (answer != null) {
             this.answer = answer;
+        }
+        if (channel != null) {
+            this.channel = channel;
         }
         if (Objects.nonNull(sortOrder)) {
             this.sortOrder = sortOrder;
@@ -72,6 +80,9 @@ public class Faq {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.viewCount = 0;
+        if (this.channel == null) {
+            this.channel = FaqChannel.ONLINE;
+        }
     }
 
     @PreUpdate

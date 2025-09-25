@@ -21,11 +21,37 @@
         MARKET: 'is-purple'
     };
 
+    const FAQ_CHANNEL_MAP = {
+        online: 'ONLINE',
+        store: 'STORE'
+    };
+
+    const MODE_DESCRIPTION_COPY = {
+        ONLINE: '가장 궁금해하시는 질문 10개',
+        STORE: '매장 서비스 이용 안내 질문'
+    };
+
+    const faqFilterState = {
+        channel: 'ONLINE',
+        category: null,
+        keyword: ''
+    };
+
+    const noticeFilterState = {
+        category: null
+    };
+
     let faqListEl;
     let faqEmptyEl;
     let noticeTableBodyEl;
     let noticeEmptyEl;
     let noticeFiltersEl;
+
+    let faqSearchInputEl;
+    let faqSearchButtonEl;
+    let faqKeywordButtons = [];
+    let faqModeButtons = [];
+    let faqModeDescEl;
 
     let faqItems = [];
     let noticeItems = [];
@@ -55,23 +81,178 @@
         });
     }
 
-    function initModeButtons() {
-        const buttons = document.querySelectorAll('.mode-button');
-        const desc = document.querySelector('.mode-desc');
-        const copy = {
-            online: '가장 궁금해하시는 질문 10개',
-            store: '매장 서비스 이용 안내 질문'
-        };
+    function initFaqModeButtons() {
+        const container = document.getElementById('faq-mode-toggle');
+        if (!container) {
+            return;
+        }
 
-        buttons.forEach(button => {
+        faqModeButtons = Array.from(container.querySelectorAll('.mode-button'));
+        faqModeDescEl = container.querySelector('.faq-mode-desc');
+
+        if (!faqModeButtons.length) {
+            return;
+        }
+
+        faqModeButtons.forEach(button => {
+            button.addEventListener('click', () => handleFaqModeButtonClick(button));
+        });
+
+        const initialButton = faqModeButtons.find(btn => FAQ_CHANNEL_MAP[btn.dataset.target] === faqFilterState.channel)
+            || faqModeButtons[0];
+        updateFaqModeSelection(initialButton);
+    }
+
+    function handleFaqModeButtonClick(button) {
+        if (!button) {
+            return;
+        }
+
+        const channelKey = FAQ_CHANNEL_MAP[button.dataset.target];
+        if (!channelKey) {
+            return;
+        }
+
+        if (faqFilterState.channel === channelKey && button.classList.contains('is-active')) {
+            return;
+        }
+
+        faqFilterState.channel = channelKey;
+        updateFaqModeSelection(button);
+        loadFaqs();
+    }
+
+    function updateFaqModeSelection(activeButton) {
+        if (!activeButton) {
+            return;
+        }
+
+        faqModeButtons.forEach(btn => {
+            const isActive = btn === activeButton;
+            btn.classList.toggle('is-active', isActive);
+            btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            btn.setAttribute('tabindex', isActive ? '0' : '-1');
+        });
+
+        updateFaqModeDescription();
+    }
+
+    function initFaqSearchBar() {
+        faqSearchInputEl = document.getElementById('help-search-input');
+        faqSearchButtonEl = document.getElementById('help-search-button');
+
+        if (faqSearchButtonEl) {
+            faqSearchButtonEl.addEventListener('click', () => {
+                const value = faqSearchInputEl ? faqSearchInputEl.value : '';
+                performFaqSearch(value);
+            });
+        }
+
+        if (!faqSearchInputEl) {
+            return;
+        }
+
+        faqSearchInputEl.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                performFaqSearch(faqSearchInputEl.value);
+            } else if (event.key === 'Escape' && faqSearchInputEl.value) {
+                event.preventDefault();
+                performFaqSearch('');
+            }
+        });
+
+        faqSearchInputEl.addEventListener('search', () => {
+            performFaqSearch(faqSearchInputEl.value);
+        });
+    }
+
+    function initFaqKeywordButtons() {
+        const container = document.getElementById('faq-keywords');
+        if (!container) {
+            return;
+        }
+
+        faqKeywordButtons = Array.from(container.querySelectorAll('.keyword'));
+        if (!faqKeywordButtons.length) {
+            return;
+        }
+
+        faqKeywordButtons.forEach(button => {
+            button.setAttribute('aria-pressed', 'false');
             button.addEventListener('click', () => {
-                buttons.forEach(btn => btn.classList.toggle('is-active', btn === button));
-                const key = button.dataset.target;
-                if (desc && copy[key]) {
-                    desc.textContent = copy[key];
+                const keywordValue = button.dataset.keyword || button.textContent || '';
+                const normalizedTarget = getNormalizedKeyword(keywordValue);
+                const normalizedCurrent = getNormalizedKeyword(faqFilterState.keyword);
+
+                if (normalizedTarget && normalizedTarget === normalizedCurrent) {
+                    performFaqSearch('');
+                } else {
+                    performFaqSearch(keywordValue);
                 }
             });
         });
+    }
+
+    function performFaqSearch(rawValue) {
+        const nextKeyword = (rawValue || '').trim();
+        const isSameFaqKeyword = faqFilterState.keyword === nextKeyword;
+
+        faqFilterState.keyword = nextKeyword;
+
+        if (faqSearchInputEl) {
+            faqSearchInputEl.value = nextKeyword;
+        }
+
+        updateFaqKeywordChipSelection();
+
+        if (!isSameFaqKeyword) {
+            loadFaqs();
+        }
+    }
+
+    function updateFaqKeywordChipSelection() {
+        if (!faqKeywordButtons.length) {
+            return;
+        }
+
+        const normalizedCurrent = getNormalizedKeyword(faqFilterState.keyword);
+        faqKeywordButtons.forEach(button => {
+            const keywordValue = button.dataset.keyword || button.textContent || '';
+            const normalizedKeyword = getNormalizedKeyword(keywordValue);
+            const isActive = normalizedCurrent !== '' && normalizedCurrent === normalizedKeyword;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+    }
+
+    function getNormalizedKeyword(value) {
+        return (value || '')
+            .toString()
+            .trim()
+            .replace(/^#+/, '')
+            .toLowerCase();
+    }
+
+    function updateFaqModeDescription() {
+        if (!faqModeDescEl) {
+            const container = document.getElementById('faq-mode-toggle');
+            faqModeDescEl = container ? container.querySelector('.faq-mode-desc') : null;
+        }
+
+        if (!faqModeDescEl) {
+            return;
+        }
+
+        if (faqFilterState.keyword) {
+            const count = Array.isArray(faqItems) ? faqItems.length : 0;
+            faqModeDescEl.textContent = `검색 결과 ${count}개`;
+            return;
+        }
+
+        const copy = MODE_DESCRIPTION_COPY[faqFilterState.channel] || MODE_DESCRIPTION_COPY.ONLINE;
+        faqModeDescEl.textContent = copy;
     }
 
     function initNoticeFilters() {
@@ -97,29 +278,61 @@
                 filterButton.setAttribute('aria-selected', isActive ? 'true' : 'false');
             });
 
-            renderNotices();
+            noticeFilterState.category = category === 'ALL' ? null : category;
+            loadNotices();
         });
     }
 
     async function loadFaqs() {
+        const params = new URLSearchParams();
+        if (faqFilterState.category) {
+            params.append('category', faqFilterState.category);
+        }
+        if (faqFilterState.channel) {
+            params.append('channel', faqFilterState.channel);
+        }
+        if (faqFilterState.keyword) {
+            params.append('keyword', faqFilterState.keyword);
+        }
+
+        const queryString = params.toString();
+        const url = queryString ? `/api/faq?${queryString}` : '/api/faq';
+
         try {
-            const response = await fetch('/api/faq', { headers: { 'Accept': 'application/json' } });
+            const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
             if (!response.ok) {
                 throw new Error(`FAQ 응답 오류 ${response.status}`);
             }
             const payload = await response.json();
             const data = Array.isArray(payload?.data) ? payload.data : [];
-            faqItems = data.filter(item => item && item.active !== false);
+            faqItems = data.filter(item => {
+                if (!item) {
+                    return false;
+                }
+                if (item.active === false || item.isActive === false) {
+                    return false;
+                }
+                return true;
+            });
         } catch (error) {
             console.error('[help] FAQ 목록 로딩 실패', error);
             faqItems = [];
         }
+
         renderFaqs();
     }
 
     async function loadNotices() {
+        const params = new URLSearchParams();
+        if (noticeFilterState.category) {
+            params.append('category', noticeFilterState.category);
+        }
+
+        const queryString = params.toString();
+        const url = queryString ? `/api/notices?${queryString}` : '/api/notices';
+
         try {
-            const response = await fetch('/api/notices', { headers: { 'Accept': 'application/json' } });
+            const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
             if (!response.ok) {
                 throw new Error(`공지사항 응답 오류 ${response.status}`);
             }
@@ -147,18 +360,24 @@
             }
             return (a?.id || 0) - (b?.id || 0);
         });
-        const limited = sorted.slice(0, 20);
+        const isSearchMode = Boolean(faqFilterState.keyword);
+        const list = isSearchMode ? sorted : sorted.slice(0, 20);
 
-        limited.forEach((faq, index) => {
-            const item = buildFaqItem(faq, index);
+        list.forEach((faq, index) => {
+            const item = buildFaqItem(faq, index, isSearchMode);
             faqListEl.appendChild(item);
         });
 
-        const hasFaq = limited.length > 0;
-        faqEmptyEl?.toggleAttribute('hidden', hasFaq);
+        const hasFaq = list.length > 0;
+        if (faqEmptyEl) {
+            faqEmptyEl.textContent = faqFilterState.keyword ? '검색 결과가 없습니다.' : '등록된 FAQ가 없습니다.';
+            faqEmptyEl.toggleAttribute('hidden', hasFaq);
+        }
+
+        updateFaqModeDescription();
     }
 
-    function buildFaqItem(faq, index) {
+    function buildFaqItem(faq, index, isSearchMode) {
         const item = document.createElement('li');
         item.className = 'faq-item';
 
@@ -171,7 +390,7 @@
 
         const labelEl = document.createElement('div');
         labelEl.className = 'faq-label';
-        labelEl.textContent = index < 10 ? 'TOP10' : 'FAQ';
+        labelEl.textContent = isSearchMode ? '검색' : (index < 10 ? 'TOP10' : 'FAQ');
 
         const questionEl = document.createElement('div');
         questionEl.className = 'faq-question';
@@ -280,7 +499,10 @@
         });
 
         const hasNotice = sorted.length > 0;
-        noticeEmptyEl?.toggleAttribute('hidden', hasNotice);
+        if (noticeEmptyEl) {
+            noticeEmptyEl.textContent = '등록된 공지사항이 없습니다.';
+            noticeEmptyEl.toggleAttribute('hidden', hasNotice);
+        }
     }
 
     function formatDate(value) {
@@ -305,8 +527,11 @@
         noticeFiltersEl = document.getElementById('notice-filters');
 
         initTabs();
-        initModeButtons();
+        initFaqSearchBar();
+        initFaqKeywordButtons();
+        initFaqModeButtons();
         initNoticeFilters();
+        updateFaqKeywordChipSelection();
 
         await Promise.all([loadFaqs(), loadNotices()]);
     }

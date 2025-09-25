@@ -1,6 +1,7 @@
 package com.c3l2.persome.cs.entity;
 
 import com.c3l2.persome.cs.entity.constant.Category;
+import com.c3l2.persome.cs.entity.constant.FaqChannel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +48,11 @@ public class Notice {
         @Enumerated(EnumType.STRING)
         private Category category;
 
-        public void update(String title, String content, Boolean important, Boolean active, Category category) {
+        @Column(name = "channel", nullable = false)
+        @Enumerated(EnumType.STRING)
+        private FaqChannel channel;
+
+        public void update(String title, String content, Boolean important, Boolean active, Category category, FaqChannel channel) {
                 if (title != null) {
                         this.title = title;
                 }
@@ -63,6 +68,9 @@ public class Notice {
                 if (category != null) {
                         this.category = category;
                 }
+                if (channel != null) {
+                        this.channel = channel;
+                }
         }
 
         public void increaseViewCount() {
@@ -74,6 +82,9 @@ public class Notice {
                 this.createdAt = LocalDateTime.now();
                 this.updatedAt = LocalDateTime.now();
                 this.viewCount = 0;
+                if (this.channel == null) {
+                        this.channel = FaqChannel.ONLINE;
+                }
         }
 
         @PreUpdate

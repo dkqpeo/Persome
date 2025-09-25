@@ -25,35 +25,34 @@
         </nav>
     </section>
 
-    <section class="help-search" aria-labelledby="help-search-label">
-        <h2 id="help-search-label" class="sr-only">고객센터 검색</h2>
-        <div class="help-search__bar">
-            <input type="search" placeholder="질문 키워드를 입력해주세요.">
-            <button type="button" aria-label="검색">검색</button>
-        </div>
-        <div class="help-search__keywords" aria-label="인기 키워드">
-            <span class="keyword">#선물하기</span>
-            <span class="keyword">#매장방문</span>
-            <span class="keyword">#기프트카드</span>
-            <span class="keyword">#회원정보</span>
-            <span class="keyword">#반품</span>
-            <span class="keyword">#배송</span>
-            <span class="keyword">#취소</span>
-            <span class="keyword">#빠른결제</span>
-            <span class="keyword">#쿠폰</span>
-            <span class="keyword">#매장</span>
-            <span class="keyword">#결제</span>
-        </div>
-
-        <div class="help-mode-toggle" role="tablist" aria-label="FAQ 카테고리">
-            <button class="mode-button is-active" role="tab" data-target="online">온라인몰</button>
-            <button class="mode-button" role="tab" data-target="store">매장</button>
-            <span class="mode-desc">가장 궁금해하시는 질문 10개</span>
-        </div>
-    </section>
-
     <section class="help-panels">
         <div class="help-panel is-active" id="panel-faq" role="tabpanel">
+            <section class="help-search" aria-labelledby="help-search-label">
+                <h2 id="help-search-label" class="sr-only">FAQ 검색</h2>
+                <div class="help-search__bar">
+                    <input id="help-search-input" type="search" placeholder="질문 키워드를 입력해주세요." aria-label="자주 묻는 질문 검색">
+                    <button id="help-search-button" type="button" aria-label="검색">검색</button>
+                </div>
+                <div class="help-search__keywords" id="faq-keywords" aria-label="인기 키워드">
+                    <button type="button" class="keyword" data-keyword="선물하기" aria-pressed="false">#선물하기</button>
+                    <button type="button" class="keyword" data-keyword="매장방문" aria-pressed="false">#매장방문</button>
+                    <button type="button" class="keyword" data-keyword="기프트카드" aria-pressed="false">#기프트카드</button>
+                    <button type="button" class="keyword" data-keyword="회원정보" aria-pressed="false">#회원정보</button>
+                    <button type="button" class="keyword" data-keyword="반품" aria-pressed="false">#반품</button>
+                    <button type="button" class="keyword" data-keyword="배송" aria-pressed="false">#배송</button>
+                    <button type="button" class="keyword" data-keyword="취소" aria-pressed="false">#취소</button>
+                    <button type="button" class="keyword" data-keyword="빠른결제" aria-pressed="false">#빠른결제</button>
+                    <button type="button" class="keyword" data-keyword="쿠폰" aria-pressed="false">#쿠폰</button>
+                    <button type="button" class="keyword" data-keyword="매장" aria-pressed="false">#매장</button>
+                    <button type="button" class="keyword" data-keyword="결제" aria-pressed="false">#결제</button>
+                </div>
+
+                <div class="help-mode-toggle" id="faq-mode-toggle" role="tablist" aria-label="FAQ 채널">
+                    <button class="mode-button is-active" role="tab" aria-pressed="true" aria-selected="true" tabindex="0" data-target="online">온라인몰</button>
+                    <button class="mode-button" role="tab" aria-pressed="false" aria-selected="false" tabindex="-1" data-target="store">매장</button>
+                    <span class="mode-desc faq-mode-desc">가장 궁금해하시는 질문 10개</span>
+                </div>
+            </section>
             <ol class="faq-list" id="faq-list"></ol>
             <div class="faq-empty" id="faq-empty" hidden>등록된 FAQ가 없습니다.</div>
             <div class="help-pagination" role="navigation" aria-label="FAQ 페이지" hidden>
@@ -66,7 +65,6 @@
                 <button class="filter is-active" type="button" data-category="ALL" aria-selected="true">전체</button>
                 <button class="filter" type="button" data-category="NORMAL" aria-selected="false">일반</button>
                 <button class="filter" type="button" data-category="MARKET" aria-selected="false">매장</button>
-                <button class="filter" type="button" data-category="DELIVERY" aria-selected="false">배송</button>
                 <button class="filter" type="button" data-category="EVENT" aria-selected="false">이벤트</button>
             </div>
             <table class="notice-table">
