@@ -1,3 +1,14 @@
+-- 실행 전 다음 스크립트들을 순서대로 실행해야 합니다:
+-- 1. 2.category_data_insert.sql
+-- 2. 1.Persome_brand_scrept.sql
+
+-- 기존 데이터 삭제 (필요시)
+-- DELETE FROM inventory;
+-- DELETE FROM product_img;
+-- DELETE FROM product_price;
+-- DELETE FROM product_option;
+-- DELETE FROM product;
+
 -- 상품: [9월 올영픽] 바이오더마 하이드라비오 토너 500ml 2입 기획...
 INSERT INTO product (name, description, rating_avg, category_id, brand_id, status, created_at, updated_at) VALUES
 ('[9월 올영픽] 바이오더마 하이드라비오 토너 500ml 2입 기획',
