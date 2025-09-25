@@ -30,6 +30,25 @@
         .payment-bar button{margin-top:20px;width:100%;padding:16px;font-size:1.2em;font-weight:bold;background:#A68DC0;color:#fff;border:none;border-radius:6px;cursor:pointer}
         .payment-bar button:hover{background:#9a74c3}
         .summary-table .discount{color:#e60023;font-weight:bold}
+        .address-section{border:1px solid #ddd;background:#fff;margin-bottom:30px}
+        .address-section h2{background:#fafafa;margin:0;padding:15px;font-size:1.1em;border-bottom:1px solid #ddd}
+        .address-table{width:100%;border-collapse:collapse}
+        .address-table th,.address-table td{border-bottom:1px solid #eee;padding:12px 15px;text-align:left;vertical-align:middle}
+        .address-table th{width:150px;background:#fafafa;font-weight:normal;color:#444}
+        .address-table input[type="text"],.address-table select{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;box-sizing:border-box}
+        .addr-mode{margin-bottom:10px}
+        .addr-mode label{margin-right:20px;font-weight:500}
+        .phone-group{display:flex;gap:6px}
+        .phone-group select{width:80px}
+        .phone-group input{flex:1}
+        .zip-row{display:flex;gap:8px;margin-bottom:12px}
+        .addr-input{margin-bottom:10px}
+        .zipcode-btn{padding:9px 14px;background:#f6f3ff;border:1px solid #A68DC0;color:#333;border-radius:6px;cursor:pointer;font-size:13px}
+        .zipcode-btn:hover{background:#ede6f7}
+        .addr-mode-row{display:flex;justify-content:space-between;align-items:center}
+        .addr-mode label{margin-right:20px;font-weight:500}
+        .set-default label{font-size:.9em;color:#555;cursor:pointer}
+
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -49,43 +68,71 @@
 </div>
 
 <div class="order-container">
-    <div class="section">
+
+    <!-- 배송지 정보 -->
+    <div class="section address-section">
         <h2>배송지 정보</h2>
-        <table class="form-table">
+        <table class="address-table">
+            <tr>
+                <th>배송지 선택</th>
+                <td>
+                    <div class="addr-mode-row">
+                        <div class="addr-mode">
+                            <label><input type="radio" name="addrMode" value="EXISTING" checked> 기존 배송지</label>
+                            <label><input type="radio" name="addrMode" value="NEW"> 신규 배송지</label>
+                        </div>
+                        <div class="set-default">
+                            <label><input type="checkbox" id="setDefaultAddr"> 기본 배송지로 설정</label>
+                        </div>
+                    </div>
+                    <div id="existingAddressBox" style="margin-top:10px;">
+                        <select id="existingAddressSelect">
+                            <option value="">배송지를 선택하세요</option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>배송지명</th>
+                <td><input type="text" id="addrLabel" placeholder="예: 집, 회사"></td>
+            </tr>
             <tr>
                 <th>받는 분</th>
-                <td><input type="text" placeholder="이름 입력"></td>
+                <td><input type="text" id="receiverName" placeholder="이름 입력"></td>
             </tr>
             <tr>
                 <th>연락처</th>
-                <td><input type="text" placeholder="010-0000-0000"></td>
+                <td>
+                    <div class="phone-group">
+                        <select id="phone1"><option>010</option><option>011</option></select>
+                        <input type="text" id="phone2" maxlength="4">
+                        <input type="text" id="phone3" maxlength="4">
+                    </div>
+                </td>
             </tr>
             <tr>
-                <th>도로명 주소</th>
-                <td><input type="text" placeholder="도로명 주소 입력"></td>
-            </tr>
-            <tr>
-                <th>지번 주소</th>
-                <td><input type="text" placeholder="지번 주소 입력"></td>
-            </tr>
-            <tr>
-                <th>상세 주소</th>
-                <td><input type="text" placeholder="상세 주소 입력"></td>
-            </tr>
-            <tr>
-                <th>우편번호</th>
-                <td><input type="text" placeholder="우편번호 입력" id="zipCode"></td>
+                <th>주소</th>
+                <td>
+                    <div class="zip-row">
+                        <input type="text" id="zipCode" placeholder="우편번호" style="width:140px;">
+                        <button type="button" class="zipcode-btn">우편번호 찾기</button>
+                    </div>
+                    <input type="text" id="roadAddr" placeholder="도로명 주소" class="addr-input">
+                    <input type="text" id="jibunAddr" placeholder="지번 주소" class="addr-input">
+                    <input type="text" id="detailAddr" placeholder="상세 주소" class="addr-input">
+                </td>
             </tr>
         </table>
     </div>
 
+    <!-- 배송 요청사항 -->
     <div class="section">
         <h2>배송 요청사항</h2>
         <table class="form-table">
             <tr>
                 <th>요청 메시지</th>
                 <td>
-                    <select>
+                    <select id="requestSelect">
                         <option>배송 메시지를 선택하세요</option>
                         <option>문 앞에 두세요</option>
                         <option>경비실에 맡겨주세요</option>
@@ -95,11 +142,12 @@
             </tr>
             <tr>
                 <th>기타 요청사항</th>
-                <td><textarea placeholder="기타 요청사항 입력"></textarea></td>
+                <td><textarea id="requestTextarea" placeholder="기타 요청사항 입력"></textarea></td>
             </tr>
         </table>
     </div>
 
+    <!-- 주문 상품 -->
     <div class="section">
         <h2>주문 상품</h2>
         <table class="product-table">
@@ -116,6 +164,7 @@
         </table>
     </div>
 
+    <!-- 쿠폰/포인트 -->
     <div class="section">
         <h2>쿠폰 / 포인트</h2>
         <table class="form-table">
@@ -142,6 +191,7 @@
         </table>
     </div>
 
+    <!-- 결제 수단 -->
     <div class="section">
         <h2>결제 수단 선택</h2>
         <table class="form-table">
@@ -152,32 +202,19 @@
         </table>
     </div>
 
+    <!-- 결제 요약 -->
     <div class="payment-bar">
         <table class="summary-table">
-            <tr>
-                <th>총 상품 금액</th>
-                <td id="product-price">0원</td>
-            </tr>
-            <tr>
-                <th>쿠폰 할인</th>
-                <td id="coupon-discount" class="discount">-0원</td>
-            </tr>
-            <tr>
-                <th>배송비</th>
-                <td id="shipping-fee">0원</td>
-            </tr>
-            <tr>
-                <th>포인트 할인</th>
-                <td id="point-discount" class="discount">-0원</td>
-            </tr>
-            <tr class="total">
-                <th>최종 결제금액</th>
-                <td id="final-price">0원</td>
-            </tr>
+            <tr><th>총 상품 금액</th><td id="product-price">0원</td></tr>
+            <tr><th>쿠폰 할인</th><td id="coupon-discount" class="discount">-0원</td></tr>
+            <tr><th>배송비</th><td id="shipping-fee">0원</td></tr>
+            <tr><th>포인트 할인</th><td id="point-discount" class="discount">-0원</td></tr>
+            <tr class="total"><th>최종 결제금액</th><td id="final-price">0원</td></tr>
         </table>
         <button id="orderBtn">결제하기</button>
     </div>
 </div>
+
 <script src="/js/header.js"></script>
 <script src="/js/orders.js"></script>
 </body>
