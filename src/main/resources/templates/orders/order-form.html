@@ -5,13 +5,18 @@
     <title>주문 / 결제</title>
     <style>
         body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0}
-        .order-header{background:#f3e9fa;padding:30px 0;border-bottom:1px solid #ddd}
-        .order-header-inner{max-width:1000px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
-        .order-title{font-size:1.8em;font-weight:bold;color:#111}
-        .step-indicator{font-size:1em;color:#999}
-        .step-indicator .step{margin:0 6px}
-        .step-indicator .active{font-weight:bold;color:#111}
-        .step-indicator .arrow{margin:0 4px;color:#bbb}
+        .order-header{background:#A68DC0;padding:40px 0;border-bottom:1px solid #9374b5;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+        .order-header-inner{max-width:1000px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;align-items:center;gap:20px}
+        .order-title{font-size:2em;font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 5px rgba(0,0,0,0.25)}
+        .step-indicator{display:flex;justify-content:center;align-items:center;gap:50px;width:100%}
+        .step-indicator .step-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+        .step-indicator .circle{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);color:#fff;display:flex;justify-content:center;align-items:center;font-weight:600;font-size:15px;margin-bottom:8px;transition:.3s}
+        .step-indicator .label{font-size:14px;color:#fdfdfd;opacity:.9;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,0.2)}
+        .step-indicator .step-item.active .circle{background:#fff;color:#A68DC0;box-shadow:0 0 0 6px rgba(255,255,255,0.3)}
+        .step-indicator .step-item.active .label{color:#fff;opacity:1;font-weight:700}
+        .step-indicator .step-line{flex:1;height:3px;background:rgba(255,255,255,0.3);position:relative;top:-20px;border-radius:2px}
+        .step-indicator .step-item.active~.step-line{background:#fff}
+
         .order-container{max-width:1000px;margin:0 auto;padding:40px}
         h2{font-size:1.3em;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #eee}
         .section{margin-bottom:30px;border:1px solid #ddd;background:#fff}
@@ -30,6 +35,25 @@
         .payment-bar button{margin-top:20px;width:100%;padding:16px;font-size:1.2em;font-weight:bold;background:#A68DC0;color:#fff;border:none;border-radius:6px;cursor:pointer}
         .payment-bar button:hover{background:#9a74c3}
         .summary-table .discount{color:#e60023;font-weight:bold}
+        .address-section{border:1px solid #ddd;background:#fff;margin-bottom:30px}
+        .address-section h2{background:#fafafa;margin:0;padding:15px;font-size:1.1em;border-bottom:1px solid #ddd}
+        .address-table{width:100%;border-collapse:collapse}
+        .address-table th,.address-table td{border-bottom:1px solid #eee;padding:12px 15px;text-align:left;vertical-align:middle}
+        .address-table th{width:150px;background:#fafafa;font-weight:normal;color:#444}
+        .address-table input[type="text"],.address-table select{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;box-sizing:border-box}
+        .addr-mode{margin-bottom:10px}
+        .addr-mode label{margin-right:20px;font-weight:500}
+        .phone-group{display:flex;gap:6px}
+        .phone-group select{width:80px}
+        .phone-group input{flex:1}
+        .zip-row{display:flex;gap:8px;margin-bottom:12px}
+        .addr-input{margin-bottom:10px}
+        .zipcode-btn{padding:9px 14px;background:#f6f3ff;border:1px solid #A68DC0;color:#333;border-radius:6px;cursor:pointer;font-size:13px}
+        .zipcode-btn:hover{background:#ede6f7}
+        .addr-mode-row{display:flex;justify-content:space-between;align-items:center}
+        .addr-mode label{margin-right:20px;font-weight:500}
+        .set-default label{font-size:.9em;color:#555;cursor:pointer}
+
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -39,45 +63,90 @@
     <div class="order-header-inner">
         <div class="order-title">주문/결제</div>
         <div class="step-indicator">
-            <span class="step">01 장바구니</span>
-            <span class="arrow">›</span>
-            <span class="step active">02 주문/결제</span>
-            <span class="arrow">›</span>
-            <span class="step">03 주문완료</span>
+            <div class="step-item active">
+                <span class="circle">1</span>
+                <span class="label">장바구니</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item active">
+                <span class="circle">2</span>
+                <span class="label">주문/결제</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item">
+                <span class="circle">3</span>
+                <span class="label">주문완료</span>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="order-container">
-    <div class="section">
+
+    <!-- 배송지 정보 -->
+    <div class="section address-section">
         <h2>배송지 정보</h2>
-        <table class="form-table">
+        <table class="address-table">
+            <tr>
+                <th>배송지 선택</th>
+                <td>
+                    <div class="addr-mode-row">
+                        <div class="addr-mode">
+                            <label><input type="radio" name="addrMode" value="EXISTING" checked> 기존 배송지</label>
+                            <label><input type="radio" name="addrMode" value="NEW"> 신규 배송지</label>
+                        </div>
+                        <div class="set-default">
+                            <label><input type="checkbox" id="setDefaultAddr"> 기본 배송지로 설정</label>
+                        </div>
+                    </div>
+                    <div id="existingAddressBox" style="margin-top:10px;">
+                        <select id="existingAddressSelect">
+                            <option value="">배송지를 선택하세요</option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>배송지명</th>
+                <td><input type="text" id="addrLabel" placeholder="예: 집, 회사"></td>
+            </tr>
             <tr>
                 <th>받는 분</th>
-                <td><input type="text" placeholder="이름 입력"></td>
+                <td><input type="text" id="receiverName" placeholder="이름 입력"></td>
             </tr>
             <tr>
                 <th>연락처</th>
-                <td><input type="text" placeholder="010-0000-0000"></td>
+                <td>
+                    <div class="phone-group">
+                        <select id="phone1"><option>010</option><option>011</option></select>
+                        <input type="text" id="phone2" maxlength="4">
+                        <input type="text" id="phone3" maxlength="4">
+                    </div>
+                </td>
             </tr>
             <tr>
                 <th>주소</th>
-                <td><input type="text" placeholder="도로명 주소 검색"></td>
-            </tr>
-            <tr>
-                <th>우편번호</th>
-                <td><input type="text" placeholder="우편번호 입력" id="zipCode"></td>
+                <td>
+                    <div class="zip-row">
+                        <input type="text" id="zipCode" placeholder="우편번호" style="width:140px;">
+                        <button type="button" class="zipcode-btn">우편번호 찾기</button>
+                    </div>
+                    <input type="text" id="roadAddr" placeholder="도로명 주소" class="addr-input">
+                    <input type="text" id="jibunAddr" placeholder="지번 주소" class="addr-input">
+                    <input type="text" id="detailAddr" placeholder="상세 주소" class="addr-input">
+                </td>
             </tr>
         </table>
     </div>
 
+    <!-- 배송 요청사항 -->
     <div class="section">
         <h2>배송 요청사항</h2>
         <table class="form-table">
             <tr>
                 <th>요청 메시지</th>
                 <td>
-                    <select>
+                    <select id="requestSelect">
                         <option>배송 메시지를 선택하세요</option>
                         <option>문 앞에 두세요</option>
                         <option>경비실에 맡겨주세요</option>
@@ -87,11 +156,12 @@
             </tr>
             <tr>
                 <th>기타 요청사항</th>
-                <td><textarea placeholder="기타 요청사항 입력"></textarea></td>
+                <td><textarea id="requestTextarea" placeholder="기타 요청사항 입력"></textarea></td>
             </tr>
         </table>
     </div>
 
+    <!-- 주문 상품 -->
     <div class="section">
         <h2>주문 상품</h2>
         <table class="product-table">
@@ -108,6 +178,7 @@
         </table>
     </div>
 
+    <!-- 쿠폰/포인트 -->
     <div class="section">
         <h2>쿠폰 / 포인트</h2>
         <table class="form-table">
@@ -134,6 +205,7 @@
         </table>
     </div>
 
+    <!-- 결제 수단 -->
     <div class="section">
         <h2>결제 수단 선택</h2>
         <table class="form-table">
@@ -144,281 +216,20 @@
         </table>
     </div>
 
+    <!-- 결제 요약 -->
     <div class="payment-bar">
         <table class="summary-table">
-            <tr>
-                <th>총 상품 금액</th>
-                <td id="product-price">0원</td>
-            </tr>
-            <tr>
-                <th>쿠폰 할인</th>
-                <td id="coupon-discount" class="discount">-0원</td>
-            </tr>
-            <tr>
-                <th>배송비</th>
-                <td id="shipping-fee">0원</td>
-            </tr>
-            <tr>
-                <th>포인트 할인</th>
-                <td id="point-discount" class="discount">-0원</td>
-            </tr>
-            <tr class="total">
-                <th>최종 결제금액</th>
-                <td id="final-price">0원</td>
-            </tr>
+            <tr><th>총 상품 금액</th><td id="product-price">0원</td></tr>
+            <tr><th>쿠폰 할인</th><td id="coupon-discount" class="discount">-0원</td></tr>
+            <tr><th>배송비</th><td id="shipping-fee">0원</td></tr>
+            <tr><th>포인트 할인</th><td id="point-discount" class="discount">-0원</td></tr>
+            <tr class="total"><th>최종 결제금액</th><td id="final-price">0원</td></tr>
         </table>
         <button id="orderBtn">결제하기</button>
     </div>
 </div>
+
 <script src="/js/header.js"></script>
-<script>
-    let appliedPoint = 0;
-    //보유 포인트 조회
-    async function loadUserPoints() {
-        try {
-            const res = await fetch("/api/users/me/points");
-            if (!res.ok) throw new Error("포인트 정보를 불러올 수 없습니다.");
-            const result = await res.json();
-            const points = result.balance || 0;
-            document.getElementById("available-points").textContent = `보유 포인트: ${points.toLocaleString()}P`;
-            document.getElementById("pointInput").setAttribute("max", points);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-    document.addEventListener("DOMContentLoaded", async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const cartItemIds = urlParams.get("cartItemIds");
-
-        if (!cartItemIds) {
-            alert("선택된 장바구니 상품이 없습니다.");
-            window.location.href = "/cart";
-            return;
-        }
-        const formatCurrency = (num) => Number(num).toLocaleString() + "원";
-
-        try {
-            const res = await fetch(`api/orders/prepare?cartItemIds=${cartItemIds}`);
-            if (!res.ok) throw new Error("주문 준비 중 오류가 발생했습니다.");
-            const { data } = await res.json();
-
-            const tbody = document.querySelector(".product-table tbody");
-            tbody.innerHTML = data.items.map(item => `
-                <tr>
-                    <td><img src="${item.imageUrl || '/images/no-image.png'}" alt="상품이미지"></td>
-                    <td>${item.productName}</td>
-                    <td>${formatCurrency(item.unitPrice)}</td>
-                    <td>${item.quantity}</td>
-                    <td class="highlight">${formatCurrency(item.totalPrice)}</td>
-                </tr>
-            `).join("");
-
-            const summary = data.summary;
-            document.getElementById("product-price").textContent = formatCurrency(summary.productPrice);
-            document.getElementById("coupon-discount").textContent = "- 0원";
-            document.getElementById("shipping-fee").textContent = formatCurrency(summary.shippingFee);
-            document.getElementById("point-discount").textContent = "- 0원";
-            document.getElementById("final-price").textContent = formatCurrency(summary.finalPrice);
-
-            //결제 수단 불러오기
-            try {
-                const pmRes = await fetch("/api/payments/methods");
-                if (!pmRes.ok) throw new Error("결제 수단을 불러올 수 없습니다.");
-                const paymentMethods = await pmRes.json();
-
-                const container = document.getElementById("payment-methods");
-                container.innerHTML = paymentMethods.map((pm, idx) => `
-                    <label>
-                        <input type="radio" name="payment" value="${pm.code}" ${idx === 0 ? "checked" : ""}>
-                        ${pm.label}
-                    </label>
-                `).join(" ");
-            } catch (error) {
-                console.error(error);
-                alert(error.message);
-            }
-
-            //배송 요청사항 자동 반영
-            const requestSelect = document.querySelector("select");
-            const requestTextarea = document.querySelector("textarea");
-
-            requestSelect.addEventListener("change", () => {
-                const selected = requestSelect.value;
-                if (selected === "기타") {
-                    requestTextarea.value = "";
-                    requestTextarea.removeAttribute("readonly");
-                } else {
-                    requestTextarea.value = selected;
-                    requestTextarea.setAttribute("readonly", true);
-                }
-            });
-
-            //쿠폰 불러오기
-            const couponSelect = document.querySelector("#couponSelect");
-            try {
-                const couponRes = await fetch("api/users/me/coupons/available");
-                if (!couponRes.ok) throw new Error("쿠폰을 불러올 수 없습니다.");
-                const couponResult = await couponRes.json();
-                const coupons = couponResult.data || [];
-
-                if (coupons.length > 0) {
-                    couponSelect.innerHTML = `
-                        <option value="">쿠폰을 선택하세요</option>
-                        ${coupons.map(c => {
-                        let label = "";
-                        if (c.discountType === "RATE") {
-                            label = `-${c.discountValue}%`;
-                        } else if (c.discountType === "FIXED") {
-                            label = `-${formatCurrency(c.discountValue)}`;
-                        }
-                        return `<option value="${c.userCouponId}" data-type="${c.discountType}" data-value="${c.discountValue}">
-                                        ${c.couponName} (${label})
-                                    </option>`;
-                    }).join("")}
-                        <option value="CANCEL">쿠폰 적용 취소</option>
-                    `;
-                }
-            } catch (err) {
-                console.error(err);
-            }
-
-            //쿠폰 선택 시 가격 반영
-            couponSelect.addEventListener("change", () => {
-                const selected = couponSelect.options[couponSelect.selectedIndex];
-                if (!selected || !selected.value) return;
-
-                if (selected.value === "CANCEL") {
-                    document.getElementById("coupon-discount").textContent = "- 0원";
-                    document.getElementById("final-price").textContent = formatCurrency(summary.finalPrice);
-                    couponSelect.value = "";
-                    return;
-                }
-
-                const type = selected.dataset.type;
-                const value = Number(selected.dataset.value);
-
-                let discount = 0;
-                if (type === "RATE") {
-                    discount = Math.floor(summary.finalPrice * (value / 100));
-                } else if (type === "FIXED") {
-                    discount = value;
-                }
-
-                const discountedPrice = Math.max(0, summary.finalPrice - discount);
-                document.getElementById("coupon-discount").textContent = "- " + formatCurrency(discount);
-                document.getElementById("final-price").textContent = formatCurrency(discountedPrice);
-            });
-
-            const pointInput = document.getElementById("pointInput");
-            const applyPointBtn = document.getElementById("applyPointBtn");
-            const cancelPointBtn = document.getElementById("cancelPointBtn");
-            const useAllPointBtn = document.getElementById("useAllPointBtn");
-
-            function applyPoint(usePoint) {
-                const maxPoint = Number(pointInput.getAttribute("max")) || 0;
-
-                if (!usePoint || usePoint <= 0) {
-                    alert("포인트를 입력해주세요.");
-                    return;
-                }
-                if (usePoint > maxPoint) {
-                    alert("보유 포인트를 초과했습니다.");
-                    return;
-                }
-
-                appliedPoint = usePoint;
-                document.getElementById("point-discount").textContent = "- " + formatCurrency(usePoint);
-
-                const currentFinal = summary.finalPrice;
-                const discountedPrice = Math.max(0, currentFinal - usePoint);
-                document.getElementById("final-price").textContent = formatCurrency(discountedPrice);
-
-                applyPointBtn.style.display = "none";
-                cancelPointBtn.style.display = "inline-block";
-                pointInput.setAttribute("readonly", true);
-            }
-
-            applyPointBtn.addEventListener("click", () => {
-                applyPoint(Number(pointInput.value));
-            });
-
-            pointInput.addEventListener("keyup", (e) => {
-                if (e.key === "Enter") {
-                    applyPoint(Number(pointInput.value));
-                }
-            });
-
-            useAllPointBtn.addEventListener("click", () => {
-                const maxPoint = Number(pointInput.getAttribute("max")) || 0;
-                const finalPrice = summary.finalPrice;
-                const usePoint = Math.min(maxPoint, finalPrice);
-                pointInput.value = usePoint;
-                applyPoint(usePoint);
-            });
-
-            cancelPointBtn.addEventListener("click", () => {
-                appliedPoint = 0;
-                document.getElementById("point-discount").textContent = "- 0원";
-                document.getElementById("final-price").textContent = formatCurrency(summary.finalPrice);
-
-                cancelPointBtn.style.display = "none";
-                applyPointBtn.style.display = "inline-block";
-                pointInput.removeAttribute("readonly");
-                pointInput.value = "";
-            });
-
-            await loadUserPoints();
-
-            document.getElementById("orderBtn").addEventListener("click", async () => {
-                const receiverName = document.querySelector("input[placeholder='이름 입력']").value;
-                const receiverPhone = document.querySelector("input[placeholder='010-0000-0000']").value;
-                const address = document.querySelector("input[placeholder='도로명 주소 검색']").value;
-                const requestMessage = document.querySelector("textarea").value;
-                const zipCode = document.getElementById("zipCode").value;
-                const selectedPayment = document.querySelector("input[name='payment']:checked").value;
-                const selectedCouponId = couponSelect.value && couponSelect.value !== "CANCEL"
-                    ? Number(couponSelect.value)
-                    : null;
-
-                const orderData = {
-                    products: data.items.map(i => ({
-                        productOptionId: i.productOptionId,
-                        quantity: i.quantity
-                    })),
-                    receiverName,
-                    receiverPhone,
-                    address,
-                    addressDetail: "",
-                    receiveType: "DELIVERY",
-                    shippingFee: data.summary.shippingFee,
-                    requestMessage,
-                    zipCode,
-                    userCouponId: selectedCouponId,
-                    usePointAmount: appliedPoint > 0 ? appliedPoint : null,
-                    paymentMethod: selectedPayment
-                };
-
-                try {
-                    const response = await fetch("api/orders", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(orderData)
-                    });
-
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.message);
-
-                    alert(result.message || "주문이 정상적으로 생성되었습니다.");
-                    window.location.href = `/orders/complete?orderId=${result.data.orderId}`;
-                } catch (error) {
-                    alert(error.message || "서버와 통신 중 오류가 발생했습니다.");
-                }
-            });
-        } catch (error) {
-            alert("주문 준비 데이터를 불러올 수 없습니다.");
-        }
-    });
-</script>
-
+<script src="/js/orders.js"></script>
 </body>
 </html>

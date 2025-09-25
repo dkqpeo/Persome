@@ -23,10 +23,13 @@ public class DeliverySnapshot {
     @Column(name = "zip_code", nullable = false, length = 10)
     private String zipCode; //우편번호
 
-    @Column(name = "addr1", nullable = false, length = 200)
-    private String address; //주소
+    @Column(name = "road_addr", length = 50)
+    private String roadAddr; //도로명 주소
 
-    @Column(name = "addr2", length = 200)
+    @Column(name = "jibun_addr", length = 50)
+    private String jibunAddr;  //지번 주소
+
+    @Column(name = "addr_detail", length = 200)
     private String addressDetail; //상세 주소
 
     @OneToOne(fetch = FetchType.LAZY)

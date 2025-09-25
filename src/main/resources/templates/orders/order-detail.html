@@ -59,7 +59,9 @@
                 <table>
                     <tr><th>받는 분</th><td id="receiver-name"></td></tr>
                     <tr><th>연락처</th><td id="receiver-phone"></td></tr>
-                    <tr><th>주소</th><td id="address"></td></tr>
+                    <tr><th>도로명 주소</th><td id="road-addr"></td></tr>
+                    <tr><th>지번 주소</th><td id="jibun-addr"></td></tr>
+                    <tr><th>상세 주소</th><td id="detail-addr"></td></tr>
                     <tr><th>요청사항</th><td id="request-message"></td></tr>
                 </table>
 
@@ -119,7 +121,9 @@
             if(data.deliveryInfo){
                 document.getElementById("receiver-name").textContent=data.deliveryInfo.receiverName;
                 document.getElementById("receiver-phone").textContent=data.deliveryInfo.receiverPhone;
-                document.getElementById("address").textContent=`${data.deliveryInfo.address} ${data.deliveryInfo.addressDetail||''}`;
+                document.getElementById("road-addr").textContent=data.deliveryInfo.roadAddr;
+                document.getElementById("jibun-addr").textContent=data.deliveryInfo.jibunAddr;
+                document.getElementById("detail-addr").textContent=data.deliveryInfo.addressDetail;
             }
             document.getElementById("request-message").textContent=data.requestMessage||"-";
             const tbody=document.getElementById("order-items");
