@@ -29,7 +29,7 @@ async function setupHeader() {
                 | <a href="/help">고객센터</a>
             `;
             await loadCartCount();
-        } else if (res.status === 401){
+        } else if (res.status === 401 || res.status === 400){
             nav.innerHTML = `
                 <a href="/users/terms">회원가입</a> |
                 <a href="/users/login">로그인</a>
