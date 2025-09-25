@@ -39,4 +39,7 @@ public class MyPageController {
 
     @GetMapping("/password")
     public String myPasswordPage(){ return "/mypage/password-edit"; }
+
+    @GetMapping("/notifications")
+    public String myNotificationsPage(){ return "mypage/notifications"; }
 }

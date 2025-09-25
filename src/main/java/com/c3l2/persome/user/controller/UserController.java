@@ -82,7 +82,16 @@ public class UserController {
         return ApiResponse.ok("비밀번호 재설정 요청 성공", message);
     }
 
-    // 알람 설정
+    // 알림 설정 조회
+    @GetMapping("/me/notifications")
+    public ResponseEntity<ApiResponse<UserNotificationDto>> getNotifications(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        UserNotificationDto dto = userService.getUserNotifications(userDetails.getId());
+        return ApiResponse.ok("알림 설정 조회 성공", dto);
+    }
+
+    // 알림 설정
     @PatchMapping("/me/notifications")
     public ResponseEntity<ApiResponse<UserNotificationDto>> updateNotifications(
             @AuthenticationPrincipal CustomUserDetails userDetails,
