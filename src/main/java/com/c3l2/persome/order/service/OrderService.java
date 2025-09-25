@@ -27,6 +27,7 @@ import com.c3l2.persome.product.entity.ProductOption;
 import com.c3l2.persome.product.repository.ProductOptionRepository;
 import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.order.dto.*;
+import com.c3l2.persome.order.dto.request.DirectOrderItemDto;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.repository.OrderRepository;
 import com.c3l2.persome.user.repository.UserRepository;
@@ -53,62 +54,12 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductOptionRepository productOptionRepository;
-    private final CartItemRepository cartItemRepository;
     private final PaymentRepository paymentRepository;
     private final PricingService pricingService;
     private final UserPointService userPointService;
     private final UserCouponService userCouponService;
     private final PaymentService paymentService;
     private final PointTransactionRepository pointTransactionRepository;
-
-    //주문 준비
-    public OrderPrepareResponseDto prepareOrder(List<Long> cartItemIds) {
-        List<CartItem> cartItems = cartItemRepository.findAllById(cartItemIds);
-
-        List<OrderItemDto> itemDtos = new ArrayList<>();
-        int productPriceSum = 0;
-        int discountSum = 0;
-        int finalPriceSum = 0;
-
-        for (CartItem ci : cartItems) {
-
-            Product product = ci.getProductOption().getProduct();
-            ProductOption option = ci.getProductOption();
-            int qty = ci.getQuantity();
-
-            PriceCalculationResult calc = pricingService.calculateFinalPrice(product, option, qty);
-
-            productPriceSum += calc.getTotalPrice().intValue();
-            discountSum += calc.getPromoDiscount().intValue();
-            finalPriceSum += calc.getFinalPrice().intValue();
-
-            OrderItemDto itemDto = OrderItemDto.builder()
-                    .orderItemId(null)
-                    .productOptionId(option.getId())
-                    .productName(product.getName() + " - " + option.getName())
-                    .quantity(qty)
-                    .unitPrice(calc.getUnitPrice())
-                    .totalPrice(calc.getFinalPrice())
-                    .status("PREPARE")
-                    .imageUrl(product.getProductImgs().isEmpty() ? null :
-                            String.valueOf(product.getProductImgs().getFirst().getImgUrl()))
-                    .build();
-
-            itemDtos.add(itemDto);
-        }
-
-        OrderPrepareDto summary = OrderPrepareDto.builder()
-                .productPrice(productPriceSum)
-                .discountPrice(discountSum)
-                .shippingFee(0)
-                .finalPrice(finalPriceSum)
-                .build();
-
-        return OrderPrepareResponseDto.builder()
-                .items(itemDtos)
-                .summary(summary)
-                .build();
-    }
 
     //주문 생성
     @Transactional

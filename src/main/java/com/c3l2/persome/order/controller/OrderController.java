@@ -4,8 +4,10 @@ import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.order.dto.response.OrderCountDto;
 import com.c3l2.persome.order.dto.response.OrderPrepareResponseDto;
 import com.c3l2.persome.order.dto.response.OrderResponseDto;
+import com.c3l2.persome.order.dto.request.DirectOrderItemDto;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.dto.response.OrderSummaryDto;
+import com.c3l2.persome.order.service.OrderPrepareService;
 import com.c3l2.persome.order.service.OrderService;
 import com.c3l2.persome.user.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,20 @@ import java.util.List;
 @RequestMapping("api/orders")
 public class OrderController {
     private final OrderService orderService;
+    private final OrderPrepareService orderPrepareService;
 
     //주문 준비
     @GetMapping("/prepare")
     public ResponseEntity<ApiResponse<OrderPrepareResponseDto>> prepareOrder(@RequestParam List<Long> cartItemIds){
-        OrderPrepareResponseDto response = orderService.prepareOrder(cartItemIds);
+        OrderPrepareResponseDto response = orderPrepareService.prepareOrder(cartItemIds);
         return ApiResponse.ok("주문 준비 조회 성공",  response);
+    }
+
+    //직접 주문 준비
+    @PostMapping("/prepare-direct")
+    public ResponseEntity<ApiResponse<OrderPrepareResponseDto>> prepareDirectOrder(@RequestBody DirectOrderItemDto request){
+        OrderPrepareResponseDto response = orderPrepareService.prepareDirectOrder(request);
+        return ApiResponse.ok("직접 주문 준비 조회 성공", response);
     }
 
     //주문 생성
