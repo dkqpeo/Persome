@@ -35,7 +35,6 @@
             <span class="keyword">#선물하기</span>
             <span class="keyword">#매장방문</span>
             <span class="keyword">#기프트카드</span>
-            <span class="keyword">#오늘드림</span>
             <span class="keyword">#회원정보</span>
             <span class="keyword">#반품</span>
             <span class="keyword">#배송</span>
@@ -48,7 +47,6 @@
 
         <div class="help-mode-toggle" role="tablist" aria-label="FAQ 카테고리">
             <button class="mode-button is-active" role="tab" data-target="online">온라인몰</button>
-            <button class="mode-button" role="tab" data-target="today">오늘드림</button>
             <button class="mode-button" role="tab" data-target="store">매장</button>
             <span class="mode-desc">가장 궁금해하시는 질문 10개</span>
         </div>
@@ -56,79 +54,20 @@
 
     <section class="help-panels">
         <div class="help-panel is-active" id="panel-faq" role="tabpanel">
-            <ol class="faq-list">
-                <li class="faq-item">
-                    <div class="faq-rank">01</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[택배] 택배 서비스가 궁금해요</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">02</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[오늘드림] 교환상품도 매장에서 찾을 수 있나요?</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">03</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[기프트카드] 기프트카드는 어떻게 등록해서 사용할 수 있나요?</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">04</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[오늘드림] 오늘드림 서비스가 궁금해요</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">05</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[오늘드림] 오늘 드림 서비스는 배송비가 얼마인가요?</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">06</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[반품] 반품은 언제까지 가능한가요?</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">07</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[반품] 반품할 때 비용이 드나요?</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">08</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[취소] 주문한 상품의 옵션을 변경하고 싶어요</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">09</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[배송] 주문한 상품은 언제 배송되나요?</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-                <li class="faq-item">
-                    <div class="faq-rank">10</div>
-                    <div class="faq-label">TOP10</div>
-                    <div class="faq-question">[배송] 일반배송으로 주문했는데, 오늘드림으로 배송이 올 수도 있나요?</div>
-                    <button class="faq-toggle" aria-label="답변 열기"></button>
-                </li>
-            </ol>
-            <div class="help-pagination" role="navigation" aria-label="FAQ 페이지">
+            <ol class="faq-list" id="faq-list"></ol>
+            <div class="faq-empty" id="faq-empty" hidden>등록된 FAQ가 없습니다.</div>
+            <div class="help-pagination" role="navigation" aria-label="FAQ 페이지" hidden>
                 <button class="page is-active" type="button">1</button>
             </div>
         </div>
 
         <div class="help-panel" id="panel-notice" role="tabpanel" hidden>
-            <div class="notice-filter">
-                <button class="filter is-active" type="button">전체</button>
-                <button class="filter" type="button">일반</button>
-                <button class="filter" type="button">매장</button>
-                <button class="filter" type="button">이벤트</button>
+            <div class="notice-filter" id="notice-filters" role="tablist" aria-label="공지사항 카테고리">
+                <button class="filter is-active" type="button" data-category="ALL" aria-selected="true">전체</button>
+                <button class="filter" type="button" data-category="NORMAL" aria-selected="false">일반</button>
+                <button class="filter" type="button" data-category="MARKET" aria-selected="false">매장</button>
+                <button class="filter" type="button" data-category="DELIVERY" aria-selected="false">배송</button>
+                <button class="filter" type="button" data-category="EVENT" aria-selected="false">이벤트</button>
             </div>
             <table class="notice-table">
                 <thead>
@@ -139,81 +78,9 @@
                     <th scope="col">등록일</th>
                 </tr>
                 </thead>
-                <tbody>
-                <tr>
-                    <td class="col-number">중요</td>
-                    <td><span class="tag is-green">일반</span></td>
-                    <td>[공지] Persome 고객서비스 페이로 인한 이용약관 개정 안내</td>
-                    <td>2025.09.18</td>
-                </tr>
-                <tr>
-                    <td>88</td>
-                    <td><span class="tag is-pink">이벤트</span></td>
-                    <td>&lt;온앤오프&gt; 요금제 이벤트 당첨자 발표</td>
-                    <td>2025.09.23</td>
-                </tr>
-                <tr>
-                    <td>87</td>
-                    <td><span class="tag is-green">일반</span></td>
-                    <td>Persome 개점행정 리모델링으로 인한 영업 점검 안내</td>
-                    <td>2025.09.23</td>
-                </tr>
-                <tr>
-                    <td>86</td>
-                    <td><span class="tag is-green">일반</span></td>
-                    <td>Persome 광주첨단점 재오픈으로 인한 영업중단 안내</td>
-                    <td>2025.09.22</td>
-                </tr>
-                <tr>
-                    <td>85</td>
-                    <td><span class="tag is-green">일반</span></td>
-                    <td>Persome 압구정로데오 리뉴얼로 인한 영업 중단 안내</td>
-                    <td>2025.09.21</td>
-                </tr>
-                <tr>
-                    <td>84</td>
-                    <td><span class="tag is-green">일반</span></td>
-                    <td>Persome 부산동래점 개점 행사로 인한 영업중단 안내</td>
-                    <td>2025.09.20</td>
-                </tr>
-                <tr>
-                    <td>83</td>
-                    <td><span class="tag is-green">일반</span></td>
-                    <td>Persome 영천시청점 폐점으로 인한 영업종료 안내</td>
-                    <td>2025.09.20</td>
-                </tr>
-                <tr>
-                    <td>82</td>
-                    <td><span class="tag is-pink">이벤트</span></td>
-                    <td>[읍읍이야-코덕의 머싸! 이벤트] 당첨자 발표</td>
-                    <td>2025.09.19</td>
-                </tr>
-                <tr>
-                    <td>81</td>
-                    <td><span class="tag is-pink">이벤트</span></td>
-                    <td>[읍읍이야-스파이스 최애] 이벤트 당첨자 발표</td>
-                    <td>2025.09.19</td>
-                </tr>
-                <tr>
-                    <td>80</td>
-                    <td><span class="tag is-pink">이벤트</span></td>
-                    <td>[읍읍이야-한해 신상에이드] 이벤트 당첨자 발표</td>
-                    <td>2025.09.19</td>
-                </tr>
-                <tr>
-                    <td>79</td>
-                    <td><span class="tag is-pink">이벤트</span></td>
-                    <td>[읍읍이야-에스트레아] 이벤트 당첨자 발표</td>
-                    <td>2025.09.19</td>
-                </tr>
-                <tr>
-                    <td>78</td>
-                    <td><span class="tag is-pink">이벤트</span></td>
-                    <td>[읍읍이야-비아쥬] 이벤트 당첨자 발표</td>
-                    <td>2025.09.19</td>
-                </tr>
-                </tbody>
+                <tbody id="notice-table-body"></tbody>
             </table>
+            <div class="notice-empty" id="notice-empty" hidden>등록된 공지사항이 없습니다.</div>
         </div>
     </section>
 
@@ -224,10 +91,6 @@
                 <div>
                     <dt>일반</dt>
                     <dd>09:00 - 18:00 (평일)</dd>
-                </div>
-                <div>
-                    <dt>오늘드림</dt>
-                    <dd>09:00 - 23:00 (평일, 주말)</dd>
                 </div>
             </dl>
         </div>
