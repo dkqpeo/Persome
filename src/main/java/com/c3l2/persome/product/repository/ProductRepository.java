@@ -70,4 +70,42 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                                @Param("thirdId") Long thirdId,
                                                Pageable pageable);
 
+    @Query(value = """
+            SELECT p.id
+            FROM product p
+            JOIN product_price pp ON pp.product_id = p.id AND pp.type = 'SALE'
+            GROUP BY p.id
+            ORDER BY RAND()
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Long> findRandomSaleProductIds(@Param("limit") int limit);
+
+    @Query(value = """
+            SELECT p.id
+            FROM product p
+            JOIN (
+                SELECT product_id, MAX(price) AS sale_price
+                FROM product_price
+                WHERE type = 'SALE'
+                GROUP BY product_id
+            ) sale ON sale.product_id = p.id
+            ORDER BY sale.sale_price DESC, p.id DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Long> findSaleProductIdsOrderByPriceDesc(@Param("limit") int limit);
+
+    @Query(value = """
+            SELECT p.id
+            FROM product p
+            JOIN (
+                SELECT product_id, MIN(price) AS sale_price
+                FROM product_price
+                WHERE type = 'SALE'
+                GROUP BY product_id
+            ) sale ON sale.product_id = p.id
+            ORDER BY sale.sale_price ASC, p.id ASC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Long> findSaleProductIdsOrderByPriceAsc(@Param("limit") int limit);
+
 }
