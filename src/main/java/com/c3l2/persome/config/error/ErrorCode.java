@@ -97,6 +97,9 @@ public enum ErrorCode {
     PRODUCT_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-012", "상품 삭제에 실패했습니다."),
     PRODUCT_PRICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-013", "상품 가격을 찾을 수 없습니다."),
 
+    // 브핸드
+    BRAND_NOT_FOUND(HttpStatus.NOT_FOUND, "B-001", "해당 브랜드가 존재하지 않습니다."),
+
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),
     REVIEW_MODIFY_FORBIDDEN(HttpStatus.FORBIDDEN, "R-002", "리뷰를 수정할 권한이 없습니다."),
