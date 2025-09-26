@@ -101,10 +101,12 @@ public class SecurityConfig {
                         // 뷰 요청 → 로그인 페이지로만 이동
                         .defaultAuthenticationEntryPointFor(
                                 (request, response, authException) -> {
-                                    response.sendRedirect("/users/login");
+                                    String uri = request.getRequestURI();
+                                    String query = request.getQueryString();
+                                    String redirect = uri + (query != null ? "?" + query : "");
+                                    response.sendRedirect("/users/login?redirect=" + redirect);
                                 },
-                                request -> request.getRequestURI().startsWith("/users/me/cart")
-//                                        || request.getRequestURI().startsWith("/orders")
+                                request -> request.getRequestURI().startsWith("/users")
                         )
 
                         // REST 요청 → 401 JSON 응답
