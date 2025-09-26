@@ -28,9 +28,9 @@ public class ProductController {
 
     /**
      * 모든 카테고리의 전체 상품의 리스트를 페이지 단위로 반환
-     * @param page
+     * @param page  현재 페이지
      * @param size  // 24, 36개 단위
-     * @return
+     * @return ResponseEntity<PageProductAllResponse>
      */
     @GetMapping()
     public ResponseEntity<PageProductAllResponse> getAllProducts(@RequestParam(defaultValue = "0") int page,

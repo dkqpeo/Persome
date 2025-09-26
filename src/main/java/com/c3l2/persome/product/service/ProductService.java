@@ -91,17 +91,16 @@ public class ProductService {
     }
 
     /**
-     * 카테고리에 해당하는 상품 리스트를 반환 (N+1 문제 해결)
-     *
-     * @param requestCategory
-     * @param searchDto
-     * @return
+     * 카테고리에 해당하는 상품 리스트를 반환
+     * @param requestCategory   대상 카테고리
+     * @param searchDto         페이징 정보
+     * @return PageProductAllResponse
      */
-    public PageProductAllResponse getProductsbyCategory(Category requestCategory, OrderSearchDto searchDto) {
+    public PageProductAllResponse getProductsByCategory(Category requestCategory, OrderSearchDto searchDto) {
 
         Pageable pageRequest = PageRequest.of(searchDto.getPage(), searchDto.getSize());
 
-        // 1. 페이징된 Product ID들만 먼저 조회
+        // 1. 페이징된 Product ID 들만 먼저 조회
         Page<Product> productPage = productRepository.findByCategoryOrParentCategory(requestCategory, pageRequest);
         
         if (productPage.isEmpty()) {
@@ -113,19 +112,19 @@ public class ProductService {
                 .map(Product::getId)
                 .toList();
 
-        // 3. Fetch join을 사용하여 연관 엔티티들을 한 번에 로드
+        // 3. Fetch join 을 사용하여 연관 엔티티들을 한 번에 로드
         List<Product> productsWithBasicFetch = productRepository.findByIdsWithFetch(productIds);
         
-        // 4. ProductPrice와 ProductImg를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
+        // 4. ProductPrice 와 ProductImg 를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
         productRepository.findByIdsWithPrices(productIds);
         productRepository.findByIdsWithImages(productIds);
 
-        // 5. 페이징 정보는 유지하면서 fetch join된 Product들로 새로운 Page 생성
+        // 5. 페이징 정보는 유지하면서 fetch join 된 Product 들로 새로운 Page 생성
         return createPageProductAllResponse(productsWithBasicFetch, productPage);
     }
 
     /**
-     * Fetch join된 Product 리스트로 PageProductAllResponse 생성
+     * Fetch join 된 Product 리스트로 PageProductAllResponse 생성
      */
     private PageProductAllResponse createPageProductAllResponse(List<Product> products, Page<Product> originalPage) {
         List<ProductAllResponse> responseProducts = products.stream()
@@ -145,16 +144,15 @@ public class ProductService {
 
     /**
      * 입력받은 키워드를 포함하는 상품 목록을 페이지 단위로 반환
-     *
-     * @param searchKeyword
-     * @param searchDto
-     * @return
+     * @param searchKeyword  검색어
+     * @param searchDto      페이징 정보
+     * @return 상품 리스트
      */
     public PageProductAllResponse findKeyword(String searchKeyword, OrderSearchDto searchDto) {
 
         Pageable pageRequest = PageRequest.of(searchDto.getPage(), searchDto.getSize());
 
-        // 1. 페이징된 Product ID들만 먼저 조회
+        // 1. 페이징된 Product ID 들만 먼저 조회
         Page<Product> productPage = productRepository.findByName(searchKeyword, pageRequest);
 
         if (productPage.isEmpty()) {
@@ -166,14 +164,14 @@ public class ProductService {
                 .map(Product::getId)
                 .toList();
 
-        // 3. Fetch join을 사용하여 연관 엔티티들을 한 번에 로드
+        // 3. Fetch join 을 사용하여 연관 엔티티들을 한 번에 로드
         List<Product> productsWithBasicFetch = productRepository.findByIdsWithFetch(productIds);
 
-        // 4. ProductPrice와 ProductImg를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
+        // 4. ProductPrice 와 ProductImg 를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
         productRepository.findByIdsWithPrices(productIds);
         productRepository.findByIdsWithImages(productIds);
 
-        // 5. 페이징 정보는 유지하면서 fetch join된 Product들로 새로운 Page 생성
+        // 5. 페이징 정보는 유지하면서 fetch join 된 Product 들로 새로운 Page 생성
         return createPageProductAllResponse(productsWithBasicFetch, productPage);
 
     }
@@ -228,9 +226,8 @@ public class ProductService {
 
     /**
      * 해당 브랜드의 SALE 타입 상품 리스트 조회
-     *
      * @param name 브랜드 이름
-     * @return
+     * @return ProductListByBrandResponse
      */
     public ProductListByBrandResponse findProductByBrand(String name) {
 
@@ -249,7 +246,7 @@ public class ProductService {
                 .map(Product::getId)
                 .toList();
 
-        // ProductPrice와 ProductImg를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
+        // ProductPrice, ProductImg 를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
         productRepository.findByIdsWithPrices(productIds);
         productRepository.findByIdsWithImages(productIds);
 
