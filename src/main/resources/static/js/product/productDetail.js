@@ -117,15 +117,14 @@ function buyNow() {
     const selectedOption = getSelectedOption();
     if (!validateSelection(selectedOption)) return;
 
-    const orderData = {
-        productId: productData.product_id,
-        optionId: selectedOption.optionId,
-        quantity: parseInt(document.getElementById('quantity').value) || 1
-    };
+    const productOptionId = selectedOption.optionId;
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
 
-    console.log('바로구매:', orderData);
-    // TODO: 주문 페이지로 이동
-    alert('주문 페이지로 이동합니다.');
+    // 쿼리 파라미터로 주문 페이지로 이동
+    const orderUrl = `/orders?productOptionId=${productOptionId}&quantity=${quantity}`;
+    
+    console.log('바로구매 - 이동할 URL:', orderUrl);
+    window.location.href = orderUrl;
 }
 
 // 토스트 메시지 표시 (간단한 알림)

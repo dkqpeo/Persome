@@ -95,19 +95,39 @@ function initAddressModeToggle() {
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const cartItemIds = urlParams.get("cartItemIds");
+    const productOptionId = urlParams.get("productOptionId");
+    const quantity = urlParams.get("quantity");
 
-    if (!cartItemIds) {
-        alert("선택된 장바구니 상품이 없습니다.");
+    if (!cartItemIds && !productOptionId) {
+        alert("선택된 상품이 없습니다.");
         window.location.href = "/cart";
         return;
     }
 
     const formatCurrency = (num) => Number(num).toLocaleString() + "원";
 
+    let data;
     try {
-        const res = await fetch(`/api/orders/prepare?cartItemIds=${cartItemIds}`);
-        if (!res.ok) throw new Error("주문 준비 중 오류가 발생했습니다.");
-        const { data } = await res.json();
+        if (productOptionId && quantity) {
+            // 직접 주문
+            const res = await fetch('/api/orders/prepare-direct', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productOptionId: Number(productOptionId),
+                    quantity: Number(quantity)
+                })
+            });
+            if (!res.ok) throw new Error("직접 주문 준비 중 오류가 발생했습니다.");
+            const result = await res.json();
+            data = result.data;
+        } else {
+            // 장바구니 기반 주문
+            const res = await fetch(`/api/orders/prepare?cartItemIds=${cartItemIds}`);
+            if (!res.ok) throw new Error("주문 준비 중 오류가 발생했습니다.");
+            const result = await res.json();
+            data = result.data;
+        }
 
         // 상품 표시
         const tbody = document.querySelector(".product-table tbody");

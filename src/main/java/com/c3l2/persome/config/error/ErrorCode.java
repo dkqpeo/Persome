@@ -51,6 +51,9 @@ public enum ErrorCode {
     ORDER_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "O-010", "이미 완료된 주문입니다."),
     ORDER_SHIPPING_INFO_MISSING(HttpStatus.BAD_REQUEST, "O-011", "배송 정보가 누락되었습니다."),
 
+    // 카트
+    CART_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "C-001", "장바구니에서 헤당 상품을 찾을 수 없습니다."),
+
     // 프로모션
     PROMOTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "R-001", "해당 프로모션을 찾을 수 없습니다."),
     PROMOTION_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "R-002", "현재 활성화된 프로모션이 아닙니다."),
