@@ -37,6 +37,11 @@ public enum ErrorCode {
     DORMANT_USER(HttpStatus.BAD_REQUEST, "M-010", "휴면 계정입니다."),
     USER_NOTIFICATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "M-011", "알림 설정이 존재하지 않습니다."),
     DEFAULT_MEMBERSHIP_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "M-012", "기본 멤버십 레벨(BABY)이 존재하지 않습니다."),
+    INVALID_MEMBERSHIP_LEVEL(HttpStatus.BAD_REQUEST, "M-013", "유효하지 않은 멤버십 등급입니다."),
+    INVALID_USER_STATUS(HttpStatus.BAD_REQUEST, "M-014", "유효하지 않은 회원 상태입니다."),
+
+    // 브랜드
+    BRAND_NOT_FOUND(HttpStatus.BAD_REQUEST, "B-001", "해당 브랜드를 찾을 수 없습니다."),
 
     // 주문
     ORDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "O-001", "해당 주문을 찾을 수 없습니다."),
@@ -61,6 +66,10 @@ public enum ErrorCode {
     PROMOTION_NOT_STARTED(HttpStatus.BAD_REQUEST, "R-004", "아직 시작되지 않은 프로모션입니다."),
     PROMOTION_TARGET_NOT_FOUND(HttpStatus.BAD_REQUEST, "R-005", "해당 상품에 적용 가능한 프로모션이 없습니다."),
     PROMOTION_APPLY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R-006", "프로모션 적용에 실패했습니다."),
+    PROMOTION_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "R-007", "프로모션 수정에 실패했습니다."),
+    PROMOTION_STATUS_INVALID(HttpStatus.BAD_REQUEST, "R-008", "유효하지 않은 프로모션 상태입니다."),
+    PROMOTION_DISCOUNT_TYPE_INVALID(HttpStatus.BAD_REQUEST, "R-009", "유효하지 않은 할인 유형입니다."),
+    PROMOTION_TARGET_TYPE_INVALID(HttpStatus.BAD_REQUEST, "R-010", "유효하지 않은 프로모션 대상 유형입니다."),
 
     // 이벤트
     EVENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "E-001", "해당 이벤트를 찾을 수 없습니다."),
@@ -69,6 +78,8 @@ public enum ErrorCode {
     EVENT_NOT_STARTED(HttpStatus.BAD_REQUEST, "E-004", "아직 시작되지 않은 이벤트입니다."),
     EVENT_COUPON_NOT_FOUND(HttpStatus.BAD_REQUEST, "E-006", "이벤트에 해당하는 쿠폰이 없습니다."),
     EVENT_PROMOTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "E-007", "해당 이벤트에 대한 프로모션이 존재하지 않습니다."),
+    EVENT_STATUS_INVALID(HttpStatus.BAD_REQUEST, "E-008", "유효하지 않은 이벤트 상태입니다."),
+    EVENT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "E-009", "이벤트 수정에 실패했습니다."),
 
     // 쿠폰
     COUPON_NOT_FOUND(HttpStatus.BAD_REQUEST, "C-001", "해당 쿠폰을 찾을 수 없습니다."),
@@ -96,6 +107,7 @@ public enum ErrorCode {
     PRODUCT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-011", "상품 수정에 실패했습니다."),
     PRODUCT_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-012", "상품 삭제에 실패했습니다."),
     PRODUCT_PRICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-013", "상품 가격을 찾을 수 없습니다."),
+    PRODUCT_STATUS_INVALID(HttpStatus.BAD_REQUEST, "P-014", "유효하지 않은 상품 상태입니다."),
 
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),
