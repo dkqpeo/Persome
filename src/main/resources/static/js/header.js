@@ -12,6 +12,35 @@ async function loadHeader() {
     }
 }
 
+function ensureFooterStyles() {
+    if (document.querySelector('link[data-footer-style="true"]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/css/footer.css';
+    link.dataset.footerStyle = 'true';
+    document.head.appendChild(link);
+}
+
+async function loadFooter() {
+    try {
+        ensureFooterStyles();
+        let container = document.getElementById('footer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'footer';
+            document.body.appendChild(container);
+        }
+        if (container.dataset.loaded === 'true') return;
+
+        const res = await fetch('/footer.html');
+        if (!res.ok) return;
+        container.innerHTML = await res.text();
+        container.dataset.loaded = 'true';
+    } catch (e) {
+        console.error('푸터 로딩 실패', e);
+    }
+}
+
 async function setupHeader() {
     const nav = document.getElementById("topNav");
     if (!nav) return;
@@ -132,4 +161,7 @@ function redirectToLogin(targetPath) {
 window.redirectToLogin = redirectToLogin;
 
 
-document.addEventListener("DOMContentLoaded", loadHeader);
+document.addEventListener("DOMContentLoaded", function () {
+    loadHeader();
+    loadFooter();
+});
