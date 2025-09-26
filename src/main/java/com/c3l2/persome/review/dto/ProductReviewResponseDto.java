@@ -17,6 +17,8 @@ public class ProductReviewResponseDto {
     private Long reviewId;
     private String userLoginId;
     private String productOptionName;
+    private String productName;
+    private String productImageUrl;
     private BigDecimal rating;
     private String content;
     private LocalDate createdAt;
@@ -33,9 +35,19 @@ public class ProductReviewResponseDto {
         private String downloadUrl; // 이미지 다운로드 URL
 
         public static ReviewMedias from(ReviewMedia reviewMedia) {
-            // 파일명 추출하여 다운로드 URL 생성
-            String filename = reviewMedia.getMediaUrl().substring(reviewMedia.getMediaUrl().lastIndexOf("/") + 1);
-            String downloadUrl = "/api/reviews/images/" + filename;
+            String downloadUrl;
+            try {
+                // 파일명 추출하여 다운로드 URL 생성
+                String mediaUrl = reviewMedia.getMediaUrl();
+                if (mediaUrl != null && !mediaUrl.isEmpty()) {
+                    String filename = mediaUrl.substring(mediaUrl.lastIndexOf("/") + 1);
+                    downloadUrl = "/reviews/images/" + filename;
+                } else {
+                    downloadUrl = "/images/no-image.png"; // 기본 이미지
+                }
+            } catch (Exception e) {
+                downloadUrl = "/images/no-image.png"; // 에러 시 기본 이미지
+            }
             
             return ReviewMedias.builder()
                     .reviewMediaID(reviewMedia.getId())

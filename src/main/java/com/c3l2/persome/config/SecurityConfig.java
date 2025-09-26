@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/footer.html"
                         ).permitAll()
 
                         // 뷰 컨트롤러 (GET 요청만)
