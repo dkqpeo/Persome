@@ -305,7 +305,7 @@ public class OrderService {
         if (receiveType == ReceiveType.PICKUP) {
             return 0;
         }
-        int baseFee = 2500;
+        int baseFee = 3000;
         BigDecimal freeThreshold = BigDecimal.valueOf(30000);
 
         return itemsTotal.compareTo(freeThreshold) >= 0 ? 0 : baseFee;
