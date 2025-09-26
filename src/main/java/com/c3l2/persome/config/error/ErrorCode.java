@@ -104,6 +104,7 @@ public enum ErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),
     REVIEW_MODIFY_FORBIDDEN(HttpStatus.FORBIDDEN, "R-002", "리뷰를 수정할 권한이 없습니다."),
     REVIEW_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "R-003", "리뷰를 삭제할 권한이 없습니다."),
+    REVIEW_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "R-004", "이미 해당 상품에 대한 리뷰를 작성하셨습니다."),
 
     // 위시리스트
     WISHLIST_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "W-001", "이미 위시리스트에 존재하는 상품입니다."),
