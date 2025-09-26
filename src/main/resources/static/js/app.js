@@ -68,6 +68,371 @@
     return first.imgUrl || '/images/banner-sample.jpg';
   }
 
+  const HOME_EVENT_FALLBACK = [
+    {
+      id: 105,
+      name: '슬립케어 나이트',
+      description: '수면향 바디케어 & 캔들 세트 25% 할인',
+      thumbnailUrl: 'https://images.pexels.com/photos/7428109/pexels-photo-7428109.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-10-08T00:00:00',
+      endDate: '2025-10-30T23:59:59',
+      status: 'SCHEDULED'
+    },
+    {
+      id: 101,
+      name: '가을 웰니스 페어',
+      description: '비타민·건강기능식품 최대 35% 세트 할인',
+      thumbnailUrl: 'https://images.pexels.com/photos/6621420/pexels-photo-6621420.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-09-01T00:00:00',
+      endDate: '2025-10-10T23:59:59',
+      status: 'ACTIVE'
+    },
+    {
+      id: 102,
+      name: '글로우 부스팅 위크',
+      description: '광채 앰플·기초 세트 1+1 프로모션',
+      thumbnailUrl: 'https://images.pexels.com/photos/3735659/pexels-photo-3735659.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-09-08T00:00:00',
+      endDate: '2025-10-03T23:59:59',
+      status: 'ACTIVE'
+    },
+    {
+      id: 103,
+      name: '향기로운 홈테라피',
+      description: '디퓨저와 홈퍼퓸 라인업 20% Off + 한정 굿즈',
+      thumbnailUrl: 'https://images.pexels.com/photos/8154575/pexels-photo-8154575.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-09-05T00:00:00',
+      endDate: '2025-10-08T23:59:59',
+      status: 'ACTIVE'
+    },
+    {
+      id: 104,
+      name: '컬러 팔레트 라이브',
+      description: '라이브 방송 중 메이크업 팔레트 + 브러시 세트 증정',
+      thumbnailUrl: 'https://images.pexels.com/photos/5938646/pexels-photo-5938646.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-09-18T00:00:00',
+      endDate: '2025-10-06T23:59:59',
+      status: 'ACTIVE'
+    },
+    {
+      id: 106,
+      name: '홀리데이 프리뷰',
+      description: '2025 홀리데이 에디션 선런칭 특가',
+      thumbnailUrl: 'https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-10-12T00:00:00',
+      endDate: '2025-11-05T23:59:59',
+      status: 'SCHEDULED'
+    },
+    {
+      id: 107,
+      name: '에센스 집중 케어',
+      description: '시즌 베스트 에센스 3종 번들 구성',
+      thumbnailUrl: 'https://images.pexels.com/photos/3735634/pexels-photo-3735634.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-10-20T00:00:00',
+      endDate: '2025-11-08T23:59:59',
+      status: 'SCHEDULED'
+    },
+    {
+      id: 108,
+      name: '썸머 피날레 세일',
+      description: '여름 한정 뷰티 컬렉션 클리어런스',
+      thumbnailUrl: 'https://images.pexels.com/photos/3735633/pexels-photo-3735633.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-07-20T00:00:00',
+      endDate: '2025-09-10T23:59:59',
+      status: 'ENDED'
+    },
+    {
+      id: 109,
+      name: '그린 라인 위크',
+      description: '친환경 포장 제품 라인 15% 할인',
+      thumbnailUrl: 'https://images.pexels.com/photos/256106/pexels-photo-256106.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-08-10T00:00:00',
+      endDate: '2025-09-12T23:59:59',
+      status: 'ENDED'
+    },
+    {
+      id: 110,
+      name: '스파 인 유어 홈',
+      description: '홈스파 바디 트리트먼트 세트 사은품 증정',
+      thumbnailUrl: 'https://images.pexels.com/photos/1183260/pexels-photo-1183260.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
+      startDate: '2025-08-18T00:00:00',
+      endDate: '2025-09-05T23:59:59',
+      status: 'ENDED'
+    }
+  ];
+
+  let homeEventCarouselHandlers = null;
+
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function mapEventStatus(status) {
+    const normalized = (status || '').toUpperCase();
+    switch (normalized) {
+      case 'ACTIVE':
+        return { text: '진행 중', className: 'event-slide__badge event-slide__badge--active' };
+      case 'SCHEDULED':
+        return { text: '예정', className: 'event-slide__badge event-slide__badge--scheduled' };
+      case 'ENDED':
+        return { text: '종료', className: 'event-slide__badge event-slide__badge--ended' };
+      default:
+        return { text: '', className: '' };
+    }
+  }
+
+  function formatDateValue(iso) {
+    if (!iso) return '';
+    try {
+      const [datePart] = String(iso).split('T');
+      return datePart ? datePart.replace(/-/g, '.') : '';
+    } catch {
+      return String(iso);
+    }
+  }
+
+  function formatEventRange(start, end) {
+    const startText = formatDateValue(start);
+    const endText = formatDateValue(end);
+    if (startText && endText) return `${startText} ~ ${endText}`;
+    return startText || endText || '';
+  }
+
+  function parseDateValue(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function formatCountdownTo(date) {
+    const target = parseDateValue(date);
+    if (!target) return '';
+    const now = new Date();
+    const diffMs = target.getTime() - now.getTime();
+    if (diffMs <= 0) return '';
+
+    const totalMinutes = Math.floor(diffMs / 60000);
+    const days = Math.floor(totalMinutes / (60 * 24));
+    const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+    const minutes = totalMinutes % 60;
+
+    if (days > 0) {
+      return `이벤트 오픈까지 ${days}일 ${hours}시간 남았습니다`;
+    }
+    if (hours > 0) {
+      return `이벤트 오픈까지 ${hours}시간 ${minutes}분 남았습니다`;
+    }
+    return minutes > 0
+      ? `이벤트 오픈까지 ${minutes}분 남았습니다`
+      : '';
+  }
+
+  function resolveEventState(evt) {
+    const rawStatus = (evt && evt.status ? String(evt.status) : '').toUpperCase();
+    const start = parseDateValue(evt && evt.startDate);
+    const end = parseDateValue(evt && evt.endDate);
+    const now = new Date();
+
+    if (start && now < start) {
+      return { status: 'SCHEDULED', countdownText: formatCountdownTo(start) };
+    }
+
+    if (end && now > end) {
+      return { status: 'ENDED', countdownText: '' };
+    }
+
+    const status = rawStatus === 'ENDED' ? 'ENDED' : 'ACTIVE';
+    return { status, countdownText: '' };
+  }
+
+  function eventSlideHTML(evt) {
+    const state = resolveEventState(evt);
+    const statusMeta = mapEventStatus(state.status);
+    const badge = statusMeta.text ? `<span class="event-slide__badge ${statusMeta.className}">${statusMeta.text}</span>` : '';
+    const description = escapeHtml(evt.description || '');
+    const range = formatEventRange(evt.startDate, evt.endDate);
+    const image = evt.thumbnailUrl || '/images/banner-sample.jpg';
+    const countdown = state.countdownText
+      ? `<p class="event-slide__countdown">${escapeHtml(state.countdownText)}</p>`
+      : '';
+    return `
+      <a class="event-slide" href="/events/event-detail?id=${evt.id}">
+        <img class="event-slide__image" src="${image}" alt="${escapeHtml(evt.name || '이벤트 이미지')}">
+        <div class="event-slide__overlay">
+          ${badge}
+          ${countdown}
+          <h3 class="event-slide__title">${escapeHtml(evt.name || '')}</h3>
+          <p class="event-slide__description">${description}</p>
+          <p class="event-slide__date">${escapeHtml(range)}</p>
+        </div>
+      </a>
+    `;
+  }
+
+  function initHomeEventCarousel(events) {
+    const track = document.getElementById('homeEventTrack');
+    const prevBtn = document.getElementById('eventPrevBtn');
+    const nextBtn = document.getElementById('eventNextBtn');
+    const currentEl = document.getElementById('eventCurrent');
+    const totalEl = document.getElementById('eventTotal');
+    const indicatorWrap = document.getElementById('eventIndicators');
+    if (!track || !prevBtn || !nextBtn) return;
+
+    const viewport = track.parentElement;
+    if (!viewport) return;
+
+    const total = Array.isArray(events) ? events.length : 0;
+
+    if (!total) {
+      track.innerHTML = '';
+      track.style.display = 'none';
+      if (indicatorWrap) {
+        indicatorWrap.innerHTML = '';
+        indicatorWrap.hidden = true;
+      }
+      if (currentEl) currentEl.textContent = '0';
+      if (totalEl) totalEl.textContent = '0';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+
+    track.style.display = 'flex';
+
+    track.innerHTML = events.map(eventSlideHTML).join('');
+
+    const slides = Array.from(track.children);
+    viewport.scrollLeft = 0;
+    if (totalEl) totalEl.textContent = String(total);
+    let currentIndex = 0;
+    let indicatorButtons = [];
+
+    if (indicatorWrap) {
+      indicatorWrap.innerHTML = events.map((_, idx) => (
+        `<button type="button" class="event-indicator${idx === 0 ? ' is-active' : ''}" aria-label="이벤트 ${idx + 1}" data-index="${idx}" aria-pressed="${idx === 0}" ></button>`
+      )).join('');
+      indicatorButtons = Array.from(indicatorWrap.querySelectorAll('button'));
+      indicatorWrap.hidden = indicatorButtons.length <= 1;
+    }
+
+    function updateControls() {
+      if (currentEl) currentEl.textContent = String(Math.min(total, currentIndex + 1));
+      prevBtn.disabled = currentIndex <= 0;
+      nextBtn.disabled = currentIndex >= total - 1;
+      if (indicatorButtons.length) {
+        indicatorButtons.forEach((btn, idx) => {
+          const active = idx === currentIndex;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+      }
+    }
+
+    function scrollToIndex(index) {
+      const clamped = Math.max(0, Math.min(total - 1, index));
+      const target = slides[clamped];
+      if (!target) return;
+      currentIndex = clamped;
+      viewport.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+      updateControls();
+    }
+
+    let scrollRaf = null;
+    function syncIndexWithScroll() {
+      const scrollLeft = viewport.scrollLeft;
+      let closestIndex = 0;
+      let minDistance = Number.POSITIVE_INFINITY;
+      slides.forEach((slide, idx) => {
+        const distance = Math.abs(slide.offsetLeft - scrollLeft);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIndex = idx;
+        }
+      });
+      if (closestIndex !== currentIndex) {
+        currentIndex = closestIndex;
+        updateControls();
+      }
+    }
+
+    if (homeEventCarouselHandlers) {
+      const { viewport: prevViewport, scroll, resize, indicatorWrap: prevIndicatorWrap, indicator } = homeEventCarouselHandlers;
+      if (prevViewport) prevViewport.removeEventListener('scroll', scroll);
+      if (resize) window.removeEventListener('resize', resize);
+      if (prevIndicatorWrap && indicator) prevIndicatorWrap.removeEventListener('click', indicator);
+    }
+
+    function onViewportScroll() {
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = requestAnimationFrame(syncIndexWithScroll);
+    }
+
+    function onWindowResize() {
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = requestAnimationFrame(syncIndexWithScroll);
+    }
+
+    function onIndicatorClick(e) {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const idx = Number(btn.getAttribute('data-index'));
+      if (Number.isNaN(idx)) return;
+      scrollToIndex(idx);
+    }
+
+    viewport.addEventListener('scroll', onViewportScroll);
+    window.addEventListener('resize', onWindowResize);
+    if (indicatorWrap) indicatorWrap.addEventListener('click', onIndicatorClick);
+
+    homeEventCarouselHandlers = {
+      viewport,
+      scroll: onViewportScroll,
+      resize: onWindowResize,
+      indicatorWrap,
+      indicator: onIndicatorClick
+    };
+
+    prevBtn.onclick = () => scrollToIndex(currentIndex - 1);
+    nextBtn.onclick = () => scrollToIndex(currentIndex + 1);
+
+    // 초기 상태 반영
+    syncIndexWithScroll();
+    updateControls();
+  }
+
+  async function loadHomeEvents() {
+    const track = document.getElementById('homeEventTrack');
+    if (!track) return;
+    try {
+      const resp = await apiGet('/api/events');
+      const events = Array.isArray(resp)
+        ? resp
+        : (resp && Array.isArray(resp.data) ? resp.data : []);
+
+      const order = { ACTIVE: 0, SCHEDULED: 1, ENDED: 2 };
+      const prepared = events
+        .slice()
+        .sort((a, b) => {
+          const statusDiff = (order[(a.status || '').toUpperCase()] ?? 3) - (order[(b.status || '').toUpperCase()] ?? 3);
+          if (statusDiff !== 0) return statusDiff;
+          return new Date(a.startDate || 0) - new Date(b.startDate || 0);
+        })
+        .slice(0, 12);
+
+      const list = prepared.length ? prepared : HOME_EVENT_FALLBACK;
+      initHomeEventCarousel(list);
+    } catch (e) {
+      console.error('이벤트를 불러오지 못했습니다.', e);
+      initHomeEventCarousel(HOME_EVENT_FALLBACK);
+    }
+  }
+
   function productCardHTML(p) {
     const img = firstImg(p);
     const id = p.product_id || p.id;
@@ -293,6 +658,7 @@
 
   window.Persome = {
     apiGet, apiPost, apiPatch, apiDelete,
+    loadHomeEvents,
     loadHomeProducts,
     updateHeaderCartCount,
     loadCartPage,
