@@ -23,7 +23,7 @@ public class ProductViewController {
     @GetMapping("/search")
     public String search() {
 
-        return "product/productSearchtList";
+        return "product/productSearchList";
     }
 
 }

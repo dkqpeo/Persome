@@ -188,7 +188,7 @@
 
     function renderCount(p) {
     const total = p.totalElements ?? 0;
-    const catName = (state.secondCategory && state.secondCategory !== 'none') ? state.secondCategory : state.firstCategory;
+    const catName = (state.thirdCategory && state.thirdCategory !== 'none') ? state.thirdCategory : (state.secondCategory && state.secondCategory !== 'none') ? state.secondCategory : state.firstCategory;
     $cnt.textContent = `${catName} 카테고리에 ${total}개의 상품이 등록되어 있습니다.`;
 }
 
