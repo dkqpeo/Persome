@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -18,12 +19,14 @@ public class PromotionDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;
-    private String targetType;
 
-    public static PromotionDto fromEntity(Promotion promotion) {
-        String targetType = promotion.getPromotionTarget().isEmpty() ?
-                null :
-                promotion.getPromotionTarget().getFirst().getTargetType().name();
+    private List<PromotionTargetDto> targets;
+
+    public static PromotionDto fromEntity(Promotion promotion, List<PromotionTargetDto> targets) {
+        String targetType = promotion.getPromotionTarget().isEmpty()
+                ? null
+                : promotion.getPromotionTarget().getFirst().getTargetType().name();
+
         return PromotionDto.builder()
                 .id(promotion.getId())
                 .status(promotion.getStatus().name())
@@ -32,7 +35,7 @@ public class PromotionDto {
                 .startDate(promotion.getStartDate())
                 .endDate(promotion.getEndDate())
                 .createdAt(promotion.getCreatedAt())
-                .targetType(targetType)
+                .targets(targets)
                 .build();
     }
 
