@@ -104,7 +104,9 @@ public class ReviewService {
         Review savedReview = reviewRepository.save(review);
 
         // 이미지 처리
-        processReviewImages(images, savedReview);
+        if(images != null) {
+            processReviewImages(images, savedReview);
+        }
     }
 
     /**
