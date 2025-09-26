@@ -115,24 +115,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             """, nativeQuery = true)
     List<Long> findSaleProductIdsOrderByPriceAsc(@Param("limit") int limit);
 
-    // 브랜드별 상품 조회 with fetch join
-    @Query("SELECT DISTINCT p FROM Product p " +
-            "LEFT JOIN FETCH p.brand " +
-            "LEFT JOIN FETCH p.category c " +
-            "LEFT JOIN FETCH c.parent cp " +
-            "LEFT JOIN FETCH cp.parent cpp " +
-            "WHERE p.brand = :brand " +
-            "ORDER BY p.id LIMIT 3")
-    List<Product> findTop3ByBrandWithFetch(@Param("brand") Brand brand);
-
-    // 브랜드별 SALE 타입 상품 조회 with fetch join
-    @Query("SELECT DISTINCT p FROM Product p " +
-            "LEFT JOIN FETCH p.brand " +
-            "LEFT JOIN FETCH p.category c " +
-            "LEFT JOIN FETCH c.parent cp " +
-            "LEFT JOIN FETCH cp.parent cpp " +
-            "INNER JOIN p.productPrices pp " +
-            "WHERE p.brand = :brand AND pp.type = 'SALE' " +
-            "ORDER BY p.id LIMIT 3")
-    List<Product> findTop3ByBrandWithSalePriceAndFetch(@Param("brand") Brand brand);
+    // 브랜드별 상품 조회
+    @Query("SELECT p FROM Product p WHERE p.brand = :brand")
+    Page<Product> findByBrand(@Param("brand") Brand brand, Pageable pageable);
 }
