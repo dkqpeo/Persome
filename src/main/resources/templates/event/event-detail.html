@@ -75,10 +75,9 @@
 
     /* ✅ 쿠폰 카드 티켓 스타일 */
     .coupon-grid {
-      display: flex;
-      flex-wrap: nowrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
-      justify-content: flex-start;
     }
 
     .coupon-card {
@@ -227,7 +226,26 @@
     }
   }
   function formatDiscount(type, value) {
-    return type === "RATE" ? (value * 100) + "%" : value + "원";
+    if (type === "RATE") {
+      return (value * 100).toFixed(0) + "%"; // 정수로 반올림
+    } else {
+      return value.toLocaleString() + "원";
+    }
+  }
+
+  // ✅ 안전한 fetch JSON 함수
+  async function safeFetchJson(url) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error("API 에러:", res.status, await res.text());
+        return null;
+      }
+      return await res.json();
+    } catch (e) {
+      console.error("응답 JSON 파싱 실패:", e);
+      return null;
+    }
   }
 
   async function loadEventDetail() {
@@ -276,6 +294,26 @@
     }
   }
 
+  // 👉 공통: 상품 카드 HTML 생성 함수
+  function renderProductCard(product) {
+    const { original, sale } = extractPrice(product.price);
+    const imgUrl = product.imgs?.length > 0 ? product.imgs[0].imgUrl : "/images/no-image.png";
+
+    return `
+    <div class="product-card">
+        <a href="/products/${product.product_id}">
+            <img src="${imgUrl}" alt="${product.name}" />
+        </a>
+        <div class="name">${product.name}</div>
+        <div class="brand">${product.brandName ?? ""}</div>
+        <div class="price">
+            <span class="sale">${sale ? sale.toLocaleString() : "-"}원</span>
+            ${original && original !== sale ? `<del>${original.toLocaleString()}원</del>` : ""}
+        </div>
+    </div>`;
+  }
+
+  // 👉 프로모션 + 상품 묶음 렌더링
   async function renderPromotionsWithProducts(promotions) {
     const container = document.getElementById("promoContainer");
     if (!promotions || promotions.length === 0) {
@@ -293,7 +331,7 @@
       header.className = "promo-item-header";
       header.innerHTML = `<span>[${p.targets[0].targetType}] ${p.targets[0].targetName} ${discountText} 할인 (${mapPromotionStatus(p.status)})</span>`;
 
-      // 👉 브랜드/카테고리 둘 다 "더보기" 버튼 가능
+      // 👉 더보기 버튼
       if (p.targets[0].targetType === "BRAND") {
         const moreBtn = document.createElement("a");
         moreBtn.href = `/products/search?name=${encodeURIComponent(p.targets[0].targetName)}`;
@@ -302,12 +340,7 @@
         header.appendChild(moreBtn);
       } else if (p.targets[0].targetType === "CATEGORY") {
         const moreBtn = document.createElement("a");
-
-        // firstCategory, secondCategory 둘 다 받는 경우 처리
-        const first = encodeURIComponent(p.targets[0].firstCategory || "");
-        const second = encodeURIComponent(p.targets[0].targetName || ""); // targetName → 보통 secondCategory
-
-        moreBtn.href = `/categories/products?firstCategory=${first}&secondCategory=${second}`;
+        moreBtn.href = `/categories/products?firstCategory=${encodeURIComponent(p.targets[0].firstCategory || "")}&secondCategory=${encodeURIComponent(p.targets[0].secondCategory || "none")}&thirdCategory=${encodeURIComponent(p.targets[0].thirdCategory || "none")}`;
         moreBtn.textContent = "더보기";
         moreBtn.className = "brand-more-btn";
         header.appendChild(moreBtn);
@@ -315,54 +348,37 @@
 
       promoBlock.appendChild(header);
 
+      // 👉 브랜드/카테고리 상품 조회
       for (const target of p.targets) {
-        if (target.targetType === "BRAND" || target.targetType === "CATEGORY") {
-          try {
-            const url =
-               target.targetType === "BRAND"
-                  ? `/api/products/brand?name=${encodeURIComponent(target.targetName)}`
-                  : `/api/products/search?category=${encodeURIComponent(target.targetName)}`;
-
-            const res = await fetch(url);
-            if (!res.ok) throw new Error("브랜드 상품 조회 실패");
-            const result = await res.json();
-
-            // ✅ 수정: result.data.products → result.products
-            const products = result.products || [];
-            if (products.length === 0) continue;
-
-            const shuffled = products.sort(() => 0.5 - Math.random());
-            const selected = shuffled.slice(0, 4);
-
-            const productList = document.createElement("div");
-            productList.className = "brand-product-list";
-            productList.innerHTML = selected.map(p => {
-              const { original, sale } = extractPrice(p.price);
-              const imgUrl = p.imgs?.length > 0 ? p.imgs[0].imgUrl : "/images/no-image.png";
-              return `
-                <div class="product-card">
-                    <a href="/products/${p.product_id}">
-                        <img src="${imgUrl}" alt="${p.name}" />
-                    </a>
-                    <div class="name">${p.name}</div>
-                    <div class="brand">${p.brandName ?? ""}</div>
-                    <div class="price">
-                        <span class="sale">${sale ? sale.toLocaleString() : "-"}원</span>
-                       ${
-                          original && original !== sale
-                              ? `<del>${original.toLocaleString()}원</del>`
-                              : ""
-                       }
-                    </div>
-                </div>`;
-            }).join("");
-
-            promoBlock.appendChild(productList);
-          } catch (err) {
-            console.error(err);
+        try {
+          let url;
+          if (target.targetType === "BRAND") {
+            url = `/api/products/brand?name=${encodeURIComponent(target.targetName)}`;
+          } else if (target.targetType === "CATEGORY") {
+            url = `/api/categories/products?firstCategory=${encodeURIComponent(target.firstCategory)}&secondCategory=${encodeURIComponent(target.secondCategory || "none")}&thirdCategory=${encodeURIComponent(target.thirdCategory || "none")}`;
+          } else {
+            continue;
           }
+
+          const res = await fetch(url);
+          if (!res.ok) throw new Error("상품 조회 실패");
+          const result = await res.json();
+          const products = result.products || [];
+          if (products.length === 0) continue;
+
+          const shuffled = products.sort(() => 0.5 - Math.random());
+          const selected = shuffled.slice(0, 4);
+
+          const productList = document.createElement("div");
+          productList.className = "brand-product-list";
+          productList.innerHTML = selected.map(renderProductCard).join("");
+
+          promoBlock.appendChild(productList);
+        } catch (err) {
+          console.error(err);
         }
       }
+
       container.appendChild(promoBlock);
     }
   }
