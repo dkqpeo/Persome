@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOption, Long> {
 
@@ -16,4 +18,10 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
                      @Param("optionId") Long optionId,
                      @Param("name") String name,
                      @Param("additionalAmount") Integer additionalAmount);
+  
+    @Override
+    @Query("SELECT p FROM ProductOption p  LEFT JOIN FETCH p.product WHERE p.id = :id")
+    Optional<ProductOption> findById(Long id);
+
+  
 }

@@ -36,15 +36,15 @@ public class CategoryController {
     @GetMapping
     private ResponseEntity<List<CategoryResponseDto>> getAllCategories() {
 
-        List<CategoryResponseDto> responseDtos = categoryService.getList();
+        List<CategoryResponseDto> responseDto = categoryService.getList();
 
-        return new ResponseEntity<> (responseDtos,HttpStatus.OK);
+        return new ResponseEntity<> (responseDto,HttpStatus.OK);
     }
 
     /**
      * 2차 카테고리의 하위 카테고리 조회
-     * @param secondCategory
-     * @return
+     * @param secondCategory 중분류
+     * @return ResponseEntity<CategoryResponseDto>
      */
     @GetMapping("/getThirdCategory")
     public ResponseEntity<CategoryResponseDto> getCategoryList(@RequestParam String secondCategory) {
@@ -56,12 +56,12 @@ public class CategoryController {
 
     /**
      * 1차 카테고리 + 하위 카테고리의 상품 리스트를 조회.
-     * @Param firstCategory
+     * @param firstCategory   1차 카테고리
      * @param secondCategory  2차 카테고리 + 하위 카테고리의 상품 리스트를 조회.
-     * @param thirdCategory
-     * @param page
+     * @param thirdCategory   3차 카테고리
+     * @param page            현재 페이지
      * @param size           // 24, 36개 단위
-     * @return
+     * @return PageProductAllResponse
      */
     @GetMapping("/products")
     public PageProductAllResponse getProductForCategory(HttpServletRequest req,
@@ -92,7 +92,7 @@ public class CategoryController {
         // 1차이거나 2차 카테고리 엔티티 반환.
         Category requestCategory = categoryService.getCategory(firstCategory, secondCategory, thirdCategory);
 
-        return productService.getProductsbyCategory(requestCategory, searchDto);
+        return productService.getProductsByCategory(requestCategory, searchDto);
 
     }
 

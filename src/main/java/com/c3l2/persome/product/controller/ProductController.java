@@ -1,15 +1,16 @@
 package com.c3l2.persome.product.controller;
 
+import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.product.dto.OrderSearchDto;
 import com.c3l2.persome.product.dto.PageProductAllResponse;
 import com.c3l2.persome.product.dto.ProductDetailResponse;
+import com.c3l2.persome.product.dto.ProductListByBrandResponse;
 import com.c3l2.persome.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 @RequestMapping("/api/products")
@@ -27,9 +28,9 @@ public class ProductController {
 
     /**
      * 모든 카테고리의 전체 상품의 리스트를 페이지 단위로 반환
-     * @param page
+     * @param page  현재 페이지
      * @param size  // 24, 36개 단위
-     * @return
+     * @return ResponseEntity<PageProductAllResponse>
      */
     @GetMapping()
     public ResponseEntity<PageProductAllResponse> getAllProducts(@RequestParam(defaultValue = "0") int page,
@@ -54,6 +55,14 @@ public class ProductController {
 
         return new ResponseEntity<>(allProducts, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/brand")
+    public ResponseEntity<ApiResponse<ProductListByBrandResponse>> searchProductsByBrand(@RequestParam String name) {
+
+        ProductListByBrandResponse productByBrand = productService.findProductByBrand(name);
+        
+        return ApiResponse.ok("브랜드 상품 리스트", productByBrand);
     }
 
     private OrderSearchDto getSearchDto(int page, int size) {

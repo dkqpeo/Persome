@@ -35,21 +35,21 @@ public class EventController {
         return ApiResponse.ok("관리자 이벤트 상세 조회 성공!", eventService.getAdminEventDetail(id));
     }
 
-    //이벤트 전체 조회
+    // 이벤트 전체 조회
     @GetMapping
     public ResponseEntity<ApiResponse<List<EventResponseDto>>> getAllEvents() {
-        return ApiResponse.ok("이벤트 전체 조회 성공!",eventService.getUserEvents());
+        return ApiResponse.ok("이벤트 전체 조회 성공!", eventService.getUserEvents());
     }
 
-    //이벤트 단건 조회
+    // 이벤트 단건 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<EventResponseDto>> getEvent(@PathVariable Long id){
-        return ApiResponse.ok("이벤트 조회 성공!",eventService.getUserEvent(id));
+    public ResponseEntity<ApiResponse<EventResponseDto>> getEvent(@PathVariable Long id) {
+        return ApiResponse.ok("이벤트 조회 성공!", eventService.getUserEvent(id));
     }
 
-    //이벤트 상세 조회
+    // 이벤트 상세 조회
     @GetMapping("/{id}/details")
-    public ResponseEntity<ApiResponse<EventDetailResponseDto>> getEventDetail(@PathVariable Long id){
-        return ApiResponse.ok("이벤트 상세 조회 성공!",eventService.getUserEventDetail(id));
+    public ResponseEntity<ApiResponse<EventDetailResponseDto>> getEventDetail(@PathVariable Long id) {
+        return ApiResponse.ok("이벤트 상세 조회 성공!", eventService.getUserEventDetail(id));
     }
 }

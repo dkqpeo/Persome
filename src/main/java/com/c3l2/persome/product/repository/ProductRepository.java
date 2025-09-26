@@ -39,6 +39,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.id IN :productIds")
     List<Product> findByIdsWithPrices(@Param("productIds") List<Long> productIds);
 
+    // ProductImg를 별도로 batch fetch
+    @Query("SELECT p FROM Product p " +
+            "LEFT JOIN FETCH p.productImgs " +
+            "WHERE p.id IN :productIds")
+    List<Product> findByIdsWithImages(@Param("productIds") List<Long> productIds);
+
     // 상품 이름에 name이 포함되는 컬럼을 반환
     @Query("SELECT p FROM Product p WHERE " +
             "p.name LIKE %:name% ")
@@ -124,4 +130,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     int updateProductStatus(@Param("id") Long id,
                             @Param("status") ProductStatus status,
                             @Param("updatedAt") LocalDateTime updatedAt);
+
+    // 브랜드별 상품 조회 with fetch join
+    @Query("SELECT DISTINCT p FROM Product p " +
+            "LEFT JOIN FETCH p.brand " +
+            "LEFT JOIN FETCH p.category c " +
+            "LEFT JOIN FETCH c.parent cp " +
+            "LEFT JOIN FETCH cp.parent cpp " +
+            "WHERE p.brand = :brand " +
+            "ORDER BY p.id LIMIT 3")
+    List<Product> findTop3ByBrandWithFetch(@Param("brand") Brand brand);
+
+    // 브랜드별 SALE 타입 상품 조회 with fetch join
+    @Query("SELECT DISTINCT p FROM Product p " +
+            "LEFT JOIN FETCH p.brand " +
+            "LEFT JOIN FETCH p.category c " +
+            "LEFT JOIN FETCH c.parent cp " +
+            "LEFT JOIN FETCH cp.parent cpp " +
+            "INNER JOIN p.productPrices pp " +
+            "WHERE p.brand = :brand AND pp.type = 'SALE' " +
+            "ORDER BY p.id LIMIT 3")
+    List<Product> findTop3ByBrandWithSalePriceAndFetch(@Param("brand") Brand brand);
+
 }

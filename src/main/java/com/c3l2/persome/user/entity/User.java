@@ -74,7 +74,8 @@ public class User {
     @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
-    @Column(name = "login_id", unique = true, nullable = false, length = 50)
+    @Column(name = "login_id", unique = true, nullable = false, length = 50,
+            columnDefinition = "VARCHAR(50) COLLATE utf8mb4_0900_as_cs")
     private String loginId;
 
     @Column(name = "password", nullable = false, length = 100)
