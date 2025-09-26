@@ -43,6 +43,7 @@ public class ReviewService {
     private final OrderItemRepository orderItemRepository;
     private final UserRepository userRepository;
     private final FileStorageUtil fileStorageUtil;
+    private final ReviewRatingService reviewRatingService;
 
     /**
      * 입력받은 상품 id로 해당 상품의 옵션 id 리스트로 리뷰 조회
@@ -92,19 +93,57 @@ public class ReviewService {
         ProductOption productOption = productOptionRepository.findById(requestDto.getProductOptionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_OPTION_NOT_FOUND));
 
-        // 리뷰 엔티티 생성
-        Review review = Review.builder()
-                .rating(requestDto.getRating())
-                .content(requestDto.getContent())
-                .user(user)
-                .orderItem(orderItem)
-                .productOption(productOption)
-                .build();
+        // 중복 리뷰 검증
+        validateDuplicateReview(user, orderItem, productOption);
 
-        Review savedReview = reviewRepository.save(review);
+        try {
+            // 리뷰 엔티티 생성
+            Review review = Review.builder()
+                    .rating(requestDto.getRating())
+                    .content(requestDto.getContent())
+                    .user(user)
+                    .orderItem(orderItem)
+                    .productOption(productOption)
+                    .build();
 
-        // 이미지 처리
-        processReviewImages(images, savedReview);
+            Review savedReview = reviewRepository.save(review);
+
+            // 이미지 처리
+            if(images != null) {
+                processReviewImages(images, savedReview);
+            }
+            
+            // 상품 평점 업데이트 (비동기 처리 고려 가능)
+            try {
+                reviewRatingService.updateProductRating(productOption.getProduct().getId());
+            } catch (Exception ratingUpdateException) {
+                // 평점 업데이트 실패는 리뷰 등록 실패로 이어지지 않도록 로깅만 처리
+                log.error("리뷰 등록 후 상품 평점 업데이트 실패. ProductId: {}", 
+                         productOption.getProduct().getId(), ratingUpdateException);
+            }
+            
+        } catch (Exception e) {
+            // 데이터베이스 제약 조건 위반 등의 예외를 비즈니스 예외로 변환
+            log.error("리뷰 등록 중 데이터베이스 오류 발생. OrderItemId: {}, UserId: {}", orderItemId, user.getId(), e);
+            throw new BusinessException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
+    }
+
+    /**
+     * 중복 리뷰 검증
+     */
+    private void validateDuplicateReview(User user, OrderItem orderItem, ProductOption productOption) {
+        // 해당 주문 아이템에 대한 리뷰가 이미 존재하는지 확인
+        boolean existsByOrderItem = reviewRepository.existsByOrderItem(orderItem);
+        if (existsByOrderItem) {
+            throw new BusinessException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
+        
+        // 동일한 사용자가 동일한 상품 옵션에 대한 리뷰가 이미 존재하는지 확인
+        boolean existsByUserAndProductOption = reviewRepository.existsByUserAndProductOption(user, productOption);
+        if (existsByUserAndProductOption) {
+            throw new BusinessException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
     }
 
     /**
@@ -135,6 +174,17 @@ public class ReviewService {
         }
 
         reviewRepository.save(review);
+        
+        // 상품 평점 업데이트 (평점이 변경된 경우)
+        if (requestDto.getRating() != null) {
+            try {
+                reviewRatingService.updateProductRating(review.getProductOption().getProduct().getId());
+            } catch (Exception ratingUpdateException) {
+                // 평점 업데이트 실패는 리뷰 수정 실패로 이어지지 않도록 로깅만 처리
+                log.error("리뷰 수정 후 상품 평점 업데이트 실패. ProductId: {}", 
+                         review.getProductOption().getProduct().getId(), ratingUpdateException);
+            }
+        }
     }
 
     /**
@@ -145,8 +195,20 @@ public class ReviewService {
 
         User user = getCurrentUser();
         Review review = validateReviewOwnership(reviewId, user);
+        
+        // 삭제 전에 상품 ID 저장 (삭제 후에는 접근 불가)
+        Long productId = review.getProductOption().getProduct().getId();
 
         reviewRepository.delete(review);
+        
+        // 상품 평점 업데이트
+        try {
+            reviewRatingService.updateProductRating(productId);
+        } catch (Exception ratingUpdateException) {
+            // 평점 업데이트 실패는 리뷰 삭제 실패로 이어지지 않도록 로깅만 처리
+            log.error("리뷰 삭제 후 상품 평점 업데이트 실패. ProductId: {}", 
+                     productId, ratingUpdateException);
+        }
     }
 
     /**
@@ -156,6 +218,43 @@ public class ReviewService {
      */
     public Resource loadImageAsResource(String filename) {
         return fileStorageUtil.loadImageAsResource(filename);
+    }
+
+    /**
+     * 특정 주문 아이템에 대한 리뷰 존재 여부 확인
+     * @param orderItemId 주문 아이템 ID
+     * @return 리뷰 존재 여부
+     */
+    public boolean hasReviewForOrderItem(Long orderItemId) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_ITEM_NOT_FOUND));
+        
+        return reviewRepository.existsByOrderItem(orderItem);
+    }
+
+    /**
+     * 특정 주문 아이템의 리뷰 조회
+     * @param orderItemId 주문 아이템 ID
+     * @return 리뷰 정보 (없으면 null)
+     */
+    public Review getReviewByOrderItem(Long orderItemId) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_ITEM_NOT_FOUND));
+        
+        return reviewRepository.findByOrderItem(orderItem);
+    }
+
+    /**
+     * 리뷰 상세 조회
+     * @param reviewId 리뷰 ID
+     * @return 리뷰 상세 정보
+     */
+    @Transactional(readOnly = true)
+    public ProductReviewResponseDto getReviewDetail(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
+        
+        return ProductReviewResponseDto.from(review);
     }
 
     /**

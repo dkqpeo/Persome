@@ -3,6 +3,10 @@ html {
     min-width: 1100px;
 }
 
+body {
+    margin: 0;
+}
+
 /* 헤더 전체 */
 .site-header {
     border-bottom: 1px solid #eee;

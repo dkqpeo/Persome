@@ -78,4 +78,13 @@ public class Product {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    /**
+     * 평점 평균 업데이트
+     * @param newRatingAvg 새로운 평점 평균
+     */
+    public void updateRatingAvg(BigDecimal newRatingAvg) {
+        this.ratingAvg = newRatingAvg;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

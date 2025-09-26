@@ -3,15 +3,16 @@ package com.c3l2.persome.product.repository;
 import com.c3l2.persome.brand.entity.Brand;
 import com.c3l2.persome.product.entity.Category;
 import com.c3l2.persome.product.entity.Product;
+import com.c3l2.persome.product.entity.constant.ProductStatus;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -118,4 +119,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // 브랜드별 상품 조회
     @Query("SELECT p FROM Product p WHERE p.brand = :brand")
     Page<Product> findByBrand(@Param("brand") Brand brand, Pageable pageable);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Product p set p.name = :name, p.description = :description, p.brand = :brand, p.category = :category, p.updatedAt = :updatedAt where p.id = :id")
+    int updateProductInfo(@Param("id") Long id,
+                          @Param("name") String name,
+                          @Param("description") String description,
+                          @Param("brand") Brand brand,
+                          @Param("category") Category category,
+                          @Param("updatedAt") LocalDateTime updatedAt);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Product p set p.status = :status, p.updatedAt = :updatedAt where p.id = :id")
+    int updateProductStatus(@Param("id") Long id,
+                            @Param("status") ProductStatus status,
+                            @Param("updatedAt") LocalDateTime updatedAt);
 }
