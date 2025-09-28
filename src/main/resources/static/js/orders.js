@@ -159,6 +159,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             const discountedPrice = Math.max(0, summary.finalPrice - discount - point);
             document.getElementById("final-price").textContent = formatCurrency(discountedPrice);
         }
+        //배송 요청사항
+        document.getElementById("requestSelect").addEventListener("change", e => {
+            const textarea = document.getElementById("requestTextarea");
+            if (e.target.value === "기타" || e.target.value === "배송 메시지를 선택하세요") {
+                textarea.value = "";
+                textarea.removeAttribute("readonly");
+            } else {
+                textarea.value = e.target.value;
+                textarea.setAttribute("readonly", true);
+            }
+        });
 
         // 쿠폰 불러오기
         const couponSelect = document.querySelector("#couponSelect");
@@ -287,7 +298,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const detailAddr = document.getElementById("detailAddr").value;
             const zipCode = document.getElementById("zipCode").value;
 
-            const requestMessage = document.getElementById("requestTextarea").value;
+            let requestMessage = document.getElementById("requestTextarea").value;
             const selectedPayment = document.querySelector("input[name='payment']:checked").value;
 
             const orderData = {

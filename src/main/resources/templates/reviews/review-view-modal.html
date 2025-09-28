@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 상세보기 | Persome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .close-btn:hover {
+            background-color: #e9ecef;
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .product-info {
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-section {
+            margin-bottom: 20px;
+        }
+
+        .review-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            width: 24px;
+            height: 24px;
+            color: #ddd;
+            font-size: 20px;
+        }
+
+        .star.filled {
+            color: #ffc107;
+        }
+
+        .rating-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            min-height: 100px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            border: 1px solid #e9ecef;
+        }
+
+        .review-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .review-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .review-image:hover {
+            transform: scale(1.05);
+        }
+
+        .review-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-date {
+            color: #888;
+        }
+
+        .no-images-text {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            background: #f8d7da;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95%;
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">리뷰 상세보기</div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="loading" class="loading">
+                    리뷰 정보를 불러오는 중...
+                </div>
+                
+                <div id="error-message" class="error" style="display: none;">
+                    리뷰 정보를 불러오는데 실패했습니다.
+                </div>
+                
+                <div id="review-content" style="display: none;">
+                    <!-- 상품 정보 -->
+                    <div class="product-info">
+                        <div id="product-name" class="product-name">상품명</div>
+                    </div>
+
+                    <!-- 별점 -->
+                    <div class="review-section">
+                        <h3>평점</h3>
+                        <div class="rating-display">
+                            <div class="stars" id="rating-stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span id="rating-text" class="rating-text">5.0</span>
+                        </div>
+                    </div>
+
+                    <!-- 리뷰 내용 -->
+                    <div class="review-section">
+                        <h3>리뷰 내용</h3>
+                        <div id="review-text" class="review-content">
+                            리뷰 내용이 여기에 표시됩니다.
+                        </div>
+                    </div>
+
+                    <!-- 리뷰 이미지 -->
+                    <div class="review-section">
+                        <h3>첨부 이미지</h3>
+                        <div id="review-images" class="review-images">
+                            <div class="no-images-text">첨부된 이미지가 없습니다.</div>
+                        </div>
+                    </div>
+
+                    <!-- 작성자 정보 -->
+                    <div class="review-meta">
+                        <span class="reviewer-name" id="reviewer-name">작성자명</span>
+                        <span class="review-date" id="review-date">작성일</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentReviewId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL에서 reviewId 파라미터 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            currentReviewId = urlParams.get('reviewId');
+            
+            if (!currentReviewId) {
+                showError('리뷰 ID가 없습니다.');
+                return;
+            }
+            
+            loadReviewData();
+        });
+
+        async function loadReviewData() {
+            try {
+                const response = await fetch(`/reviews/${currentReviewId}`);
+                
+                if (!response.ok) {
+                    throw new Error('리뷰 데이터를 불러오는데 실패했습니다.');
+                }
+                
+                const result = await response.json();
+                console.log('API 응답:', result); // 디버깅용 로그
+                
+                if (result.data) {
+                    console.log('리뷰 데이터:', result.data); // 디버깅용 로그
+                    displayReviewData(result.data);
+                } else {
+                    throw new Error(result.message || '리뷰 데이터를 불러오는데 실패했습니다.');
+                }
+                
+            } catch (error) {
+                console.error('리뷰 로드 오류:', error);
+                showError(error.message || '리뷰 정보를 불러오는데 실패했습니다.');
+            }
+        }
+
+        function displayReviewData(reviewData) {
+            console.log('displayReviewData 호출됨:', reviewData); // 디버깅용 로그
+            
+            // 로딩 숨기기
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('review-content').style.display = 'block';
+            
+            // 상품 정보
+            const productName = document.getElementById('product-name');
+            productName.textContent = reviewData.productOptionName || '상품명 없음';
+            
+            console.log('상품명:', reviewData.productOptionName); // 디버깅용
+            
+            // 별점 표시 (BigDecimal이므로 숫자로 변환)
+            const rating = reviewData.rating ? Number(reviewData.rating) : 0;
+            console.log('별점:', rating); // 디버깅용
+            displayRating(rating);
+            
+            // 리뷰 내용
+            console.log('리뷰 내용:', reviewData.content); // 디버깅용
+            document.getElementById('review-text').textContent = reviewData.content || '리뷰 내용이 없습니다.';
+            
+            // 리뷰 이미지 (reviewMediasList에서 추출)
+            const imageUrls = reviewData.reviewMediasList ? 
+                reviewData.reviewMediasList.map(media => media.downloadUrl) : [];
+            console.log('이미지 URLs:', imageUrls); // 디버깅용
+            displayReviewImages(imageUrls);
+            
+            // 작성자 정보
+            console.log('작성자:', reviewData.userLoginId, '작성일:', reviewData.createdAt); // 디버깅용
+            document.getElementById('reviewer-name').textContent = reviewData.userLoginId || '익명';
+            document.getElementById('review-date').textContent = formatDate(reviewData.createdAt);
+        }
+
+        function displayRating(rating) {
+            const stars = document.querySelectorAll('#rating-stars .star');
+            const ratingText = document.getElementById('rating-text');
+            
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
+                }
+            });
+            
+            ratingText.textContent = rating ? rating.toFixed(1) : '0.0';
+        }
+
+        function displayReviewImages(imageUrls) {
+            const imagesContainer = document.getElementById('review-images');
+            
+            if (!imageUrls || imageUrls.length === 0) {
+                imagesContainer.innerHTML = '<div class="no-images-text">첨부된 이미지가 없습니다.</div>';
+                return;
+            }
+            
+            const imagesHtml = imageUrls.map(imageUrl => `
+                <img src="${imageUrl}" 
+                     alt="리뷰 이미지" 
+                     class="review-image"
+                     onclick="openImageViewer('${imageUrl}')"
+                     onerror="handleImageError(this)">
+            `).join('');
+            
+            imagesContainer.innerHTML = imagesHtml;
+        }
+
+        function openImageViewer(imageUrl) {
+            // 이미지 크게 보기 기능 (간단한 새 창으로 구현)
+            window.open(imageUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        }
+
+        function handleImageError(img) {
+            img.style.display = 'none';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '작성일 없음';
+            
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+                return '오늘';
+            } else if (diffDays <= 7) {
+                return `${diffDays}일 전`;
+            } else {
+                return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+
+        function closeModal() {
+            window.close();
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

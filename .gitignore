@@ -58,3 +58,4 @@ replay_pid*
 
 # Spring Boot 민감 정보
 /src/main/resources/application-secret.yml
+/src/main/resources/static/uploads/

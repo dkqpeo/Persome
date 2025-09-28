@@ -6,6 +6,148 @@
     <link rel="stylesheet" href="/css/header.css">
     <title>상품 상세 - PERSOME</title>
     <link rel="stylesheet" href="/css/product/productDetail.css">
+    <style>
+        /* 리뷰 관련 스타일 */
+        .reviews-section {
+            padding: 20px;
+        }
+        
+        .reviews-summary {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .average-rating {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .rating-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #A68DC0;
+            margin-bottom: 10px;
+        }
+        
+        .rating-stars {
+            font-size: 24px;
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        
+        .rating-stars .filled {
+            color: #ffc107;
+        }
+        
+        .rating-stars .empty {
+            color: #ddd;
+        }
+        
+        .total-reviews {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .reviews-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .review-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px 0;
+        }
+        
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .review-username {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .review-option {
+            font-size: 14px;
+            color: #666;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .review-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .review-stars {
+            color: #ffc107;
+            font-size: 16px;
+        }
+        
+        .review-date {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .review-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .review-images {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .review-image {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .review-image:hover {
+            transform: scale(1.1);
+        }
+        
+        .loading-reviews {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .no-reviews {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-reviews .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -130,7 +272,22 @@
             </div>
             
             <div class="tab-content" id="reviews" style="display: none;">
-                <p>리뷰 목록이 여기에 표시됩니다.</p>
+                <div class="reviews-section">
+                    <div class="reviews-summary">
+                        <div class="average-rating">
+                            <div class="rating-score" id="averageRating">0.0</div>
+                            <div class="rating-stars" id="averageStars">
+                                <span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span>
+                            </div>
+                            <div class="total-reviews" id="totalReviews">0개의 리뷰</div>
+                        </div>
+                    </div>
+                    
+                    <div class="reviews-list" id="reviewsList">
+                        <!-- 리뷰들이 JavaScript로 동적 생성됩니다 -->
+                        <div class="loading-reviews">리뷰를 불러오는 중...</div>
+                    </div>
+                </div>
             </div>
             
             <div class="tab-content" id="qna" style="display: none;">
@@ -143,5 +300,166 @@
     <script src="/js/product/wishlist.js"></script>
     <script src="/js/product/cart.js"></script>
     <script src="/js/product/getProduct.js"></script>
+    
+    <script>
+        let currentProductId = null;
+        let productReviews = [];
+        
+        // 페이지 로드 시 상품 ID 추출 및 리뷰 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL에서 상품 ID 추출 (예: /products/1)
+            const pathParts = window.location.pathname.split('/');
+            const productIndex = pathParts.indexOf('products');
+            if (productIndex !== -1 && pathParts[productIndex + 1]) {
+                currentProductId = pathParts[productIndex + 1];
+                loadProductReviews();
+            }
+        });
+        
+        // 리뷰 탭 클릭 시에도 리뷰 로드
+        function showTab(tabName) {
+            // 기존 탭 로직 실행
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).style.display = 'block';
+            
+            // 리뷰 탭인 경우 리뷰 로드
+            if (tabName === 'reviews' && currentProductId) {
+                loadProductReviews();
+            }
+        }
+        
+        // 상품 리뷰 로드
+        async function loadProductReviews() {
+            try {
+                console.log('리뷰 로드 시작 - 상품 ID:', currentProductId);
+                const response = await fetch(`/reviews/products/${currentProductId}`);
+                if (!response.ok) throw new Error('리뷰 조회에 실패했습니다.');
+                
+                const result = await response.json();
+                console.log('리뷰 API 응답:', result);
+                productReviews = result.data || [];
+                console.log('로드된 리뷰 개수:', productReviews.length);
+                
+                if (productReviews.length > 0) {
+                    console.log('첫 번째 리뷰 샘플:', productReviews[0]);
+                    if (productReviews[0].reviewMediasList && productReviews[0].reviewMediasList.length > 0) {
+                        console.log('첫 번째 리뷰 이미지 URL:', productReviews[0].reviewMediasList[0].downloadUrl);
+                    }
+                }
+                
+                displayReviews();
+                updateReviewsSummary();
+                updateTabReviewCount();
+                
+            } catch (error) {
+                console.error('리뷰 로드 오류:', error);
+                document.getElementById('reviewsList').innerHTML = 
+                    '<div class="no-reviews"><div class="icon">😞</div><div>리뷰를 불러올 수 없습니다.</div></div>';
+            }
+        }
+        
+        // 리뷰 목록 표시
+        function displayReviews() {
+            const reviewsList = document.getElementById('reviewsList');
+            
+            if (productReviews.length === 0) {
+                reviewsList.innerHTML = 
+                    '<div class="no-reviews"><div class="icon">📝</div><div>아직 작성된 리뷰가 없습니다.</div></div>';
+                return;
+            }
+            
+            const reviewsHtml = productReviews.map(review => createReviewHtml(review)).join('');
+            reviewsList.innerHTML = reviewsHtml;
+        }
+        
+        // 개별 리뷰 HTML 생성
+        function createReviewHtml(review) {
+            const stars = generateStars(parseFloat(review.rating));
+            const images = review.reviewMediasList && review.reviewMediasList.length > 0 
+                ? `<div class="review-images">
+                     ${review.reviewMediasList.map(media => 
+                         `<img src="${media.downloadUrl}" alt="리뷰 이미지" class="review-image" 
+                               onclick="openImageModal('${media.downloadUrl}')"
+                               onerror="handleImageError(this)">`
+                     ).join('')}
+                   </div>`
+                : '';
+            
+            return `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-user">
+                            <span class="review-username">${review.userLoginId}</span>
+                            <span class="review-option">${review.productOptionName}</span>
+                        </div>
+                        <div class="review-rating">
+                            <span class="review-stars">${stars}</span>
+                            <span class="review-date">${formatDate(review.createdAt)}</span>
+                        </div>
+                    </div>
+                    <div class="review-content">${review.content}</div>
+                    ${images}
+                </div>
+            `;
+        }
+        
+        // 별점 생성
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            return '★'.repeat(fullStars) + 
+                   (hasHalfStar ? '☆' : '') + 
+                   '☆'.repeat(emptyStars);
+        }
+        
+        // 평균 평점 및 리뷰 수 업데이트
+        function updateReviewsSummary() {
+            if (productReviews.length === 0) {
+                document.getElementById('averageRating').textContent = '0.0';
+                document.getElementById('averageStars').innerHTML = '☆☆☆☆☆';
+                document.getElementById('totalReviews').textContent = '0개의 리뷰';
+                return;
+            }
+            
+            const totalRating = productReviews.reduce((sum, review) => sum + parseFloat(review.rating), 0);
+            const averageRating = (totalRating / productReviews.length).toFixed(1);
+            
+            document.getElementById('averageRating').textContent = averageRating;
+            document.getElementById('averageStars').innerHTML = generateStars(parseFloat(averageRating));
+            document.getElementById('totalReviews').textContent = `${productReviews.length}개의 리뷰`;
+        }
+        
+        // 탭의 리뷰 개수 업데이트
+        function updateTabReviewCount() {
+            const reviewTab = document.querySelector('.tab[onclick="showTab(\'reviews\')"]');
+            if (reviewTab) {
+                reviewTab.textContent = `리뷰 (${productReviews.length})`;
+            }
+        }
+        
+        // 날짜 포맷팅
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+        }
+        
+        // 이미지 모달 (간단한 구현)
+        function openImageModal(imageUrl) {
+            window.open(imageUrl, '_blank');
+        }
+        
+        // 이미지 로드 실패 시 처리
+        function handleImageError(img) {
+            console.log('이미지 로드 실패:', img.src);
+            img.style.display = 'none'; // 실패한 이미지는 숨김
+            // 또는 기본 이미지로 대체
+            // img.src = '/images/no-image.png';
+        }
+    </script>
 </body>
 </html>

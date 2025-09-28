@@ -319,31 +319,30 @@ public class ProductService {
      * @param name 브랜드 이름
      * @return ProductListByBrandResponse
      */
-    public ProductListByBrandResponse findProductByBrand(String name) {
-
-        Brand brand = brandRepository.findByName(name)
+    public PageProductAllResponse findProductsByBrand(String brandName, OrderSearchDto searchDto) {
+        Brand brand = brandRepository.findByName(brandName)
                 .orElseThrow(() -> new BusinessException(ErrorCode.BRAND_NOT_FOUND));
 
-        // N+1 문제 해결 + SALE 타입 필터링을 위한 fetch join 사용, 최대 3개 결과 제한
-        List<Product> products = productRepository.findTop3ByBrandWithSalePriceAndFetch(brand);
-        
-        if (products.isEmpty()) {
-            return ProductListByBrandResponse.from(brand, List.of());
+        Pageable pageRequest = PageRequest.of(searchDto.getPage(), searchDto.getSize());
+
+        // 1. 브랜드 상품 페이징 조회
+        Page<Product> productPage = productRepository.findByBrand(brand, pageRequest);
+
+        if (productPage.isEmpty()) {
+            return PageProductAllResponse.from(productPage);
         }
 
-        // Product ID 목록 추출
-        List<Long> productIds = products.stream()
+        // 2. ID 추출
+        List<Long> productIds = productPage.getContent().stream()
                 .map(Product::getId)
                 .toList();
 
-        // ProductPrice, ProductImg 를 별도로 batch fetch (OneToMany 관계로 인한 cartesian product 방지)
+        // 3. fetch join + batch fetch
+        List<Product> productsWithBasicFetch = productRepository.findByIdsWithFetch(productIds);
         productRepository.findByIdsWithPrices(productIds);
         productRepository.findByIdsWithImages(productIds);
 
-        List<ProductAllResponse> productList = products.stream()
-                .map(ProductAllResponse::from)
-                .toList();
-
-        return ProductListByBrandResponse.from(brand, productList);
+        // 4. PageProductAllResponse로 변환
+        return createPageProductAllResponse(productsWithBasicFetch, productPage);
     }
 }
