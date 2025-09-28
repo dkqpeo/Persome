@@ -25,6 +25,10 @@ public class ProductDetailResponse {
     private List<ImgResponse> images;   // 상품 이미지 URL 목록
     private List<OptionResponse> options; // 옵션 + 재고정보까지
     private List<PriceResponse> prices;   // 가격 정보 목록
+    private Integer basePrice;           // 프로모션 적용 전 기준가
+    private Integer discountedPrice;     // 프로모션 적용 후 가격
+    private Integer discountRate;        // 적용된 할인율 (정수 %)
+    private boolean promotionApplied;    // 프로모션 적용 여부
 
     @Getter
     @Builder

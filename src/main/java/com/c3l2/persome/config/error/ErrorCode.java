@@ -109,8 +109,6 @@ public enum ErrorCode {
     PRODUCT_PRICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-013", "상품 가격을 찾을 수 없습니다."),
     PRODUCT_STATUS_INVALID(HttpStatus.BAD_REQUEST, "P-014", "유효하지 않은 상품 상태입니다."),
 
-    // 브핸드
-    BRAND_NOT_FOUND(HttpStatus.NOT_FOUND, "B-001", "해당 브랜드가 존재하지 않습니다."),
 
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),
@@ -122,8 +120,9 @@ public enum ErrorCode {
     WISHLIST_NOT_FOUND(HttpStatus.BAD_REQUEST, "W-002", "위시리스트에 존재하지 않습니다."),
     WISHLIST_EMPTY(HttpStatus.BAD_REQUEST, "W-003", "위시리스트가 비어있습니다."),
 
-    // ErrorCode.java
-    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "서버 내부 오류가 발생했습니다.");
+    // 파일/서버
+    SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "서버 내부 오류가 발생했습니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "파일 업로드에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode;

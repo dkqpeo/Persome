@@ -101,7 +101,7 @@ function renderProductData(product) {
     updateRating(product.ratingAvg);
 
     // 가격 설정
-    updatePricing(product.prices);
+    updatePricing(product);
 
     // 옵션 설정
     updateOptions(product.options);
@@ -249,48 +249,39 @@ function updateRating(ratingAvg) {
 }
 
 // 가격 정보 업데이트
-function updatePricing(prices) {
-    if (!prices || prices.length === 0) return;
-
-    const pricingContainer = document.querySelector('.pricing');
-    if (!pricingContainer) return;
-
-    // 할인가가 있는 경우
-    if (prices.length > 1) {
-        const originalPrice = prices[0].price;
-        const currentPriceData = prices[prices.length - 1];
-        currentPrice = currentPriceData.price;
-
-        // 정가와 할인가가 같은지 확인
-        if (originalPrice === currentPrice) {
-            // 정가와 할인가가 같으면 할인 표시 없이 현재 가격만 표시
-            pricingContainer.innerHTML = `
-                        <div class="current-price">
-                            <span>${currentPrice.toLocaleString()}원</span>
-                        </div>
-                    `;
-        } else {
-            // 정가와 할인가가 다르면 할인 표시
-            pricingContainer.innerHTML = `
-                        <div>
-                            <span class="original-price">${originalPrice.toLocaleString()}원</span>
-                        </div>
-                        <div class="current-price">
-                            <span>${currentPrice.toLocaleString()}원</span>
-                            <span class="discount-badge">할인중</span>
-                        </div>
-                    `;
-        }
-    } else {
-        currentPrice = prices[0].price;
-        pricingContainer.innerHTML = `
-                    <div class="current-price">
-                        <span>${currentPrice.toLocaleString()}원</span>
-                    </div>
-                `;
+function updatePricing(product) {
+    const pricingContainer = document.querySelector('.product-info .pricing');
+    if (!pricingContainer) {
+        return;
     }
 
-    // 총 금액 초기화
+    const prices = product.prices || [];
+    const basePrice = Number(product.basePrice ?? (prices.length > 0 ? prices[0].price : 0));
+    const discountedPrice = Number(product.discountedPrice ?? basePrice);
+    const promotionApplied = Boolean(product.promotionApplied) && discountedPrice < basePrice;
+    const discountRate = Number(product.discountRate ?? 0);
+
+    currentPrice = discountedPrice || basePrice || 0;
+
+    if (promotionApplied && basePrice > 0 && discountedPrice >= 0) {
+        const badgeText = discountRate > 0 ? `-${discountRate}%` : '할인중';
+        pricingContainer.innerHTML = `
+            <div>
+                <span class="original-price">${basePrice.toLocaleString()}원</span>
+            </div>
+            <div class="current-price">
+                <span>${discountedPrice.toLocaleString()}원</span>
+                <span class="discount-badge">${badgeText}</span>
+            </div>
+        `;
+    } else {
+        pricingContainer.innerHTML = `
+            <div class="current-price">
+                <span>${currentPrice.toLocaleString()}원</span>
+            </div>
+        `;
+    }
+
     updateTotalPrice();
 }
 

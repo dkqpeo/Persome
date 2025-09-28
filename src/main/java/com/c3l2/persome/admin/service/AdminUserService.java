@@ -7,6 +7,7 @@ import com.c3l2.persome.membership.entity.MembershipLevel;
 import com.c3l2.persome.membership.entity.Name;
 import com.c3l2.persome.membership.repository.MembershipLevelRepository;
 import com.c3l2.persome.user.entity.Status;
+import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,20 +37,23 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void updateUserGrade(Long id, String newGrade) {
+    public void updateUserGrade(String loginId, String newGrade) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
+
         Name membershipName = parseMembershipName(newGrade);
         MembershipLevel membershipLevel = membershipLevelRepository.findByName(membershipName)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_MEMBERSHIP_LEVEL));
 
-        userRepository.updateMembershipLevel(id, membershipLevel);
+        user.updateMembershipLevel(membershipLevel);
     }
 
     @Transactional
-    public void updateUserRole(Long id, boolean isAdmin) {
-        int updated = userRepository.updateAdminFlag(id, isAdmin);
-        if (updated == 0) {
-            throw new BusinessException(ErrorCode.USER_NOT_EXISTS);
-        }
+    public void updateUserRole(String loginId, boolean isAdmin) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
+
+        user.updateAdminFlag(isAdmin);
     }
 
     @Transactional(readOnly = true)

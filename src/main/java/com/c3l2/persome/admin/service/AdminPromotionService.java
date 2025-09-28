@@ -12,10 +12,10 @@ import com.c3l2.persome.promotion.entity.Promotion;
 import com.c3l2.persome.promotion.entity.PromotionStatus;
 import com.c3l2.persome.promotion.entity.PromotionTarget;
 import com.c3l2.persome.promotion.repository.PromotionRepository;
-import com.c3l2.persome.admin.dto.AdminPromotionTargetRepository;
 import com.c3l2.persome.brand.repository.BrandRepository;
 import com.c3l2.persome.category.repository.CategoryRepository;
 import com.c3l2.persome.product.repository.ProductRepository;
+import com.c3l2.persome.promotion.repository.PromotionTargetRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminPromotionService {
 
     private final PromotionRepository promotionRepository;
-    private final AdminPromotionTargetRepository promotionTargetRepository;
+    private final PromotionTargetRepository promotionTargetRepository;
     private final EventRepository eventRepository;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;

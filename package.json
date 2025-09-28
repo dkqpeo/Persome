@@ -1,0 +1,21 @@
+{
+  "name": "persome",
+  "version": "1.0.0",
+  "description": "- 브랜치: `feature/user` - 커밋: `[feat] 회원가입 API 추가` - PR: `[feat] 회원가입 API 추가`",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/C3L2-Project/persome.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/C3L2-Project/persome/issues"
+  },
+  "homepage": "https://github.com/C3L2-Project/persome#readme"
+}

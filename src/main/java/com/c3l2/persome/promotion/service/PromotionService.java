@@ -89,6 +89,7 @@ public class PromotionService {
             case PRODUCT -> productRepository.findById(target.getTargetId())
                     .map(Product::getName)
                     .orElse("알 수 없는 상품");
+            case ALL -> "전체";
             default -> "알 수 없는 대상";
         };
     }
