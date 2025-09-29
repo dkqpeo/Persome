@@ -1,40 +1,17 @@
 package com.c3l2.persome.order.service;
 
-import com.c3l2.persome.cart.entity.CartItem;
-import com.c3l2.persome.cart.repository.CartItemRepository;
 import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.service.UserCouponService;
-import com.c3l2.persome.delivery.entity.Delivery;
-import com.c3l2.persome.delivery.entity.DeliverySnapshot;
-import com.c3l2.persome.delivery.entity.DeliveryStatus;
 import com.c3l2.persome.order.dto.response.*;
 import com.c3l2.persome.order.entity.Order;
-import com.c3l2.persome.order.entity.OrderItem;
-import com.c3l2.persome.order.entity.ReceiveType;
-import com.c3l2.persome.payment.dto.KakaoPayRequest;
-import com.c3l2.persome.payment.dto.KakaoPayReadyResponse;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;
-import com.c3l2.persome.payment.entity.Payment;
-import com.c3l2.persome.payment.entity.PaymentMethod;
-import com.c3l2.persome.payment.entity.PaymentStatus;
-import com.c3l2.persome.payment.repository.PaymentRepository;
-import com.c3l2.persome.payment.service.KakaoPaymentService;
 import com.c3l2.persome.payment.service.PaymentService;
 import com.c3l2.persome.point.dto.PointChangeRequestDto;
-import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.entity.TransactionType;
 import com.c3l2.persome.point.repository.PointTransactionRepository;
 import com.c3l2.persome.point.service.UserPointService;
-import com.c3l2.persome.product.entity.Product;
-import com.c3l2.persome.product.entity.ProductOption;
-import com.c3l2.persome.product.repository.ProductOptionRepository;
-import com.c3l2.persome.user.entity.User;
-import com.c3l2.persome.order.dto.*;
-import com.c3l2.persome.order.dto.request.DirectOrderItemDto;
-import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.repository.OrderRepository;
-import com.c3l2.persome.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,11 +24,9 @@ import com.c3l2.persome.order.entity.OrderStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import jakarta.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @Service
@@ -68,6 +43,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    // 주문 내역 조회 PK
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }

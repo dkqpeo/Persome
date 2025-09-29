@@ -77,26 +77,13 @@ public class KakaoPaymentService {
         requestBody.put("pg_token", pgToken);
         
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-        
-        // 디버깅용 로그
-        System.out.println("카카오페이 승인 요청 Body: " + requestBody);
-        System.out.println("카카오페이 승인 요청 URL: " + HOST + APPROVE_URL);
-        
+
         KakaoPayApproveResponse response = restTemplate.postForObject(
             HOST + APPROVE_URL,
             entity,
             KakaoPayApproveResponse.class
         );
-        
-        // 응답 데이터 로그
-        System.out.println("카카오페이 승인 응답: " + response);
-        if (response != null) {
-            System.out.println("응답 AID: " + response.getAid());
-            System.out.println("응답 TID: " + response.getTid());
-            System.out.println("응답 결제방법: " + response.getPaymentMethodType());
-            System.out.println("응답 금액 정보: " + (response.getAmount() != null ? response.getAmount().getTotal() : "null"));
-        }
-        
+
         return response;
     }
 }
