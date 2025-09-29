@@ -2,6 +2,7 @@ package com.c3l2.persome.event.controller;
 
 import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.event.dto.EventAdminRequestDto;
+import com.c3l2.persome.event.dto.EventDetailAdminResponseDto;
 import com.c3l2.persome.event.dto.EventDetailResponseDto;
 import com.c3l2.persome.event.dto.EventResponseDto;
 import com.c3l2.persome.event.service.EventService;
@@ -26,18 +27,18 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping("/admin")
-    public ResponseEntity<ApiResponse<EventDetailResponseDto>> createAdminEvent(@Valid @RequestBody EventAdminRequestDto request) {
-        EventDetailResponseDto createdEvent = eventService.createAdminEvent(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.<EventDetailResponseDto>builder()
+    public ResponseEntity<ApiResponse<EventDetailAdminResponseDto>> createAdminEvent(@Valid @RequestBody EventAdminRequestDto request) {
+        EventDetailAdminResponseDto createdEvent = eventService.createAdminEvent(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.<EventDetailAdminResponseDto>builder()
                 .message("관리자 이벤트 등록 성공!")
                 .data(createdEvent)
                 .build());
     }
 
     @PutMapping("/admin/{id}")
-    public ResponseEntity<ApiResponse<EventDetailResponseDto>> updateAdminEvent(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<EventDetailAdminResponseDto>> updateAdminEvent(@PathVariable Long id,
                                                                                 @Valid @RequestBody EventAdminRequestDto request) {
-        EventDetailResponseDto updatedEvent = eventService.updateAdminEvent(id, request);
+        EventDetailAdminResponseDto updatedEvent = eventService.updateAdminEvent(id, request);
         return ApiResponse.ok("관리자 이벤트 수정 성공!", updatedEvent);
     }
 
@@ -53,7 +54,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/{id}/details")
-    public ResponseEntity<ApiResponse<EventDetailResponseDto>> getAdminEventDetail(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<EventDetailAdminResponseDto>> getAdminEventDetail(@PathVariable Long id) {
         return ApiResponse.ok("관리자 이벤트 상세 조회 성공!", eventService.getAdminEventDetail(id));
     }
 

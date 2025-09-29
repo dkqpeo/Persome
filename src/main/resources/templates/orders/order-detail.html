@@ -150,7 +150,7 @@
             }).join("");
             
             // 주문 상태가 "주문완료"일 때만 리뷰 버튼 관련 처리
-            if (data.orderStatus === "주문완료") {
+            if (data.orderStatus === "배송완료") {
                 loadReviewStatusForItems(data.items);
             }
             document.getElementById("original-price").textContent=(data.originalPrice?Number(data.originalPrice).toLocaleString():"0")+"원";

@@ -3,10 +3,11 @@ package com.c3l2.persome.event.service;
 import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.dto.CouponDto;
+import com.c3l2.persome.coupon.entity.Coupon;
+import com.c3l2.persome.coupon.repository.CouponRepository;
 import com.c3l2.persome.coupon.service.CouponService;
-import com.c3l2.persome.event.dto.EventAdminRequestDto;
-import com.c3l2.persome.event.dto.EventDetailResponseDto;
-import com.c3l2.persome.event.dto.EventResponseDto;
+import com.c3l2.persome.coupon.service.UserCouponService;
+import com.c3l2.persome.event.dto.*;
 import com.c3l2.persome.event.entity.Event;
 import com.c3l2.persome.event.entity.constant.EventStatus;
 import com.c3l2.persome.event.entity.EventImg;
@@ -15,6 +16,7 @@ import com.c3l2.persome.event.repository.EventImgRepository;
 import com.c3l2.persome.promotion.dto.PromotionDto;
 import com.c3l2.persome.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,8 @@ public class EventService {
     private final EventImgRepository eventImgRepository;
     private final PromotionService promotionService;
     private final CouponService couponService;
+    private final CouponRepository couponRepository;
+    private final UserCouponService userCouponService;
 
     // 이벤트 상태 계산 (날짜 + 수동 상태 혼합)
     private String resolveStatus(Event event) {
@@ -86,14 +90,14 @@ public class EventService {
     }
 
     // 이벤트 상세 조회 (관리자)
-    public EventDetailResponseDto getAdminEventDetail(Long eventId) {
+    public EventDetailAdminResponseDto getAdminEventDetail(Long eventId) {
         Event event = eventRepository.findByIdWithImages(eventId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
 
         List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
         List<CouponDto> coupons = couponService.getCouponsByEvent(eventId);
 
-        return EventDetailResponseDto.fromEntity(
+        return EventDetailAdminResponseDto.fromEntity(
                 event,
                 resolveStatus(event),
                 promotions,
@@ -103,12 +107,34 @@ public class EventService {
 
     // 이벤트 상세 조회 (사용자)
     public EventDetailResponseDto getUserEventDetail(Long eventId) {
-        EventDetailResponseDto adminDto = getAdminEventDetail(eventId);
-        return adminDto.withStatus(resolveUserStatus(adminDto.getStatus()));
+        Event event = eventRepository.findByIdWithImages(eventId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
+
+        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final Long userId = (principal instanceof com.c3l2.persome.user.security.CustomUserDetails userDetails)
+                ? userDetails.getId()
+                : null;
+
+        List<Coupon> coupons = couponRepository.findByEventId(eventId);
+        List<EventCouponResponseDto> couponDtos = coupons.stream()
+                .map(c -> EventCouponResponseDto.fromCoupon(
+                        c,
+                        (userId != null && userCouponService.isAlreadyIssued(userId, c.getId()))
+                ))
+                .toList();
+
+        return EventDetailResponseDto.fromEntity(
+                event,
+                resolveUserStatus(resolveStatus(event)),
+                promotions,
+                couponDtos
+        );
     }
 
     @Transactional
-    public EventDetailResponseDto createAdminEvent(EventAdminRequestDto request) {
+    public EventDetailAdminResponseDto createAdminEvent(EventAdminRequestDto request) {
         EventStatus status = parseStatus(request.getStatus());
 
         Event event = Event.builder()
@@ -135,7 +161,7 @@ public class EventService {
         List<PromotionDto> promotions = promotionService.getPromotionsByEvent(savedEvent.getId());
         List<CouponDto> coupons = couponService.getCouponsByEvent(savedEvent.getId());
 
-        return EventDetailResponseDto.fromEntity(
+        return EventDetailAdminResponseDto.fromEntity(
                 savedEvent,
                 resolveStatus(savedEvent),
                 promotions,
@@ -144,7 +170,7 @@ public class EventService {
     }
 
     @Transactional
-    public EventDetailResponseDto updateAdminEvent(Long eventId, EventAdminRequestDto request) {
+    public EventDetailAdminResponseDto updateAdminEvent(Long eventId, EventAdminRequestDto request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
 
@@ -182,7 +208,7 @@ public class EventService {
         List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
         List<CouponDto> coupons = couponService.getCouponsByEvent(eventId);
 
-        return EventDetailResponseDto.fromEntity(
+        return EventDetailAdminResponseDto.fromEntity(
                 updatedEvent,
                 resolveStatus(updatedEvent),
                 promotions,
