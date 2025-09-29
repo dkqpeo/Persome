@@ -5,48 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>배송지 관리 | Persome</title>
     <style>
-        body {font-family:"Noto Sans KR", Arial, sans-serif;margin:0;background:#fff;}
-        .container {max-width:1100px;margin:20px auto;padding:0 16px;}
-        .grid {display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px;}
-        .card {border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
-        .card .hd {padding:14px 16px;border-bottom:1px solid #f0f0f0;font-weight:700;}
-        .card .bd {padding:16px;}
-        .menu {list-style:none;margin:0;padding:0;}
-        .menu li a {display:block;padding:12px 14px;text-decoration:none;color:#333;border-radius:8px;font-size:15px;font-weight:500;transition:0.2s;}
-        .menu li a:hover {background:#F6F3FF;color:#A68DC0;font-weight:600;}
-        .card .hd a {font-size:18px;font-weight:700;text-decoration:none;color:#222;}
-        .card .hd a:hover {color:#A68DC0;}
+        body{font-family:"Noto Sans KR",Arial,sans-serif;margin:0;background:#fff;}
+        .container{max-width:1100px;margin:20px auto;padding:0 16px;}
+        .grid{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:18px;}
+        .card{border:1px solid #eee;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+        .card .hd{padding:14px 16px;border-bottom:1px solid #f0f0f0;font-weight:700;}
+        .card .bd{padding:16px;}
+        .menu{list-style:none;margin:0;padding:0;}
+        .menu li a{display:block;padding:12px 14px;text-decoration:none;color:#333;border-radius:8px;font-size:15px;font-weight:500;transition:0.2s;}
+        .menu li a:hover{background:#F6F3FF;color:#A68DC0;font-weight:600;}
+        .card .hd a{font-size:18px;font-weight:700;text-decoration:none;color:#222;}
+        .card .hd a:hover{color:#A68DC0;}
+        .addr-list{display:grid;gap:16px;}
+        .addr-item{border:1px solid #eee;border-radius:12px;padding:16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:0.2s;}
+        .addr-item:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+        .addr-item .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+        .addr-item b{font-size:16px;color:#222;}
+        .addr-badge{background:#A68DC0;color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;font-weight:600;margin-left:6px;}
+        .addr-actions{display:flex;gap:8px;}
+        .addr-actions .btn{padding:6px 12px;font-size:13px;border-radius:6px;cursor:pointer;transition:0.2s;}
+        .addr-lines{font-size:14px;color:#444;line-height:1.6;margin-top:6px;}
+        .addr-zip{font-size:12px;color:#777;margin-top:4px;}
+        .btn-zip-search{background:#555;color:#fff;font-size:13px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:0.2s;border:none;}
+        .btn-zip-search:hover{background:#333;}
+        #addrEmpty{text-align:center;padding:24px;background:#fafafa;border:1px dashed #ddd;border-radius:12px;color:#777;}
+        .btn{display:inline-block;background:#A68DC0;color:#fff;text-decoration:none;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-size:13px;transition:0.2s;}
+        .btn:hover{background:#8c75a6;}
+        .btn-reset{background:#555;}
+        .btn-reset:hover{background:#333;}
+        .btn-cancel{background:#555;}
+        .btn-cancel:hover{background:#333;}
+        .btn-edit{background:#fff;border:1px solid #ccc;color:#333;}
+        .btn-edit:hover{background:#f9f9f9;}
+        .btn-delete{background:#b00020;color:#fff;border:none;}
+        .btn-delete:hover{background:#8a0018;}
+        .mt16{margin-top:16px;}
+        @media(max-width:768px){.grid{grid-template-columns:1fr;}.summary{grid-template-columns:1fr;}}
 
-        .addr-list {display:grid;gap:16px;}
-        .addr-item {border:1px solid #eee;border-radius:12px;padding:16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:0.2s;}
-        .addr-item:hover {transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-        .addr-item .top {display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-        .addr-item b {font-size:16px;color:#222;}
-        .addr-badge {background:#A68DC0;color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;font-weight:600;margin-left:6px;}
-        .addr-actions {display:flex;gap:8px;}
-        .addr-actions .btn {padding:6px 12px;font-size:13px;border-radius:6px;cursor:pointer;transition:0.2s;}
-        .addr-lines {font-size:14px;color:#444;line-height:1.6;margin-top:6px;}
-        .addr-zip {font-size:12px;color:#777;margin-top:4px;}
-        #addrEmpty {text-align:center;padding:24px;background:#fafafa;border:1px dashed #ddd;border-radius:12px;color:#777;}
+        /* 모달 */
+        .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;}
+        .modal-content{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:400px;box-shadow:0 4px 16px rgba(0,0,0,0.2);animation:fadeIn .3s;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
 
-        .addr-edit-form {margin-top:12px;display:none;}
-        .addr-edit-form input[type="text"] {width:100%;padding:8px;margin-bottom:6px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;}
-        .addr-edit-form input[type="text"]:focus {outline:none;border-color:#A68DC0;box-shadow:0 0 0 2px rgba(166,141,192,0.2);}
-        .addr-edit-form label {font-size:13px;color:#555;display:block;margin-bottom:6px;}
-        .addr-edit-form .form-actions {margin-top:8px;display:flex;gap:8px;}
-        .btn {display:inline-block;background:#A68DC0;color:#fff;text-decoration:none;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-size:13px;transition:0.2s;}
-        .btn:hover {background:#8c75a6;}
-        .btn-reset {background:#555;}
-        .btn-reset:hover {background:#333;}
-        .btn-cancel {background:#555;}
-        .btn-cancel:hover {background:#333;}
-        .btn-edit {background:#fff;border:1px solid #ccc;color:#333;}
-        .btn-edit:hover {background:#f9f9f9;}
-         .btn-delete {background:#b00020;color:#fff;border:none;}
-        .btn-delete:hover {background:#8a0018;}
-
-        .mt16 {margin-top:16px;}
-        @media (max-width:768px){.grid{grid-template-columns:1fr;}.summary{grid-template-columns:1fr;}}
+       .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+        .modal-header h3{margin:0;font-size:18px;}
+        .modal-close{cursor:pointer;font-size:20px;color:#555;}
+        .modal-close:hover{color:#000;}
+        .addr-edit-form input[type="text"]{width:100%;padding:8px;margin-bottom:6px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;}
+        .addr-edit-form input[type="text"]:focus{outline:none;border-color:#A68DC0;box-shadow:0 0 0 2px rgba(166,141,192,0.2);}
+        .addr-edit-form label{font-size:13px;color:#555;display:block;margin-bottom:6px;}
+        .addr-edit-form .form-actions{margin-top:8px;display:flex;gap:8px;}
     </style>
     <link rel="stylesheet" href="/css/header.css">
 </head>
@@ -70,34 +78,46 @@
                             </div>
                             <button id="btnAddrNew" class="btn">+ 새 배송지</button>
                         </div>
-
                         <div id="addrList" class="addr-list">
                             <div id="addrEmpty">등록된 배송지가 없습니다.</div>
                         </div>
-
-                        <form id="newAddrForm" class="addr-edit-form" style="display:none;">
-                            <input type="text" name="label" placeholder="라벨" />
-                            <input type="text" name="zip" placeholder="우편번호" />
-                            <input type="text" name="roadAddr" placeholder="도로명 주소" />
-                            <input type="text" name="jibunAddr" placeholder="지번 주소" />
-                            <input type="text" name="addrDetail" placeholder="상세 주소" />
-                            <label><input type="checkbox" name="default" /> 기본배송지</label>
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-save">저장</button>
-                                <button type="button" class="btn btn-cancel">취소</button>
-                                <button type="button" class="btn btn-reset">초기화</button>
-                            </div>
-                        </form>
-
                     </div>
                 </div>
             </section>
         </div>
     </div>
 </div>
+
+<!-- 모달 팝업 -->
+<div id="addrModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>새 배송지 추가</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <form id="newAddrForm" class="addr-edit-form active">
+            <input type="text" name="label" placeholder="라벨" />
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" name="zip" placeholder="우편번호" style="flex:1;" />
+                <button type="button" class="btn btn-zip-search">우편번호 찾기</button>
+            </div>
+            <input type="text" name="roadAddr" placeholder="도로명 주소" />
+            <input type="text" name="jibunAddr" placeholder="지번 주소" />
+            <input type="text" name="addrDetail" placeholder="상세 주소" />
+            <label><input type="checkbox" name="default" /> 기본배송지</label>
+            <div class="form-actions">
+                <button type="button" class="btn btn-save">저장</button>
+                <button type="button" class="btn btn-cancel">취소</button>
+                <button type="button" class="btn btn-reset">초기화</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="/js/header.js"></script>
 <script src="/js/fragment-loader.js"></script>
 <script src="/js/mypage/myaddresses.js"></script>
 <script src="/js/mypage/mypage.js"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </body>
 </html>

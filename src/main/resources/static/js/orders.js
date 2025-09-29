@@ -15,6 +15,30 @@ async function loadUserPoints() {
     }
 }
 
+//우편번호
+function openDaumPostcode(zipInput, roadInput, jibunInput) {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            const roadAddr = data.roadAddress;
+            let extraRoadAddr = '';
+
+            if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+                extraRoadAddr += data.bname;
+            }
+            if (data.buildingName !== '' && data.apartment === 'Y') {
+                extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+            }
+            if (extraRoadAddr !== '') {
+                extraRoadAddr = ' (' + extraRoadAddr + ')';
+            }
+
+            zipInput.value = data.zonecode;
+            roadInput.value = roadAddr;
+            jibunInput.value = data.jibunAddress;
+        }
+    }).open();
+}
+
 // 기존 배송지 불러오기
 async function loadExistingAddresses() {
     const select = document.getElementById("existingAddressSelect");
@@ -97,6 +121,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const cartItemIds = urlParams.get("cartItemIds");
     const productOptionId = urlParams.get("productOptionId");
     const quantity = urlParams.get("quantity");
+    const btnZip = document.getElementById("btnZipSearch");
+    if (btnZip) {
+        btnZip.addEventListener("click", (e) => {
+            e.preventDefault();
+            const zipInput = document.getElementById("zipCode");
+            const roadInput = document.getElementById("roadAddr");
+            const jibunInput = document.getElementById("jibunAddr");
+            openDaumPostcode(zipInput, roadInput, jibunInput);
+        });
+    }
 
     if (!cartItemIds && !productOptionId) {
         alert("선택된 상품이 없습니다.");

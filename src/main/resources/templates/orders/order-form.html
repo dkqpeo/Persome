@@ -129,7 +129,7 @@
                 <td>
                     <div class="zip-row">
                         <input type="text" id="zipCode" placeholder="우편번호" style="width:140px;">
-                        <button type="button" class="zipcode-btn">우편번호 찾기</button>
+                        <button type="button" class="zipcode-btn" id="btnZipSearch">우편번호 찾기</button>
                     </div>
                     <input type="text" id="roadAddr" placeholder="도로명 주소" class="addr-input">
                     <input type="text" id="jibunAddr" placeholder="지번 주소" class="addr-input">
@@ -228,7 +228,7 @@
         <button id="orderBtn">결제하기</button>
     </div>
 </div>
-
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="/js/header.js"></script>
 <script src="/js/orders.js"></script>
 </body>

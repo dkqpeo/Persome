@@ -172,6 +172,36 @@
         .check-id-btn:hover {
             background-color: #3b2760;
         }
+        /* 우편번호 + 버튼 간격 */
+        .form-row {
+            display: flex;
+            gap: 10px;           /* input과 버튼 사이 여백 */
+            margin-bottom: 15px; /* 줄 아래 여백 */
+        }
+
+        /* 우편번호 input */
+        #zip {
+            flex: 1;             /* 버튼 빼고 나머지 공간 꽉 채우기 */
+        }
+
+        /* 버튼 크기 맞추기 */
+        .form-row button {
+            height: 46px;        /* input 높이에 맞춤 */
+            padding: 0 20px;
+            border-radius: 6px;
+            background-color: #A68DC0; /* 시그니처 컬러 */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* 도로명/지번/상세 주소 input 줄마다 여백 */
+        #roadAddr,
+        #jibunAddr,
+        #addrDetail {
+            margin-bottom: 15px;
+        }
+
     </style>
 </head>
 <body>
@@ -227,15 +257,16 @@
 
         <label>주소</label>
         <div class="form-row">
-            <div>
-                <input type="text" id="zip" name="zip" placeholder="우편번호" required>
-                <div class="error-message" id="zipError"></div>
-            </div>
-            <!-- TODO: 나중에 API 붙일 때 버튼 추가 -->
-            <!-- <div><button type="button" onclick="execDaumPostcode()">주소 찾기</button></div> -->
+            <input type="text" id="zip" name="zip" placeholder="우편번호" required style="flex:1;">
+            <button type="button" class="check-id-btn" onclick="openDaumPostcode()">우편번호 찾기</button>
         </div>
+
         <input type="text" id="roadAddr" name="roadAddr" placeholder="도로명 주소" required>
         <div class="error-message" id="roadAddrError"></div>
+
+        <input type="text" id="jibunAddr" name="jibunAddr" placeholder="지번 주소" required>
+        <div class="error-message" id="jibunAddrError"></div>
+
 
         <input type="text" id="addrDetail" name="addrDetail" placeholder="상세 주소" required>
         <div class="error-message" id="addrDetailError"></div>
@@ -257,9 +288,32 @@
         <a href="/users/login">이미 계정이 있으신가요? 로그인</a>
     </div>
 </div>
-
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="/js/header.js"></script>
 <script>
+    function openDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                const roadAddr = data.roadAddress;
+                const jibunAddr = data.jibunAddress;
+                let extraRoadAddr = '';
+
+                if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+                    extraRoadAddr += data.bname;
+                }
+                if (data.buildingName !== '' && data.apartment === 'Y') {
+                    extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
+                if (extraRoadAddr !== '') {
+                    extraRoadAddr = ' (' + extraRoadAddr + ')';
+                }
+
+                document.getElementById('zip').value = data.zonecode;
+                document.getElementById('roadAddr').value = roadAddr;
+                document.getElementById('jibunAddr').value = jibunAddr;
+            }
+        }).open();
+    }
     // 약관 동의값 불러와 hidden input에 넣기
     document.addEventListener("DOMContentLoaded", () => {
         const consents = sessionStorage.getItem("consents");
