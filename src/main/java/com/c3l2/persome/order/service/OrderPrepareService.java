@@ -53,7 +53,7 @@ public class OrderPrepareService {
 
     private final ProductOptionRepository productOptionRepository;
     private final CartItemRepository cartItemRepository;
-    private final PaymentRepository paymentRepository;
+    //private final PaymentRepository paymentRepository;
     private final PricingService pricingService;
 
     //장바구니 기반 주문 준비

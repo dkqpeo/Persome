@@ -342,7 +342,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 shippingFee: data.summary.shippingFee, requestMessage, zipCode,
                 userCouponId: appliedCoupon.id,
                 usePointAmount: appliedPoint > 0 ? appliedPoint : null,
-                paymentMethod: selectedPayment
+                paymentMethod: selectedPayment,
+                cartItemIds: cartItemIds ? cartItemIds.split(',').map(id => Number(id)) : null
             };
 
             try {

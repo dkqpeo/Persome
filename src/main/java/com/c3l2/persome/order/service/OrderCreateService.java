@@ -1,5 +1,6 @@
 package com.c3l2.persome.order.service;
 
+import com.c3l2.persome.cart.service.CartService;
 import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.service.UserCouponService;
@@ -28,7 +29,6 @@ import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
 import com.c3l2.persome.product.service.ProductOptionService;
 import com.c3l2.persome.user.entity.User;
-import com.c3l2.persome.user.repository.UserRepository;
 import com.c3l2.persome.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -53,6 +54,7 @@ public class OrderCreateService {
     private final PricingService pricingService;
     private final PaymentService paymentService;
     private final KakaoPaymentService kakaoPaymentService;
+    private final CartService cartService;
 
     public OrderResponseDto createOrder(Long userId, OrderRequestDto request, HttpServletRequest httpRequest) {
 
@@ -73,6 +75,10 @@ public class OrderCreateService {
         
         // 5. 포인트 적립
         processPointEarning(user, finalAmount, savedOrder);
+
+        // 7. 장바구니에 구매한 상품이 있을 경우 삭제
+        if(request.getCartItemIds() != null)
+            deleteCartItem(userId, request.getCartItemIds());
         
         // 6. 응답 생성
         return buildOrderResponse(savedOrder, paymentResult);
@@ -280,6 +286,15 @@ public class OrderCreateService {
         
         return baseResponse;
     }
+
+    // 장바구니 아이템 삭제.
+    private void deleteCartItem(Long userId, List<Long> cartItemIds) {
+
+        cartItemIds.forEach(cartItemId -> {
+            cartService.removeItem(userId, cartItemId);
+        });
+    }
+
 
     //배송비 계산
     private int calculateShippingFee(BigDecimal itemsTotal, ReceiveType receiveType) {

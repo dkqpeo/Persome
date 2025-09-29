@@ -68,6 +68,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    // 주문 내역 조회 PK
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
