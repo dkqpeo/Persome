@@ -58,11 +58,17 @@ public class ProductController {
     }
 
     @GetMapping("/brand")
-    public ResponseEntity<ApiResponse<ProductListByBrandResponse>> searchProductsByBrand(@RequestParam String name) {
+    public PageProductAllResponse getProductsByBrand(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size
+    ) {
+        OrderSearchDto searchDto = OrderSearchDto.builder()
+                .page(page)
+                .size(size)
+                .build();
 
-        ProductListByBrandResponse productByBrand = productService.findProductByBrand(name);
-        
-        return ApiResponse.ok("브랜드 상품 리스트", productByBrand);
+        return productService.findProductsByBrand(name, searchDto);
     }
 
     private OrderSearchDto getSearchDto(int page, int size) {

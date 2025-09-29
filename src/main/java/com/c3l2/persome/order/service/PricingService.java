@@ -67,7 +67,8 @@ public class PricingService {
                     switch (target.getTargetType()) {
                         case PRODUCT -> target.getTargetId().equals(product.getId());
                         case CATEGORY -> target.getTargetId().equals(product.getCategory().getId());
-                        case BRAND ->  target.getTargetId().equals(product.getBrand().getId());
+                        case BRAND -> target.getTargetId().equals(product.getBrand().getId());
+                        case ALL -> true;
                         default -> false;
                     }
             );

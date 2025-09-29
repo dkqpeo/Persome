@@ -42,4 +42,7 @@ public class MyPageController {
 
     @GetMapping("/notifications")
     public String myNotificationsPage(){ return "mypage/notifications"; }
+
+    @GetMapping("/withdrawal")
+    public String withdrawalPage() { return "mypage/withdrawal"; }
 }

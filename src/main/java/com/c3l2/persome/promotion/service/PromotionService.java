@@ -20,9 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.c3l2.persome.event.entity.constant.TargetType.BRAND;
-import static com.c3l2.persome.event.entity.constant.TargetType.CATEGORY;
-import static com.c3l2.persome.event.entity.constant.TargetType.PRODUCT;
 
 
 @Service
@@ -31,7 +28,7 @@ public class PromotionService {
     private final PromotionRepository promotionRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     //현재 진행 중인 프로모션 조회
     public List<PromotionDto> getAvailablePromotions(LocalDateTime now) {
@@ -68,11 +65,26 @@ public class PromotionService {
         }
 
         List<PromotionTargetDto> targets = promotion.getPromotionTarget().stream()
-                .map(target -> PromotionTargetDto.builder()
-                        .targetType(target.getTargetType().name())
-                        .targetId(target.getTargetId())
-                        .targetName(resolveTargetName(target))
-                        .build())
+                .map(target -> {
+                    switch (target.getTargetType()) {
+                        case BRAND -> {
+                            Brand brand = brandRepository.findById(target.getTargetId())
+                                    .orElseThrow(() -> new BusinessException(ErrorCode.BRAND_NOT_FOUND));
+                            return PromotionTargetDto.fromBrand(brand);
+                        }
+                        case CATEGORY -> {
+                            Category category = categoryRepository.findById(target.getTargetId())
+                                    .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+                            return PromotionTargetDto.fromCategory(category);
+                        }
+                        case PRODUCT -> {
+                            Product product = productRepository.findById(target.getTargetId())
+                                    .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+                            return PromotionTargetDto.fromProduct(product);
+                        }
+                        default -> throw new BusinessException(ErrorCode.PROMOTION_TARGET_NOT_FOUND);
+                    }
+                })
                 .toList();
 
         return PromotionDto.fromEntity(promotion, targets);
@@ -89,6 +101,7 @@ public class PromotionService {
             case PRODUCT -> productRepository.findById(target.getTargetId())
                     .map(Product::getName)
                     .orElse("알 수 없는 상품");
+            case ALL -> "전체";
             default -> "알 수 없는 대상";
         };
     }

@@ -174,11 +174,13 @@ public class OrderPrepareService {
             finalPriceSum += finalPrice;
         }
 
+        int shippingFee = calculateShippingFee(finalPriceSum, ReceiveType.DELIVERY);
+
         return OrderPrepareDto.builder()
                 .productPrice(productPriceSum)
                 .discountPrice(discountSum)
-                .shippingFee(0)
-                .finalPrice(finalPriceSum)
+                .shippingFee(shippingFee)
+                .finalPrice(finalPriceSum + shippingFee)
                 .build();
     }
 
@@ -192,12 +194,24 @@ public class OrderPrepareService {
         int originalPrice = item.getUnitPrice().intValue() * item.getQuantity();
         int finalPrice = item.getTotalPrice().intValue();
 
+        int shippingFee = calculateShippingFee(finalPrice, ReceiveType.DELIVERY);
+
         return OrderPrepareDto.builder()
                 .productPrice(originalPrice)
                 .discountPrice(originalPrice - finalPrice)
-                .shippingFee(0)
-                .finalPrice(finalPrice)
+                .shippingFee(shippingFee)
+                .finalPrice(finalPrice + shippingFee)
                 .build();
     }
 
+    //배송비
+    private int calculateShippingFee(int itemsTotal, ReceiveType receiveType) {
+        if (receiveType == ReceiveType.PICKUP) {
+            return 0;
+        }
+        int baseFee = 3000;
+        int freeThreshold = 30000;
+
+        return itemsTotal >= freeThreshold ? 0 : baseFee;
+    }
 }

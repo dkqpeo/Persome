@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Persome Admin Console</title>
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+<header class="admin-header">
+    <h1>Persome Admin Console</h1>
+    <nav class="admin-nav">
+        <button data-target="users" class="nav-btn active">회원 관리</button>
+        <button data-target="products" class="nav-btn">상품 관리</button>
+        <button data-target="orders" class="nav-btn">주문 조회</button>
+        <button data-target="events" class="nav-btn">이벤트 관리</button>
+        <button data-target="promotions" class="nav-btn">프로모션 관리</button>
+    </nav>
+</header>
+<main>
+    <section id="panel-users" class="admin-panel">
+        <h2>회원 관리</h2>
+        <div class="card">
+            <div class="card-header">회원 목록</div>
+            <div class="card-body">
+                <div class="toolbar">
+                    <label for="user-status-filter">상태 필터</label>
+                    <select id="user-status-filter">
+                        <option value="">전체</option>
+                        <option value="ACTIVE">활성</option>
+                        <option value="DORMANT">휴면</option>
+                        <option value="WITHDRAWN">탈퇴</option>
+                    </select>
+                    <button id="btn-user-refresh" class="primary">새로고침</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="user-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>로그인ID</th>
+                            <th>이름</th>
+                            <th>등급</th>
+                            <th>상태</th>
+                            <th>관리자</th>
+                            <th>가입일</th>
+                            <th>최근 로그인</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card grid-2">
+            <div>
+                <div class="card-header">회원 등급 변경</div>
+                <form id="form-user-grade" class="card-body form-grid">
+                    <label>로그인 ID
+                        <input type="text" name="loginId" required>
+                    </label>
+                    <label>멤버십 등급
+                        <select name="membershipLevel" required>
+                            <option value="BABY">BABY</option>
+                            <option value="PINK">PINK</option>
+                            <option value="GREEN">GREEN</option>
+                            <option value="BLACK">BLACK</option>
+                            <option value="GOLD">GOLD</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="primary">적용</button>
+                </form>
+            </div>
+            <div>
+                <div class="card-header">관리자 권한</div>
+                <form id="form-user-role" class="card-body form-grid">
+                    <label>로그인 ID
+                        <input type="text" name="loginId" required>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="admin">
+                        관리자 권한 부여
+                    </label>
+                    <button type="submit" class="primary">적용</button>
+                </form>
+            </div>
+        </div>
+        <div id="user-feedback" class="feedback"></div>
+    </section>
+    <section id="panel-products" class="admin-panel">
+        <h2>상품 관리</h2>
+        <div class="card">
+            <div class="card-header">상품 조회</div>
+            <div class="card-body">
+                <form id="form-product-load" class="form-inline">
+                    <label>상품명
+                        <input type="text" name="productName" placeholder="상품명을 입력하세요" required>
+                    </label>
+                    <button type="submit" class="primary">검색</button>
+                </form>
+                <pre id="product-preview" class="preview"></pre>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">상품 수정</div>
+            <form id="form-product-update" class="card-body form-grid">
+                <label>상품 ID<input type="text" name="productId" readonly required></label>
+                <label>상품명<input type="text" name="name" required></label>
+                <label>설명<textarea name="description" rows="4" required></textarea></label>
+                <label>카테고리 ID<input type="number" name="categoryId" required></label>
+                <label>브랜드 ID<input type="number" name="brandId" required></label>
+                <button type="submit" class="primary">저장</button>
+            </form>
+        </div>
+        <div class="card grid-2">
+            <div>
+                <div class="card-header">상품 상태 변경</div>
+                <form id="form-product-status" class="card-body form-grid">
+                    <label>상품 ID<input type="text" name="productId" readonly required></label>
+                    <label>상태
+                        <select name="status" required>
+                            <option value="판매중">판매중</option>
+                            <option value="품절">품절</option>
+                            <option value="일시품절">일시품절</option>
+                            <option value="입고예정">입고예정</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="primary">변경</button>
+                </form>
+            </div>
+            <div>
+                <div class="card-header">상품 삭제</div>
+                <form id="form-product-delete" class="card-body form-grid">
+                    <label>상품 ID<input type="text" name="productId" readonly required></label>
+                    <button type="submit" class="danger">삭제</button>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">옵션 일괄 수정</div>
+            <form id="form-product-options" class="card-body form-grid">
+                <label>상품 ID<input type="text" name="productId" readonly required></label>
+                <label>옵션 JSON 배열
+                    <textarea name="options" rows="5" placeholder='[ { "id":1, "name":"옵션명", "additionalAmount":0 } ]' required></textarea>
+                </label>
+                <button type="submit" class="primary">옵션 저장</button>
+            </form>
+        </div>
+        <div id="product-feedback" class="feedback"></div>
+    </section>
+    <section id="panel-orders" class="admin-panel">
+        <h2>주문 조회</h2>
+        <div class="card">
+            <div class="card-header">주문 목록</div>
+            <div class="card-body">
+                <div class="toolbar">
+                    <label>페이지 크기
+                        <select id="order-page-size">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="table-wrapper">
+                    <table id="order-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>회원</th>
+                            <th>이름</th>
+                            <th>수령방식</th>
+                            <th>상태</th>
+                            <th>수량</th>
+                            <th>총액</th>
+                            <th>배송비</th>
+                            <th>주문일</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="order-pagination"></div>
+            </div>
+        </div>
+    </section>
+    <section id="panel-events" class="admin-panel">
+        <h2>이벤트 관리</h2>
+        <div class="card">
+            <div class="card-header">이벤트 생성</div>
+            <form id="form-event-create" class="card-body form-grid">
+                <label>이름<input type="text" name="name" required></label>
+                <label>썸네일 이미지
+                    <input type="file" name="thumbnail" accept="image/*">
+                </label>
+                <div class="file-preview" id="create-event-thumbnail-preview"></div>
+                <label>설명<textarea name="description" rows="3" required></textarea></label>
+                <label>시작일<input type="datetime-local" name="startDate" required></label>
+                <label>종료일<input type="datetime-local" name="endDate" required></label>
+                <label>상태
+                    <select name="status" required>
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="ENDED">ENDED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+                <label>이벤트 이미지
+                    <input type="file" name="images" accept="image/*" multiple>
+                </label>
+                <div class="form-note">여러 이미지를 선택하면 순서대로 정렬됩니다.</div>
+                <div class="file-preview" id="create-event-images-preview"></div>
+                <div class="form-note">프로모션 설정 (선택)</div>
+                <label>프로모션 상태
+                    <select name="promotionStatus">
+                        <option value="">선택 안 함</option>
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="ENDED">ENDED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+                <label>할인 타입
+                    <select name="promotionDiscountType">
+                        <option value="">선택 안 함</option>
+                        <option value="RATE">RATE</option>
+                        <option value="FIXED">FIXED</option>
+                    </select>
+                </label>
+                <label>할인 값
+                    <input type="number" step="0.01" name="promotionDiscountValue" placeholder="예: 10 또는 5000">
+                </label>
+                <label>프로모션 시작일(선택)
+                    <input type="datetime-local" name="promotionStartDate">
+                </label>
+                <label>프로모션 종료일(선택)
+                    <input type="datetime-local" name="promotionEndDate">
+                </label>
+                <label>타깃 타입
+                    <select name="promotionTargetType">
+                        <option value="ALL">ALL</option>
+                        <option value="PRODUCT">PRODUCT</option>
+                        <option value="CATEGORY">CATEGORY</option>
+                        <option value="BRAND">BRAND</option>
+                    </select>
+                </label>
+                <label>타깃 ID 목록 (콤마 구분)
+                    <input type="text" name="promotionTargetIds" placeholder="예: 1,2,3">
+                </label>
+                <button type="submit" class="primary">등록</button>
+            </form>
+        </div>
+        <div class="card grid-2">
+            <div>
+                <div class="card-header">이벤트 수정</div>
+                <form id="form-event-update" class="card-body form-grid">
+                    <label>이벤트 ID<input type="number" name="eventId" required></label>
+                    <label>이름<input type="text" name="name" required></label>
+                    <div class="form-note">현재 썸네일</div>
+                    <div class="file-preview" id="event-thumbnail-current"></div>
+                    <label>새 썸네일 이미지
+                        <input type="file" name="thumbnail" accept="image/*">
+                    </label>
+                    <div class="file-preview" id="update-event-thumbnail-preview"></div>
+                    <label>설명<textarea name="description" rows="3" required></textarea></label>
+                    <label>시작일<input type="datetime-local" name="startDate" required></label>
+                    <label>종료일<input type="datetime-local" name="endDate" required></label>
+                    <label>상태
+                        <select name="status" required>
+                            <option value="DRAFT">DRAFT</option>
+                            <option value="SCHEDULED">SCHEDULED</option>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="ENDED">ENDED</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </label>
+                    <div class="form-note">현재 등록된 이미지</div>
+                    <div class="file-preview" id="event-images-current"></div>
+                    <label>새 이벤트 이미지
+                        <input type="file" name="images" accept="image/*" multiple>
+                    </label>
+                    <div class="form-note">이미지를 선택하지 않으면 기존 이미지를 유지합니다.</div>
+                    <div class="file-preview" id="update-event-images-preview"></div>
+                    <div class="form-note">현재 프로모션</div>
+                    <div class="file-preview" id="event-promotions-current"></div>
+                    <div class="form-note">새 프로모션 설정 (선택)</div>
+                    <label>프로모션 상태
+                        <select name="promotionStatus">
+                            <option value="">선택 안 함</option>
+                            <option value="DRAFT">DRAFT</option>
+                            <option value="SCHEDULED">SCHEDULED</option>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="ENDED">ENDED</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </label>
+                    <label>할인 타입
+                        <select name="promotionDiscountType">
+                            <option value="">선택 안 함</option>
+                            <option value="RATE">RATE</option>
+                            <option value="FIXED">FIXED</option>
+                        </select>
+                    </label>
+                    <label>할인 값
+                        <input type="number" step="0.01" name="promotionDiscountValue" placeholder="예: 10 또는 5000">
+                    </label>
+                    <label>프로모션 시작일(선택)
+                        <input type="datetime-local" name="promotionStartDate">
+                    </label>
+                    <label>프로모션 종료일(선택)
+                        <input type="datetime-local" name="promotionEndDate">
+                    </label>
+                    <label>타깃 타입
+                        <select name="promotionTargetType">
+                            <option value="ALL">ALL</option>
+                            <option value="PRODUCT">PRODUCT</option>
+                            <option value="CATEGORY">CATEGORY</option>
+                            <option value="BRAND">BRAND</option>
+                        </select>
+                    </label>
+                    <label>타깃 ID 목록 (콤마 구분)
+                        <input type="text" name="promotionTargetIds" placeholder="예: 1,2,3">
+                    </label>
+                    <button type="submit" class="primary">수정</button>
+                </form>
+            </div>
+            <div>
+                <div class="card-header">이벤트 삭제</div>
+                <form id="form-event-delete" class="card-body form-grid">
+                    <label>이벤트 ID<input type="number" name="eventId" required></label>
+                    <button type="submit" class="danger">삭제</button>
+                </form>
+            </div>
+        </div>
+        <div id="event-feedback" class="feedback"></div>
+    </section>
+    <section id="panel-promotions" class="admin-panel">
+        <h2>프로모션 관리</h2>
+        <div class="card">
+            <div class="card-header">프로모션 등록</div>
+            <form id="form-promotion-create" class="card-body form-grid">
+                <label>상태
+                    <select name="status" required>
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="ENDED">ENDED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+                <label>할인 타입
+                    <select name="discountType" required>
+                        <option value="FIXED">FIXED</option>
+                        <option value="RATE">RATE</option>
+                    </select>
+                </label>
+                <label>할인 값<input type="number" name="discountValue" step="0.01" required></label>
+                <label>시작일<input type="datetime-local" name="startDate" required></label>
+                <label>종료일<input type="datetime-local" name="endDate" required></label>
+                <label>이벤트 ID (선택)<input type="number" name="eventId"></label>
+                <label>타겟(JSON)
+                    <textarea name="targets" rows="4" placeholder='[ { "targetType":"PRODUCT", "targetId":1 } ]'></textarea>
+                </label>
+                <button type="submit" class="primary">등록</button>
+            </form>
+        </div>
+        <div class="card grid-2">
+            <div>
+                <div class="card-header">프로모션 수정</div>
+                <form id="form-promotion-update" class="card-body form-grid">
+                    <label>프로모션 ID<input type="number" name="promotionId" required></label>
+                    <label>상태<select name="status" required>
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="ENDED">ENDED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select></label>
+                    <label>할인 타입<select name="discountType" required>
+                        <option value="FIXED">FIXED</option>
+                        <option value="RATE">RATE</option>
+                    </select></label>
+                    <label>할인 값<input type="number" name="discountValue" step="0.01" required></label>
+                    <label>시작일<input type="datetime-local" name="startDate" required></label>
+                    <label>종료일<input type="datetime-local" name="endDate" required></label>
+                    <label>이벤트 ID (선택)<input type="number" name="eventId"></label>
+                    <label>타겟(JSON)
+                        <textarea name="targets" rows="4" placeholder='[ { "targetType":"PRODUCT", "targetId":1 } ]'></textarea>
+                    </label>
+                    <button type="submit" class="primary">수정</button>
+                </form>
+            </div>
+            <div>
+                <div class="card-header">프로모션 삭제</div>
+                <form id="form-promotion-delete" class="card-body form-grid">
+                    <label>프로모션 ID<input type="number" name="promotionId" required></label>
+                    <button type="submit" class="danger">삭제</button>
+                </form>
+                <div class="card-header">타겟 상품 재지정</div>
+                <form id="form-promotion-products" class="card-body form-grid">
+                    <label>프로모션 ID<input type="number" name="promotionId" required></label>
+                    <label>상품 ID 목록 (콤마 구분)
+                        <input type="text" name="productIds" placeholder="1,2,3" required>
+                    </label>
+                    <button type="submit" class="primary">저장</button>
+                </form>
+            </div>
+        </div>
+        <div id="promotion-feedback" class="feedback"></div>
+    </section>
+</main>
+<script src="/admin/js/admin.js" type="module"></script>
+</body>
+</html>

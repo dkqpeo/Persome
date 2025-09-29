@@ -32,17 +32,17 @@ public class AdminUserController {
         return adminUserService.getUsersByStatus(userStatus);
     }
 
-    @PatchMapping("/{id}/grade")
-    public ResponseEntity<Void> updateUserGrade(@PathVariable Long id,
+    @PatchMapping("/{loginId}/grade")
+    public ResponseEntity<Void> updateUserGrade(@PathVariable String loginId,
                                                 @Valid @RequestBody AdminUserGradeUpdateRequest request) {
-        adminUserService.updateUserGrade(id, request.membershipLevel());
+        adminUserService.updateUserGrade(loginId, request.membershipLevel());
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/role")
-    public ResponseEntity<Void> updateUserRole(@PathVariable Long id,
+    @PatchMapping("/{loginId}/role")
+    public ResponseEntity<Void> updateUserRole(@PathVariable String loginId,
                                                @Valid @RequestBody AdminUserRoleUpdateRequest request) {
-        adminUserService.updateUserRole(id, request.admin());
+        adminUserService.updateUserRole(loginId, request.admin());
         return ResponseEntity.noContent().build();
     }
 
