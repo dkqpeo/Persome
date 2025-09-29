@@ -34,6 +34,8 @@ public class OrderRequestDto {
 
     private PaymentMethod paymentMethod;
 
+    private List<Long> cartItemIds;
+
     public Order toEntity(User user) {
         return Order.builder()
                 .user(user)

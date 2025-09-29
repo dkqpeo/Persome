@@ -50,4 +50,8 @@ public class Inventory {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void updateQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
 }
