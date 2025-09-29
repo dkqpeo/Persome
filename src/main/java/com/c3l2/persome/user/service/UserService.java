@@ -88,6 +88,7 @@ public class UserService {
                 .user(user)
                 .zip(dto.getZip())
                 .roadAddr(dto.getRoadAddr())
+                .jibunAddr(dto.getJibunAddr())
                 .addrDetail(dto.getAddrDetail())
                 .defaultShipping(true)
                 .build();

@@ -52,6 +52,9 @@ public class UserRegisterDto {
     @NotBlank(message = "도로명 주소를 입력해주세요")
     private String roadAddr;
 
+    @NotBlank(message = "지번 주소를 입력해주세요")
+    private String jibunAddr;
+
     @NotBlank(message = "상세 주소를 입력해주세요")
     private String addrDetail;
 
