@@ -94,7 +94,12 @@ public class EventService {
         Event event = eventRepository.findByIdWithImages(eventId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
 
-        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
+        List<PromotionDto> promotions;
+        try {
+            promotions = promotionService.getPromotionsByEvent(eventId);
+        } catch (BusinessException e) {
+            promotions = List.of();
+        }
         List<CouponDto> coupons = couponService.getCouponsByEvent(eventId);
 
         return EventDetailAdminResponseDto.fromEntity(
@@ -104,13 +109,17 @@ public class EventService {
                 coupons
         );
     }
-
     // 이벤트 상세 조회 (사용자)
     public EventDetailResponseDto getUserEventDetail(Long eventId) {
         Event event = eventRepository.findByIdWithImages(eventId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
 
-        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
+        List<PromotionDto> promotions;
+        try {
+            promotions = promotionService.getPromotionsByEvent(eventId);
+        } catch (BusinessException e) {
+            promotions = List.of();
+        }
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final Long userId = (principal instanceof com.c3l2.persome.user.security.CustomUserDetails userDetails)
@@ -158,14 +167,11 @@ public class EventService {
 
         Event savedEvent = eventRepository.save(event);
 
-        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(savedEvent.getId());
-        List<CouponDto> coupons = couponService.getCouponsByEvent(savedEvent.getId());
-
         return EventDetailAdminResponseDto.fromEntity(
                 savedEvent,
                 resolveStatus(savedEvent),
-                promotions,
-                coupons
+                List.of(),
+                List.of()
         );
     }
 
@@ -205,16 +211,28 @@ public class EventService {
         Event updatedEvent = eventRepository.findByIdWithImages(eventId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
 
-        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
-        List<CouponDto> coupons = couponService.getCouponsByEvent(eventId);
-
         return EventDetailAdminResponseDto.fromEntity(
                 updatedEvent,
                 resolveStatus(updatedEvent),
-                promotions,
-                coupons
+                List.of(),
+                List.of()
         );
     }
+
+    @Transactional
+    public void deleteAdminEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
+
+        // 이벤트 이미지 같이 삭제
+        eventImgRepository.deleteByEventId(eventId);
+
+        //프로모션, 쿠폰 같이 삭제
+
+        // 이벤트 삭제
+        eventRepository.delete(event);
+    }
+
 
     private EventStatus parseStatus(String status) {
         try {

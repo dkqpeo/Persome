@@ -9,13 +9,7 @@ import com.c3l2.persome.event.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -40,6 +34,11 @@ public class EventController {
                                                                                 @Valid @RequestBody EventAdminRequestDto request) {
         EventDetailAdminResponseDto updatedEvent = eventService.updateAdminEvent(id, request);
         return ApiResponse.ok("관리자 이벤트 수정 성공!", updatedEvent);
+    }
+    @DeleteMapping("/admin/{eventId}")
+    public ResponseEntity<ApiResponse<String>> deleteAdminEvent(@PathVariable Long eventId) {
+        eventService.deleteAdminEvent(eventId);
+        return ApiResponse.ok("관리자 이벤트 삭제 성공!","");
     }
 
     // ✅ 관리자용 API
