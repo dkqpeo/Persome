@@ -120,6 +120,9 @@ public enum ErrorCode {
     WISHLIST_NOT_FOUND(HttpStatus.BAD_REQUEST, "W-002", "위시리스트에 존재하지 않습니다."),
     WISHLIST_EMPTY(HttpStatus.BAD_REQUEST, "W-003", "위시리스트가 비어있습니다."),
 
+    // 카테고리
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "C-001", "카테고리를 찾을 수 없습니다."),
+
     // 파일/서버
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "서버 내부 오류가 발생했습니다."),
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "파일 업로드에 실패했습니다.");
