@@ -26,6 +26,8 @@
         .addr-actions .btn{padding:6px 12px;font-size:13px;border-radius:6px;cursor:pointer;transition:0.2s;}
         .addr-lines{font-size:14px;color:#444;line-height:1.6;margin-top:6px;}
         .addr-zip{font-size:12px;color:#777;margin-top:4px;}
+        .btn-zip-search{background:#555;color:#fff;font-size:13px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:0.2s;border:none;}
+        .btn-zip-search:hover{background:#333;}
         #addrEmpty{text-align:center;padding:24px;background:#fafafa;border:1px dashed #ddd;border-radius:12px;color:#777;}
         .btn{display:inline-block;background:#A68DC0;color:#fff;text-decoration:none;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-size:13px;transition:0.2s;}
         .btn:hover{background:#8c75a6;}
@@ -94,7 +96,10 @@
         </div>
         <form id="newAddrForm" class="addr-edit-form active">
             <input type="text" name="label" placeholder="라벨" />
-            <input type="text" name="zip" placeholder="우편번호" />
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" name="zip" placeholder="우편번호" style="flex:1;" />
+                <button type="button" class="btn btn-zip-search">우편번호 찾기</button>
+            </div>
             <input type="text" name="roadAddr" placeholder="도로명 주소" />
             <input type="text" name="jibunAddr" placeholder="지번 주소" />
             <input type="text" name="addrDetail" placeholder="상세 주소" />
