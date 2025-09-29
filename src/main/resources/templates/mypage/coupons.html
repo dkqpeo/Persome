@@ -97,7 +97,9 @@
                           <div>
                             <div class="name">${coupon.couponName}</div>
                             <div class="discount">
-                              ${coupon.discountType === "RATE" ? coupon.discountValue + "%" : coupon.discountValue.toLocaleString() + "원"} 할인
+                                ${coupon.discountType === "RATE"
+                                    ? (coupon.discountValue * 100).toFixed(0) + "%" // 👈 정수 퍼센트로 변환
+                                    : coupon.discountValue.toLocaleString() + "원"} 할인
                             </div>
                             <div class="meta">
                               사용기간: ${formatDate(coupon.startDate)} ~ ${formatDate(coupon.endDate)} | ${coupon.status}
@@ -129,7 +131,9 @@
                       <div>
                         <div class="name">${coupon.couponName}</div>
                         <div class="discount">
-                          ${coupon.discountType === "RATE" ? coupon.discountValue + "%" : coupon.discountValue.toLocaleString() + "원"} 할인
+                            ${coupon.discountType === "RATE"
+                                ? (coupon.discountValue * 100).toFixed(0) + "%" // 👈 정수 퍼센트로 변환
+                                : coupon.discountValue.toLocaleString() + "원"} 할인
                         </div>
                         <div class="meta">
                           사용기간: ${formatDate(coupon.startDate)} ~ ${formatDate(coupon.endDate)}

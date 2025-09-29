@@ -1,0 +1,10 @@
+insert into promotion_target (id, promotion_id, target_id, target_type) values (1, 1, 267, 'BRAND');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (2, 2, 81, 'CATEGORY');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (3, 3, 5, 'BRAND');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (4, 4, 25, 'BRAND');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (5, 5, 82, 'CATEGORY');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (6, 6, 40, 'BRAND');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (7, 7, 52, 'BRAND');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (8, 8, 84, 'CATEGORY');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (9, 9, 86, 'CATEGORY');
+insert into promotion_target (id, promotion_id, target_id, target_type) values (10, 10, 67, 'BRAND');

@@ -1,9 +1,13 @@
 package com.c3l2.persome.event.dto;
 
+import com.c3l2.persome.coupon.dto.CouponDto;
 import com.c3l2.persome.event.entity.Event;
 import com.c3l2.persome.event.entity.EventImg;
 import com.c3l2.persome.promotion.dto.PromotionDto;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +16,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventDetailResponseDto {
+public class EventDetailAdminResponseDto {
     private Long id;
     private String name;
     private String thumbnailUrl;
@@ -23,15 +27,15 @@ public class EventDetailResponseDto {
 
     private List<String> images;
     private List<PromotionDto> promotions;
-    private List<EventCouponResponseDto> coupons;
+    private List<CouponDto> coupons;
 
-    public static EventDetailResponseDto fromEntity(
+    public static EventDetailAdminResponseDto fromEntity(
             Event event,
             String status,
             List<PromotionDto> promotions,
-            List<EventCouponResponseDto> coupons
+            List<CouponDto> coupons
     ) {
-        return EventDetailResponseDto.builder()
+        return EventDetailAdminResponseDto.builder()
                 .id(event.getId())
                 .name(event.getName())
                 .thumbnailUrl(event.getThumbnailUrl())
@@ -46,19 +50,5 @@ public class EventDetailResponseDto {
                 .coupons(coupons)
                 .build();
     }
-
-    public EventDetailResponseDto withStatus(String newStatus) {
-        return EventDetailResponseDto.builder()
-                .id(this.id)
-                .name(this.name)
-                .thumbnailUrl(this.thumbnailUrl)
-                .description(this.description)
-                .startDate(this.startDate)
-                .endDate(this.endDate)
-                .status(newStatus)
-                .images(this.images)
-                .promotions(this.promotions)
-                .coupons(this.coupons)
-                .build();
-    }
 }
+
