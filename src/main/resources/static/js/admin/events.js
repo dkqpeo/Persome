@@ -117,12 +117,27 @@ if (eventIdInput) {
 async function createEvent(e) {
     e.preventDefault();
     try {
+        let thumbnailUrl = null;
+        let images = [];
+
+        // 썸네일 업로드
+        if (createForm.thumbnail && createForm.thumbnail.files.length > 0) {
+            thumbnailUrl = await uploadFile(createForm.thumbnail.files[0]);
+        }
+
+        // 이미지 업로드
+        if (createForm.images && createForm.images.files.length > 0) {
+            images = await uploadFiles(Array.from(createForm.images.files));
+        }
+
         const payload = {
             name: createForm.name.value.trim(),
             description: createForm.description.value.trim(),
             startDate: createForm.startDate.value,
             endDate: createForm.endDate.value,
-            status: createForm.status.value
+            status: createForm.status.value,
+            thumbnailUrl,
+            images
         };
         const res = await fetch('/api/events/admin', {
             method: 'POST',
@@ -146,12 +161,27 @@ async function updateEvent(e) {
         const id = updateForm.eventId.value.trim();
         if (!id) return setFeedback('이벤트 ID를 입력하세요.', true);
 
+        let thumbnailUrl = null;
+        let images = [];
+
+        // 썸네일 업로드
+        if (updateForm.thumbnail && updateForm.thumbnail.files.length > 0) {
+            thumbnailUrl = await uploadFile(updateForm.thumbnail.files[0]);
+        }
+
+        // 이미지 업로드
+        if (updateForm.images && updateForm.images.files.length > 0) {
+            images = await uploadFiles(Array.from(updateForm.images.files));
+        }
+
         const payload = {
             name: updateForm.name.value.trim(),
             description: updateForm.description.value.trim(),
             startDate: updateForm.startDate.value,
             endDate: updateForm.endDate.value,
-            status: updateForm.status.value
+            status: updateForm.status.value,
+            thumbnailUrl,
+            images
         };
 
         const res = await fetch(`/api/events/admin/${id}`, {
@@ -228,6 +258,32 @@ export function initEventPanel() {
         formCreateBox.style.display = 'block';
     });
 }
+async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/files/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+    });
+    await ensureSuccess(res, "파일 업로드 실패");
+    const data = await res.json();
+    return data.url; // 서버에서 반환한 url
+}
+
+async function uploadFiles(files) {
+    const formData = new FormData();
+    files.forEach(f => formData.append("files", f));
+    const res = await fetch("/api/files/upload/multiple", {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+    });
+    await ensureSuccess(res, "파일 업로드 실패");
+    const data = await res.json();
+    return data.map(d => d.url);
+}
+
 
 // ---------------- 유틸 함수들 ----------------
 function formatDateForInput(dateStr) {

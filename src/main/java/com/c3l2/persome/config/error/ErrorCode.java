@@ -125,7 +125,10 @@ public enum ErrorCode {
 
     // 파일/서버
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "서버 내부 오류가 발생했습니다."),
-    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "파일 업로드에 실패했습니다.");
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "파일 업로드에 실패했습니다."),
+    INVALID_FILE(HttpStatus.BAD_REQUEST, "FILE_001", "유효하지 않은 파일입니다."),
+    FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE_003", "요청한 파일을 찾을 수 없습니다."),
+    FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_004", "파일 삭제에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode;
