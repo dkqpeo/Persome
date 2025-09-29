@@ -133,6 +133,14 @@ public class User {
         this.status = newStatus;
     }
 
+    public void updateMembershipLevel(MembershipLevel membershipLevel) {
+        this.membershipLevel = membershipLevel;
+    }
+
+    public void updateAdminFlag(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
     public void addUserNotification(UserNotification notification) {
         this.userNotification = notification;
     }

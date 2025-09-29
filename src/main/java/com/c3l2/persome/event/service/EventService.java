@@ -4,23 +4,29 @@ import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.dto.CouponDto;
 import com.c3l2.persome.coupon.service.CouponService;
+import com.c3l2.persome.event.dto.EventAdminRequestDto;
 import com.c3l2.persome.event.dto.EventDetailResponseDto;
 import com.c3l2.persome.event.dto.EventResponseDto;
 import com.c3l2.persome.event.entity.Event;
 import com.c3l2.persome.event.entity.constant.EventStatus;
+import com.c3l2.persome.event.entity.EventImg;
 import com.c3l2.persome.event.repository.EventRepository;
+import com.c3l2.persome.event.repository.EventImgRepository;
 import com.c3l2.persome.promotion.dto.PromotionDto;
 import com.c3l2.persome.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
+    private final EventImgRepository eventImgRepository;
     private final PromotionService promotionService;
     private final CouponService couponService;
 
@@ -99,5 +105,96 @@ public class EventService {
     public EventDetailResponseDto getUserEventDetail(Long eventId) {
         EventDetailResponseDto adminDto = getAdminEventDetail(eventId);
         return adminDto.withStatus(resolveUserStatus(adminDto.getStatus()));
+    }
+
+    @Transactional
+    public EventDetailResponseDto createAdminEvent(EventAdminRequestDto request) {
+        EventStatus status = parseStatus(request.getStatus());
+
+        Event event = Event.builder()
+                .name(request.getName())
+                .thumbnailUrl(request.getThumbnailUrl())
+                .description(request.getDescription())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .createdAt(LocalDateTime.now())
+                .status(status)
+                .eventImgs(new ArrayList<>())
+                .build();
+
+        if (request.getImages() != null) {
+            request.getImages().forEach(image -> event.getEventImgs().add(EventImg.builder()
+                    .imgUrl(image.getUrl())
+                    .imgOrder(image.getOrder())
+                    .event(event)
+                    .build()));
+        }
+
+        Event savedEvent = eventRepository.save(event);
+
+        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(savedEvent.getId());
+        List<CouponDto> coupons = couponService.getCouponsByEvent(savedEvent.getId());
+
+        return EventDetailResponseDto.fromEntity(
+                savedEvent,
+                resolveStatus(savedEvent),
+                promotions,
+                coupons
+        );
+    }
+
+    @Transactional
+    public EventDetailResponseDto updateAdminEvent(Long eventId, EventAdminRequestDto request) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
+
+        EventStatus status = parseStatus(request.getStatus());
+
+        int updated = eventRepository.updateEvent(
+                eventId,
+                request.getName(),
+                request.getThumbnailUrl(),
+                request.getDescription(),
+                request.getStartDate(),
+                request.getEndDate(),
+                status
+        );
+
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.EVENT_UPDATE_FAILED);
+        }
+
+        if (request.getImages() != null) {
+            eventImgRepository.deleteByEventId(eventId);
+            List<EventImg> newImages = request.getImages().stream()
+                    .map(image -> EventImg.builder()
+                            .imgUrl(image.getUrl())
+                            .imgOrder(image.getOrder())
+                            .event(event)
+                            .build())
+                    .toList();
+            eventImgRepository.saveAll(newImages);
+        }
+
+        Event updatedEvent = eventRepository.findByIdWithImages(eventId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.EVENT_NOT_FOUND));
+
+        List<PromotionDto> promotions = promotionService.getPromotionsByEvent(eventId);
+        List<CouponDto> coupons = couponService.getCouponsByEvent(eventId);
+
+        return EventDetailResponseDto.fromEntity(
+                updatedEvent,
+                resolveStatus(updatedEvent),
+                promotions,
+                coupons
+        );
+    }
+
+    private EventStatus parseStatus(String status) {
+        try {
+            return EventStatus.of(status.trim().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new BusinessException(ErrorCode.EVENT_STATUS_INVALID);
+        }
     }
 }

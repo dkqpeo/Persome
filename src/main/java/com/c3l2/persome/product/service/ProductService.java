@@ -4,11 +4,17 @@ import com.c3l2.persome.brand.entity.Brand;
 import com.c3l2.persome.brand.repository.BrandRepository;
 import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
+import com.c3l2.persome.event.entity.constant.TargetType;
+import com.c3l2.persome.order.service.PricingService;
 import com.c3l2.persome.product.dto.*;
 import com.c3l2.persome.product.entity.Category;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.repository.ProductRepository;
 import com.c3l2.persome.product.repository.InventoryRepository;
+import com.c3l2.persome.promotion.entity.DiscountType;
+import com.c3l2.persome.promotion.entity.Promotion;
+import com.c3l2.persome.promotion.entity.PromotionTarget;
+import com.c3l2.persome.promotion.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,6 +22,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -30,11 +39,15 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final InventoryRepository inventoryRepository;
     private final BrandRepository brandRepository;
+    private final PricingService pricingService;
+    private final PromotionService promotionService;
 
     public ProductDetailResponse getProductDetail(Long id) {
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. id=" + id));
+        PromotionPriceResult promotionPrice = calculatePromotionPrice(product);
+
         //DTO
         return ProductDetailResponse.builder()
                 .product_id(product.getId())
@@ -79,6 +92,10 @@ public class ProductService {
                                 .endDate(price.getEndDate())
                                 .build())
                         .toList())
+                .basePrice(promotionPrice.basePrice())
+                .discountedPrice(promotionPrice.discountedPrice())
+                .discountRate(promotionPrice.discountRate())
+                .promotionApplied(promotionPrice.promotionApplied())
                 .build();
     }
 
@@ -140,6 +157,79 @@ public class ProductService {
                 .hasNext(originalPage.hasNext())
                 .hasPrevious(originalPage.hasPrevious())
                 .build();
+    }
+
+    private PromotionPriceResult calculatePromotionPrice(Product product) {
+        BigDecimal basePrice = pricingService.getBasePrice(product);
+        BigDecimal discountedPrice = basePrice;
+        Promotion appliedPromotion = null;
+
+        List<Promotion> promotions = promotionService.getAvailablePromotionsForPricing(LocalDateTime.now());
+        for (Promotion promotion : promotions) {
+            if (isPromotionApplicable(promotion, product)) {
+                discountedPrice = applyPromotionDiscount(basePrice, promotion);
+                appliedPromotion = promotion;
+                break;
+            }
+        }
+
+        boolean applied = appliedPromotion != null && discountedPrice.compareTo(basePrice) < 0;
+        int basePriceValue = toInt(basePrice);
+        int discountedPriceValue = toInt(discountedPrice);
+        int discountRate = 0;
+
+        if (applied && basePrice.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal discountAmount = basePrice.subtract(discountedPrice);
+            discountRate = discountAmount
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(basePrice, 0, RoundingMode.DOWN)
+                    .intValue();
+
+            if (discountRate == 0 && appliedPromotion.getDiscountType() == DiscountType.RATE) {
+                discountRate = appliedPromotion.getDiscountValue().intValue();
+            }
+        }
+
+        return new PromotionPriceResult(basePriceValue, discountedPriceValue, discountRate, applied);
+    }
+
+    private boolean isPromotionApplicable(Promotion promotion, Product product) {
+        List<PromotionTarget> targets = promotion.getPromotionTarget();
+        if (targets == null || targets.isEmpty()) {
+            return false;
+        }
+
+        return targets.stream().anyMatch(target -> switch (target.getTargetType()) {
+            case PRODUCT -> target.getTargetId().equals(product.getId());
+            case CATEGORY -> target.getTargetId().equals(product.getCategory().getId());
+            case BRAND -> target.getTargetId().equals(product.getBrand().getId());
+            case ALL -> true;
+        });
+    }
+
+    private BigDecimal applyPromotionDiscount(BigDecimal basePrice, Promotion promotion) {
+        BigDecimal discounted = basePrice;
+
+        if (promotion.getDiscountType() == DiscountType.RATE) {
+            BigDecimal rate = promotion.getDiscountValue()
+                    .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+            discounted = basePrice.multiply(BigDecimal.ONE.subtract(rate));
+        } else if (promotion.getDiscountType() == DiscountType.FIXED) {
+            discounted = basePrice.subtract(promotion.getDiscountValue());
+        }
+
+        if (discounted.compareTo(BigDecimal.ZERO) < 0) {
+            discounted = BigDecimal.ZERO;
+        }
+
+        return discounted;
+    }
+
+    private int toInt(BigDecimal value) {
+        return value.setScale(0, RoundingMode.DOWN).intValue();
+    }
+
+    private record PromotionPriceResult(int basePrice, int discountedPrice, int discountRate, boolean promotionApplied) {
     }
 
     /**

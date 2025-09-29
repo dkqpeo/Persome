@@ -89,4 +89,20 @@ public class PromotionService {
 
         return PromotionDto.fromEntity(promotion, targets);
     }
+
+    private String resolveTargetName(PromotionTarget target) {
+        return switch (target.getTargetType()) {
+            case BRAND -> brandRepository.findById(target.getTargetId())
+                    .map(Brand::getName)
+                    .orElse("알 수 없는 브랜드");
+            case CATEGORY -> categoryRepository.findById(target.getTargetId())
+                    .map(Category::getName)
+                    .orElse("알 수 없는 카테고리");
+            case PRODUCT -> productRepository.findById(target.getTargetId())
+                    .map(Product::getName)
+                    .orElse("알 수 없는 상품");
+            case ALL -> "전체";
+            default -> "알 수 없는 대상";
+        };
+    }
 }
