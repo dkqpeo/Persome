@@ -36,7 +36,7 @@ async function loadAddresses() {
           <div>지번: ${addr.jibunAddr || ""}</div>
           <div class="addr-zip">${addr.zip || ""}</div>
         </div>
-        <form class="addr-edit-form">
+        <form class="addr-edit-form" style="display:none;">
           <input type="hidden" name="id" value="${addr.id}" />
           <input type="text" name="label" value="${addr.label || ""}" placeholder="라벨" />
           <input type="text" name="zip" value="${addr.zip || ""}" placeholder="우편번호" />
@@ -66,32 +66,20 @@ async function loadAddresses() {
 
       //수정 버튼
       editBtn.addEventListener("click", () => {
-        if (form.style.display === "none") {
-          form.style.display = "block";
-          //원본 데이터 저장
-          form.dataset.original = JSON.stringify({
-            label: form.label.value,
-            zip: form.zip.value,
-            roadAddr: form.roadAddr.value,
-            jibunAddr: form.jibunAddr.value,
-            addrDetail: form.addrDetail.value,
-            isdefaultShipping: form.default.checked
-          });
-        } else {
-          form.style.display = "none";
+        form.style.display = form.style.display === "none" ? "block" : "none";
+        if (form.style.display === "block") {
+          form.dataset.original = JSON.stringify(originalData);
         }
       });
 
       //취소 버튼
       cancelBtn.addEventListener("click", () => {
-        if (form.dataset.original) {
-          form.label.value = originalData.label || "";
-          form.zip.value = originalData.zip || "";
-          form.roadAddr.value = originalData.roadAddr || "";
-          form.jibunAddr.value = originalData.jibunAddr || "";
-          form.addrDetail.value = originalData.addrDetail || "";
-          form.default.checked = originalData.isdefaultShipping || false;
-        }
+        form.label.value = originalData.label || "";
+        form.zip.value = originalData.zip || "";
+        form.roadAddr.value = originalData.roadAddr || "";
+        form.jibunAddr.value = originalData.jibunAddr || "";
+        form.addrDetail.value = originalData.addrDetail || "";
+        form.default.checked = originalData.isdefaultShipping || false;
         form.style.display = "none";
       });
 
@@ -156,48 +144,49 @@ async function loadAddresses() {
 document.addEventListener("DOMContentLoaded", () => {
   loadAddresses();
 
+  // 새 배송지 모달 제어
+  const modal = document.getElementById("addrModal");
   const btnNew = document.getElementById("btnAddrNew");
+  const closeBtn = document.querySelector(".modal-close");
   const newForm = document.getElementById("newAddrForm");
+  const cancelBtn = newForm.querySelector(".btn-cancel");
+  const resetBtn = newForm.querySelector(".btn-reset");
+  const saveBtn = newForm.querySelector(".btn-save");
 
-  if (btnNew && newForm) {
-    btnNew.addEventListener("click", () => {
-      newForm.style.display = newForm.style.display === "none" ? "block" : "none";
-    });
+  // 열기
+  btnNew.addEventListener("click", () => { modal.style.display = "flex"; });
+  closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
+  cancelBtn.addEventListener("click", () => { modal.style.display = "none"; });
+  window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
-    newForm.querySelector(".btn-cancel").addEventListener("click", () => {
-      newForm.style.display = "none";
-    });
+  // 초기화
+  resetBtn.addEventListener("click", () => { newForm.reset(); });
 
-    newForm.querySelector(".btn-reset").addEventListener("click", () => {
+  // 저장
+  saveBtn.addEventListener("click", async () => {
+    const payload = {
+      label: newForm.label.value,
+      zip: newForm.zip.value,
+      roadAddr: newForm.roadAddr.value,
+      jibunAddr: newForm.jibunAddr.value,
+      addrDetail: newForm.addrDetail.value,
+      isdefaultShipping: newForm.default.checked
+    };
+
+    try {
+      const res = await fetch("/api/users/me/addresses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("추가 실패");
+      await loadAddresses();
       newForm.reset();
-    });
-
-    newForm.querySelector(".btn-save").addEventListener("click", async () => {
-      const payload = {
-        label: newForm.label.value,
-        zip: newForm.zip.value,
-        roadAddr: newForm.roadAddr.value,
-        jibunAddr: newForm.jibunAddr.value,
-        addrDetail: newForm.addrDetail.value,
-        isdefaultShipping: newForm.default.checked
-      };
-
-      try {
-        const res = await fetch("/api/users/me/addresses", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error("추가 실패");
-        await loadAddresses();
-        newForm.reset();
-        newForm.style.display = "none";
-      } catch (e) {
-        console.error(e);
-        alert("저장 중 오류가 발생했습니다.");
-      }
-    });
-  }
+      modal.style.display = "none";
+    } catch (e) {
+      console.error(e);
+      alert("저장 중 오류가 발생했습니다.");
+    }
+  });
 });
-
