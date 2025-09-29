@@ -117,10 +117,11 @@ function buyNow() {
     const selectedOption = getSelectedOption();
     if (!validateSelection(selectedOption)) return;
 
+    //const productName = document.getElementById('product-title');
     const productOptionId = selectedOption.optionId;
     const quantity = parseInt(document.getElementById('quantity').value) || 1;
 
-    // 쿼리 파라미터로 주문 페이지로 이동
+    // 쿼리 파라미터로 주문 페이지로 이동 productName=${productName}&
     const orderUrl = `/orders?productOptionId=${productOptionId}&quantity=${quantity}`;
     
     console.log('바로구매 - 이동할 URL:', orderUrl);

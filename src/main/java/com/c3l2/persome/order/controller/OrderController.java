@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,7 +35,11 @@ public class OrderController {
         return ApiResponse.ok("주문 준비 조회 성공",  response);
     }
 
-    //직접 주문 준비
+    /**
+     * 장바구니 거치지 않고, 바로 주문할 경우
+     * @param request 구매 상품 정보
+     * @return OrderPrepareResponseDto
+     */
     @PostMapping("/prepare-direct")
     public ResponseEntity<ApiResponse<OrderPrepareResponseDto>> prepareDirectOrder(@RequestBody DirectOrderItemDto request){
         OrderPrepareResponseDto response = orderPrepareService.prepareDirectOrder(request);
@@ -43,8 +48,10 @@ public class OrderController {
 
     //주문 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto request, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        OrderResponseDto response = orderService.createOrder(userDetails.getId(), request);
+    public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto request, 
+                                                                    @AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                    HttpServletRequest httpRequest) {
+        OrderResponseDto response = orderService.createOrder(userDetails.getId(), request, httpRequest);
         return ApiResponse.ok("주문이 정상적으로 생성되었습니다.",response );
     }
 

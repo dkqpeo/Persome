@@ -12,10 +12,14 @@ import com.c3l2.persome.order.dto.response.*;
 import com.c3l2.persome.order.entity.Order;
 import com.c3l2.persome.order.entity.OrderItem;
 import com.c3l2.persome.order.entity.ReceiveType;
+import com.c3l2.persome.payment.dto.KakaoPayRequest;
+import com.c3l2.persome.payment.dto.KakaoPayReadyResponse;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;
 import com.c3l2.persome.payment.entity.Payment;
+import com.c3l2.persome.payment.entity.PaymentMethod;
 import com.c3l2.persome.payment.entity.PaymentStatus;
 import com.c3l2.persome.payment.repository.PaymentRepository;
+import com.c3l2.persome.payment.service.KakaoPaymentService;
 import com.c3l2.persome.payment.service.PaymentService;
 import com.c3l2.persome.point.dto.PointChangeRequestDto;
 import com.c3l2.persome.point.dto.PointChangeResponseDto;
@@ -47,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @Service
@@ -60,10 +65,11 @@ public class OrderService {
     private final UserCouponService userCouponService;
     private final PaymentService paymentService;
     private final PointTransactionRepository pointTransactionRepository;
+    private final KakaoPaymentService kakaoPaymentService;
 
     //주문 생성
     @Transactional
-    public OrderResponseDto createOrder(Long userId, OrderRequestDto request) {
+    public OrderResponseDto createOrder(Long userId, OrderRequestDto request, HttpServletRequest httpRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
 
@@ -174,16 +180,64 @@ public class OrderService {
         }
 
         //8. 결제
-        Payment payment = Payment.builder()
-                .order(savedOrder)
-                .method(request.getPaymentMethod())
-                .status(PaymentStatus.PAID)
-                .amount(savedOrder.getOrderTotalAmount()) //주문 최종 금액
-                .paidAt(LocalDateTime.now())
-                .build();
+        Payment savedPayment = null;
+        if(request.getPaymentMethod().equals(PaymentMethod.KAKAO_PAY)) {
+            KakaoPayRequest kakaoPayRequest = KakaoPayRequest.from(
+                savedOrder.getId(), 
+                request.getProducts().getFirst().getProductName(),
+                savedOrder.getOrderTotalQty(), 
+                savedOrder.getOrderTotalAmount()
+            );
+            
+            KakaoPayReadyResponse readyResponse = kakaoPaymentService.kakaoPayReady(kakaoPayRequest);
+            
+            // 카카오페이 결제 준비 단계에서 Payment 엔티티 생성 (PENDING 상태)
+            Payment payment = Payment.builder()
+                    .order(savedOrder)
+                    .method(request.getPaymentMethod())
+                    .status(PaymentStatus.PENDING)
+                    .amount(savedOrder.getOrderTotalAmount())
+                    .transactionId(readyResponse.getTid()) // 카카오페이 거래 ID 저장
+                    .build();
+                    
+            savedPayment = paymentRepository.save(payment);
+            
+            // 세션에 주문 ID 저장 (카카오페이 콜백에서 사용)
+            httpRequest.getSession().setAttribute("kakao_order_id", savedOrder.getId());
+            
+            // 카카오페이 결제 URL을 OrderResponseDto에 설정
+            OrderResponseDto orderResponse = OrderResponseDto.fromEntity(savedOrder, PaymentResponseDto.fromEntity(savedPayment));
+            orderResponse = OrderResponseDto.builder()
+                    .orderId(orderResponse.getOrderId())
+                    .userId(orderResponse.getUserId())
+                    .orderDate(orderResponse.getOrderDate())
+                    .totalPrice(orderResponse.getTotalPrice())
+                    .orderStatus(orderResponse.getOrderStatus())
+                    .couponDiscountAmount(orderResponse.getCouponDiscountAmount())
+                    .pointUsedAmount(orderResponse.getPointUsedAmount())
+                    .promoDiscountAmount(orderResponse.getPromoDiscountAmount())
+                    .originalPrice(orderResponse.getOriginalPrice())
+                    .deliveryInfo(orderResponse.getDeliveryInfo())
+                    .items(orderResponse.getItems())
+                    .payment(orderResponse.getPayment())
+                    .requestMessage(orderResponse.getRequestMessage())
+                    .shippingFee(orderResponse.getShippingFee())
+                    .paymentUrl(readyResponse.getNextRedirectPcUrl()) // 카카오페이 결제 URL 설정
+                    .build();
+                    
+            return orderResponse;
+        } else {
+            Payment payment = Payment.builder()
+                    .order(savedOrder)
+                    .method(request.getPaymentMethod())
+                    .status(PaymentStatus.PAID)
+                    .amount(savedOrder.getOrderTotalAmount()) //주문 최종 금액
+                    .paidAt(LocalDateTime.now())
+                    .build();
 
-        Payment savedPayment = paymentRepository.save(payment);
-        savedOrder.paid(); //주문 상태 변경 - 결제 완료
+            savedPayment = paymentRepository.save(payment);
+            savedOrder.paid(); //주문 상태 변경 - 결제 완료
+        }
 
         // ✅ 9. 포인트 적립 (PointTransaction에만 기록됨)
         int earnAmount = afterPoint.multiply(BigDecimal.valueOf(0.005)) // 0.5% 적립
