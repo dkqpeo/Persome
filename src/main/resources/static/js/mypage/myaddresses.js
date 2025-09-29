@@ -1,10 +1,43 @@
 function bindZipSearchButtons() {
-  document.querySelectorAll(".btn-zip-search").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault(); // 기본 submit 막기
-      alert("여기서 Daum 우편번호 API를 실행할 거예요.");
+    document.querySelectorAll(".btn-zip-search").forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true)); // 중복 방지
     });
-  });
+
+    document.querySelectorAll(".btn-zip-search").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const form = btn.closest("form");
+            const zipInput = form.querySelector("input[name='zip']");
+            const roadInput = form.querySelector("input[name='roadAddr']");
+            const jibunInput = form.querySelector("input[name='jibunAddr']");
+
+            openDaumPostcode(zipInput, roadInput, jibunInput);
+        });
+    });
+}
+
+function openDaumPostcode(zipInput, roadInput, jibunInput) {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            const roadAddr = data.roadAddress;
+            let extraRoadAddr = '';
+
+            if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+                extraRoadAddr += data.bname;
+            }
+            if (data.buildingName !== '' && data.apartment === 'Y') {
+                extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+            }
+            if (extraRoadAddr !== '') {
+                extraRoadAddr = ' (' + extraRoadAddr + ')';
+            }
+
+            //값 채우기
+            zipInput.value = data.zonecode;
+            roadInput.value = roadAddr;
+            jibunInput.value = data.jibunAddress;
+        }
+    }).open();
 }
 async function loadAddresses() {
     const listEl = document.getElementById("addrList");
@@ -174,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.style.display = "none";
     });
     cancelBtn.addEventListener("click", () => {
+        newForm.reset();
         modal.style.display = "none";
     });
     window.addEventListener("click", (e) => {
