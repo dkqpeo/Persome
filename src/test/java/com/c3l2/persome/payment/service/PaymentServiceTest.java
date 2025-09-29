@@ -33,6 +33,9 @@ class PaymentServiceTest {
     private PaymentRepository paymentRepository;
 
     @Mock
+    private PaymentCreateService paymentCreateService;
+
+    @Mock
     private OrderRepository orderRepository;
 
     @Test
@@ -63,7 +66,7 @@ class PaymentServiceTest {
         when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
         // when
-        PaymentResponseDto response = paymentService.createPayment(request);
+        PaymentResponseDto response = paymentCreateService.createPayment(request);
 
         // then
         assertThat(response).isNotNull();
@@ -84,7 +87,7 @@ class PaymentServiceTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> paymentService.createPayment(request))
+        assertThatThrownBy(() -> paymentCreateService.createPayment(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("주문을 찾을 수 없습니다.");
     }

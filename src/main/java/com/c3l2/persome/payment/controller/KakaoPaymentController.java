@@ -4,11 +4,13 @@ import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.ControllerException;
 import com.c3l2.persome.order.entity.Order;
 import com.c3l2.persome.order.repository.OrderRepository;
+import com.c3l2.persome.order.service.OrderService;
 import com.c3l2.persome.payment.dto.KakaoPayApproveResponse;
 import com.c3l2.persome.payment.entity.Payment;
 import com.c3l2.persome.payment.entity.PaymentStatus;
 import com.c3l2.persome.payment.repository.PaymentRepository;
 import com.c3l2.persome.payment.service.KakaoPaymentService;
+import com.c3l2.persome.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,8 +28,8 @@ import jakarta.servlet.http.HttpServletRequest;
 public class KakaoPaymentController {
     
     private final KakaoPaymentService kakaoPaymentService;
-    private final PaymentRepository paymentRepository;
-    private final OrderRepository orderRepository;
+    private final PaymentService paymentService;
+    private final OrderService orderService;
 
     // 카카오페이 api에 결제 승인 요청.
     @GetMapping("/approve")
@@ -37,8 +39,7 @@ public class KakaoPaymentController {
 
         try {
             // Payment 엔티티에서 tid 조회
-            Payment payment = paymentRepository.findByOrderId(orderId)
-                    .orElseThrow(() -> new ControllerException(ErrorCode.ORDER_PAYMENT_FAILED));
+            Payment payment = paymentService.findByOrderId(orderId);
             
             // 카카오페이 승인 API 호출
             KakaoPayApproveResponse approveResponse = kakaoPaymentService.kakaoPayApprove(
@@ -49,12 +50,12 @@ public class KakaoPaymentController {
             
             // 결제 상태 업데이트
             payment.updateStatus(PaymentStatus.PAID);
-            paymentRepository.save(payment);
+            paymentService.save(payment);
             
             // 주문 상태 업데이트
             Order order = payment.getOrder();
             order.paid();
-            orderRepository.save(order);
+            orderService.save(order);
 
             log.info("카카오페이 결제 승인 완료. 주문 ID: {}, TID: {}", orderId, approveResponse.getTid());
 
