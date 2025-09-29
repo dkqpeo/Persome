@@ -278,17 +278,34 @@
       couponList.innerHTML = (data.coupons?.length > 0)
               ? data.coupons.map(c => {
                 const isActive = c.status === "ACTIVE";
+                const issued = c.alreadyIssued === true;
+
+                let btnText, btnClass, btnDisabled;
+                if (issued) {
+                  btnText = "발급 완료";
+                  btnClass = "expired"; // 회색 처리
+                  btnDisabled = "disabled";
+                } else if (isActive) {
+                  btnText = "쿠폰 다운로드";
+                  btnClass = "download";
+                  btnDisabled = "";
+                } else {
+                  btnText = "기간 만료";
+                  btnClass = "expired";
+                  btnDisabled = "disabled";
+                }
+
                 return `
-            <div class="coupon-card ${isActive ? "" : "expired"}">
-              <div class="coupon-label">${c.name}</div>
-              <div class="coupon-value">${formatDiscount(c.discountType, c.discountValue)}</div>
-              <div class="coupon-condition">${c.minOrderPrice}원 이상 적용 가능</div>
-              <button class="coupon-btn ${isActive ? "download" : "expired"}" ${isActive ? "" : "disabled"}>
-                ${isActive ? "쿠폰 다운로드" : "기간 만료"}
-              </button>
-            </div>`;
+      <div class="coupon-card ${isActive ? "" : "expired"}" data-coupon-id="${c.couponId}">
+        <div class="coupon-label">${c.name}</div>
+        <div class="coupon-value">${formatDiscount(c.discountType, c.discountValue)}</div>
+        <div class="coupon-condition">${c.minOrderPrice}원 이상 적용 가능</div>
+        <button class="coupon-btn ${btnClass}" ${btnDisabled}>${btnText}</button>
+      </div>`;
               }).join("")
               : `<p>발급 가능한 쿠폰이 없습니다.</p>`;
+
+      bindCouponDownloadButtons();
     } catch (e) {
       console.error(e);
     }
@@ -381,6 +398,60 @@
 
       container.appendChild(promoBlock);
     }
+  }
+
+  /* ✅ 중앙 토스트 알림 */
+  function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add("show"), 50);
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
+  }
+
+  /* ✅ 쿠폰 다운로드 이벤트 바인딩 */
+  function bindCouponDownloadButtons() {
+    document.querySelectorAll(".coupon-btn.download").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const card = e.target.closest(".coupon-card");
+        const couponId = card.dataset.couponId;
+        if (!couponId) {
+          alert("쿠폰 ID를 찾을 수 없습니다.");
+          return;
+        }
+        try {
+          const res = await fetch("/api/users/me/coupons", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ couponId: Number(couponId) })
+          });
+
+          if (res.status === 401) {
+            alert("로그인이 필요한 서비스입니다.");
+            const currentUrl = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/users/login?redirect=${currentUrl}`;
+          }
+
+          if (!res.ok) throw new Error(await res.text());
+          const result = await res.json();
+
+          e.target.textContent = "발급 완료";
+          e.target.classList.remove("download");
+          e.target.classList.add("expired");
+          e.target.disabled = true;
+
+          showToast(result.message || "쿠폰이 발급되었습니다 🎉");
+        } catch (err) {
+          console.error("쿠폰 발급 실패:", err);
+          showToast("쿠폰 발급에 실패했습니다 😢");
+        }
+      });
+    });
   }
 
   document.addEventListener("DOMContentLoaded", loadEventDetail);

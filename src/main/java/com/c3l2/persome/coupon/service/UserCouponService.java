@@ -147,5 +147,8 @@ public class UserCouponService {
         }
     }
 
-
+    @Transactional(readOnly = true)
+    public boolean isAlreadyIssued(Long userId, Long couponId) {
+        return userCouponRepository.existsByUserIdAndCouponId(userId, couponId);
+    }
 }
