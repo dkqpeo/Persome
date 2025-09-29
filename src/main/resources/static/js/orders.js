@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const selectedPayment = document.querySelector("input[name='payment']:checked").value;
 
             const orderData = {
-                products: data.items.map(i => ({ productOptionId: i.productOptionId, quantity: i.quantity })),
+                products: data.items.map(i => ({productName: i.productName , productOptionId: i.productOptionId, quantity: i.quantity })),
                 receiverName, receiverPhone, roadAddr, jibunAddr,
                 addressDetail: detailAddr, receiveType: "DELIVERY",
                 shippingFee: data.summary.shippingFee, requestMessage, zipCode,
@@ -319,8 +319,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.message);
-                alert(result.message || "주문이 정상적으로 생성되었습니다.");
-                window.location.href = `/orders/complete?orderId=${result.data.orderId}`;
+                
+                // 카카오페이인 경우 결제 페이지로 리다이렉트
+                if (result.data.paymentUrl) {
+                    alert("카카오페이 결제 페이지로 이동합니다.");
+                    window.location.href = result.data.paymentUrl;
+                } else {
+                    alert(result.message || "주문이 정상적으로 생성되었습니다.");
+                    window.location.href = `/orders/complete?orderId=${result.data.orderId}`;
+                }
             } catch (error) {
                 alert(error.message || "서버와 통신 중 오류가 발생했습니다.");
             }

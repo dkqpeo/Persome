@@ -29,6 +29,13 @@ public class UserService {
     private final UserConsentRepository userConsentRepository;
     //private final EmailService emailService;
 
+    public User getUserById(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_EXISTS));
+
+        return user;
+    }
+
     // 로그인
     public User login(UserLoginDto loginDto) {
         // 보안 때문에 아이디 비밀번호 틀리면 "아이디 또는 비밀번호가 틀렸습니다" 출력

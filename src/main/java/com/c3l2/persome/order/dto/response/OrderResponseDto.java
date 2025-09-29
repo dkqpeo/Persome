@@ -28,6 +28,7 @@ public class OrderResponseDto {
     private PaymentResponseDto payment;
     private String requestMessage;
     private Integer shippingFee;
+    private String paymentUrl; // 카카오페이 결제 URL (KAKAO_PAY인 경우)
 
     public static OrderResponseDto fromEntity(Order order, PaymentResponseDto payment) {
         return OrderResponseDto.builder()
@@ -49,6 +50,7 @@ public class OrderResponseDto {
                 .payment(payment)
                 .requestMessage(order.getRequestMessage())
                 .shippingFee(order.getShippingFee())
+                .paymentUrl(null) // 기본값, 카카오페이인 경우 별도 설정
                 .build();
     }
 }

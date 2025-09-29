@@ -1,6 +1,9 @@
 package com.c3l2.persome.payment.service;
 
+import com.c3l2.persome.config.error.ErrorCode;
+import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.order.entity.Order;
+import com.c3l2.persome.order.service.OrderService;
 import com.c3l2.persome.payment.entity.Payment;
 import com.c3l2.persome.payment.entity.PaymentStatus;
 import com.c3l2.persome.order.repository.OrderRepository;
@@ -18,29 +21,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final OrderRepository orderRepository;
 
-    // 결제 생성
     @Transactional
-    public PaymentResponseDto createPayment(PaymentRequestDto request) {
-        Order order = orderRepository.findById(request.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
-
-        // 결제 생성
-        Payment payment = Payment.builder()
-                .order(order)
-                .method(request.getMethod())
-                .status(PaymentStatus.PAID)
-                .amount(request.getAmount())
-                .paidAt(LocalDateTime.now())
-                .build();
-
-        Payment saved = paymentRepository.save(payment);
-
-        // 주문 상태 변경
-        order.paid();
-
-        return PaymentResponseDto.fromEntity(saved);
+    public Payment save(Payment payment) {
+        return paymentRepository.save(payment);
     }
 
     //사용자 결제 내역 조회 - 전부
@@ -57,5 +41,11 @@ public class PaymentService {
         Payment payment = paymentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 주문에 대한 결제를 찾을 수 없습니다."));
         return PaymentResponseDto.fromEntity(payment);
+    }
+
+    public Payment findByOrderId(Long orderId) {
+
+        return paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_PAYMENT_FAILED));
     }
 }

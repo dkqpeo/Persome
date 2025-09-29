@@ -41,6 +41,9 @@ public class Payment {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; //수정일
+    
+    @Column(name = "transaction_id", length = 100)
+    private String transactionId; // 외부 결제 시스템 거래 ID (카카오페이 tid 등)
 
     @PrePersist
     protected void onCreate() {
@@ -52,5 +55,13 @@ public class Payment {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+    
+    // 결제 상태 업데이트 메서드
+    public void updateStatus(PaymentStatus status) {
+        this.status = status;
+        if (status == PaymentStatus.PAID) {
+            this.paidAt = LocalDateTime.now();
+        }
     }
 }

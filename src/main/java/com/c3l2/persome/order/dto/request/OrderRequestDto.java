@@ -55,6 +55,7 @@ public class OrderRequestDto {
     @AllArgsConstructor
     @Builder
     public static class OrderProductDto {
+        private String productName;
         private Long productOptionId;
         private int quantity;
     }
