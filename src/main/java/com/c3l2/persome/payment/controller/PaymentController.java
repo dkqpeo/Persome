@@ -4,6 +4,7 @@ import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.payment.entity.PaymentMethod;
 import com.c3l2.persome.payment.dto.PaymentRequestDto;
 import com.c3l2.persome.payment.dto.PaymentResponseDto;
+import com.c3l2.persome.payment.service.PaymentCreateService;
 import com.c3l2.persome.payment.service.PaymentService;
 import com.c3l2.persome.user.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,12 @@ import java.util.Map;
 @RequestMapping("/api")
 public class PaymentController {
     private final PaymentService paymentService;
+    private final PaymentCreateService paymentCreateService;
 
     //결제 생성
     @PostMapping("/payments")
     public ResponseEntity<ApiResponse<PaymentResponseDto>> createPayment(@RequestBody PaymentRequestDto request) {
-        return ApiResponse.ok("결제가 완료되었습니다.",paymentService.createPayment(request));
+        return ApiResponse.ok("결제가 완료되었습니다.",paymentCreateService.createPayment(request));
     }
 
     //결제 수단 조회
