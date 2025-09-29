@@ -6,6 +6,7 @@ import com.c3l2.persome.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,14 +17,15 @@ public class OrderScheduler {
 
     private final OrderRepository orderRepository;
 
-    //1분마다 실행
-    @Scheduled(fixedRate = 60000)
+    //매일 새벽 3시에 바꿈.
+    @Scheduled(cron = "0 0 3 * * *")
+    @Transactional
     public void updateOrders() {
         LocalDateTime now = LocalDateTime.now();
 
         //1시간 지난 PENDING 주문 조회
         List<Order> orders = orderRepository.findByOrderStatusAndScheduledStatusChangeAtBefore(
-                OrderStatus.PENDING, now
+                OrderStatus.PAID, now
         );
 
         for (Order order : orders) {
