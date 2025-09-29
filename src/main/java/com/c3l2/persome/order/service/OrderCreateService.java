@@ -290,9 +290,7 @@ public class OrderCreateService {
     // 장바구니 아이템 삭제.
     private void deleteCartItem(Long userId, List<Long> cartItemIds) {
 
-        cartItemIds.forEach(cartItemId -> {
-            cartService.removeItem(userId, cartItemId);
-        });
+        cartItemIds.forEach(cartItemId -> cartService.removeItem(userId, cartItemId));
     }
 
 
