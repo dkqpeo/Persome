@@ -25,8 +25,10 @@ import com.c3l2.persome.point.dto.PointChangeRequestDto;
 import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.entity.TransactionType;
 import com.c3l2.persome.point.service.UserPointService;
+import com.c3l2.persome.product.entity.Inventory;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
+import com.c3l2.persome.product.service.InventoryService;
 import com.c3l2.persome.product.service.ProductOptionService;
 import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.user.service.UserService;
@@ -47,14 +49,20 @@ import java.util.List;
 public class OrderCreateService {
 
     private final OrderService orderService;
+
     private final UserService userService;
     private final UserPointService userPointService;
     private final UserCouponService userCouponService;
+
     private final ProductOptionService productOptionService;
     private final PricingService pricingService;
+
     private final PaymentService paymentService;
     private final KakaoPaymentService kakaoPaymentService;
+
     private final CartService cartService;
+
+    private final InventoryService inventoryService;
 
     public OrderResponseDto createOrder(Long userId, OrderRequestDto request, HttpServletRequest httpRequest) {
 
@@ -79,8 +87,11 @@ public class OrderCreateService {
         // 7. 장바구니에 구매한 상품이 있을 경우 삭제
         if(request.getCartItemIds() != null)
             deleteCartItem(userId, request.getCartItemIds());
+
+        // 8. 재고 반영
+        updateInventoryQuantity(savedOrder.getOrderItems());
         
-        // 6. 응답 생성
+        // 9. 응답 생성
         return buildOrderResponse(savedOrder, paymentResult);
     }
 
@@ -262,7 +273,7 @@ public class OrderCreateService {
      */
     private OrderResponseDto buildOrderResponse(Order savedOrder, PaymentProcessResult paymentResult) {
         OrderResponseDto baseResponse = OrderResponseDto.fromEntity(savedOrder, PaymentResponseDto.fromEntity(paymentResult.payment()));
-        
+
         if (paymentResult.paymentUrl() != null) {
             // 카카오페이의 경우 결제 URL 포함
             return OrderResponseDto.builder()
@@ -283,14 +294,25 @@ public class OrderCreateService {
                     .paymentUrl(paymentResult.paymentUrl())
                     .build();
         }
-        
+
         return baseResponse;
     }
 
     // 장바구니 아이템 삭제.
+
     private void deleteCartItem(Long userId, List<Long> cartItemIds) {
 
         cartItemIds.forEach(cartItemId -> cartService.removeItem(userId, cartItemId));
+    }
+
+    // 상품 재고 최신화
+    private void updateInventoryQuantity(List<OrderItem> orderItems) {
+
+        orderItems.forEach(orderItem -> {
+            Inventory productOption = inventoryService.findByProductOption(orderItem.getProductOption());
+
+            productOption.updateQuantity(productOption.getQuantity() - orderItem.getQuantity());
+        });
     }
 
 
