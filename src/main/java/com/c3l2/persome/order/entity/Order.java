@@ -93,7 +93,7 @@ public class Order {
             this.orderStatus = OrderStatus.PENDING;
         }
         if (this.scheduledStatusChangeAt == null) {
-            this.scheduledStatusChangeAt = now.plusHours(1); //1시간 뒤 상태 변경
+            this.scheduledStatusChangeAt = now.plusDays(1); //하루 뒤 상태 변경
         }
     }
 
@@ -140,5 +140,5 @@ public class Order {
     //결제 완료
     public void paid() {this.orderStatus = OrderStatus.PAID;}
     //주문 완료
-    public void completed() {this.orderStatus = OrderStatus.COMPLETED;}
+    public void completed() {this.orderStatus = OrderStatus.DELIVERED;}
 }
