@@ -59,11 +59,11 @@ public class OrderCreateService {
         User user = userService.getUserById(userId);
         
         // 1. 주문 및 상품 처리
-        Order order = createOrderWithItems(user, request);
-        Order savedOrder = orderService.save(order);
+        OrderWithCalculation orderResult = createOrderWithItems(user, request);
+        Order savedOrder = orderService.save(orderResult.order());
         
-        // 2. 할인 적용 (쿠폰, 배송비, 포인트)
-        BigDecimal finalAmount = applyAllDiscounts(savedOrder, request, user);
+        // 2. 할인 적용 (쿠폰, 배송비, 포인트) - promoAppliedTotal 전달
+        BigDecimal finalAmount = applyAllDiscounts(savedOrder, request, user, orderResult.promoAppliedTotal());
         
         // 3. 배송 처리
         processDeliveryIfNeeded(savedOrder, request);
@@ -81,7 +81,7 @@ public class OrderCreateService {
     /**
      * 주문 및 주문 상품들을 생성하고 기본 가격을 계산합니다.
      */
-    private Order createOrderWithItems(User user, OrderRequestDto request) {
+    private OrderWithCalculation createOrderWithItems(User user, OrderRequestDto request) {
         Order order = request.toEntity(user);
         order.addRequestMessage(request.getRequestMessage());
 
@@ -116,14 +116,14 @@ public class OrderCreateService {
         }
 
         order.applyPricing(originalPrice, promoDiscountTotal, totalQty);
-        return order;
+        return new OrderWithCalculation(order, promoAppliedTotal);
     }
 
     /**
      * 쿠폰, 배송비, 포인트 할인을 순차적으로 적용합니다.
      */
-    private BigDecimal applyAllDiscounts(Order savedOrder, OrderRequestDto request, User user) {
-        BigDecimal currentAmount = savedOrder.getOrderTotalAmount();
+    private BigDecimal applyAllDiscounts(Order savedOrder, OrderRequestDto request, User user, BigDecimal promoAppliedTotal) {
+        BigDecimal currentAmount = promoAppliedTotal; // 올바른 프로모션 적용 후 금액 사용
 
         // 쿠폰 할인 적용
         if (request.getUserCouponId() != null) {
@@ -292,6 +292,11 @@ public class OrderCreateService {
         return itemsTotal.compareTo(freeThreshold) >= 0 ? 0 : baseFee;
     }
 
+    /**
+     * 주문 생성 결과를 담는 record 클래스
+     */
+    private record OrderWithCalculation(Order order, BigDecimal promoAppliedTotal) {}
+    
     /**
      * 결제 처리 결과를 담는 record 클래스
      */
