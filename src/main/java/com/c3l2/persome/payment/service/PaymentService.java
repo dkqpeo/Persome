@@ -20,6 +20,11 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
 
+    @Transactional
+    public Payment save(Payment payment) {
+        return paymentRepository.save(payment);
+    }
+
     // 결제 생성
     @Transactional
     public PaymentResponseDto createPayment(PaymentRequestDto request) {

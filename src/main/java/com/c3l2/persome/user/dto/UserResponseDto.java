@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponseDto {
+    private Long id;
     private String loginId;
     private String name;
     private LocalDate birthDate;
@@ -30,6 +31,7 @@ public class UserResponseDto {
         String displayName = membershipLevel + " PERSOME " + user.getName() + "님";
 
         return UserResponseDto.builder()
+                .id(user.getId())
                 .loginId(user.getLoginId())
                 .name(user.getName())
                 .birthDate(user.getBirthDate())

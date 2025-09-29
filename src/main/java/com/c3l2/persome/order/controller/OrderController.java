@@ -7,6 +7,7 @@ import com.c3l2.persome.order.dto.response.OrderResponseDto;
 import com.c3l2.persome.order.dto.request.DirectOrderItemDto;
 import com.c3l2.persome.order.dto.request.OrderRequestDto;
 import com.c3l2.persome.order.dto.response.OrderSummaryDto;
+import com.c3l2.persome.order.service.OrderCreateService;
 import com.c3l2.persome.order.service.OrderPrepareService;
 import com.c3l2.persome.order.service.OrderService;
 import com.c3l2.persome.user.security.CustomUserDetails;
@@ -27,6 +28,7 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
     private final OrderPrepareService orderPrepareService;
+    private final OrderCreateService orderCreateService;
 
     //주문 준비
     @GetMapping("/prepare")
@@ -51,7 +53,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto request, 
                                                                     @AuthenticationPrincipal CustomUserDetails userDetails,
                                                                     HttpServletRequest httpRequest) {
-        OrderResponseDto response = orderService.createOrder(userDetails.getId(), request, httpRequest);
+        OrderResponseDto response = orderCreateService.createOrder(userDetails.getId(), request, httpRequest);
         return ApiResponse.ok("주문이 정상적으로 생성되었습니다.",response );
     }
 
