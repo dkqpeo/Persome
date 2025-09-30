@@ -55,5 +55,3 @@ server:
 app:
   upload:
     dir: ./event-images
-
-
