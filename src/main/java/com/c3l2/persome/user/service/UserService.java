@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -124,6 +125,77 @@ public class UserService {
 
         // 저장 (cascade 때문에 전부 같이 저장됨)
         userRepository.save(user);
+    }
+
+    // 소셜 로그인용 회원가입
+    @Transactional
+    public User registerSocialUserWithDetails(String kakaoId, String email, String nickname, Oauth2RegistrationDto dto) {
+        MembershipLevel defaultLevel = membershipLevelRepository.findByName(Name.BABY)
+                .orElseThrow(() -> new BusinessException(ErrorCode.DEFAULT_MEMBERSHIP_NOT_FOUND));
+
+        String randomPassword = UUID.randomUUID().toString();
+        String encodedPassword = passwordEncoder.encode(randomPassword);
+
+        // ✅ 이미 가입된 회원인지 체크
+        Optional<User> existing = userRepository.findByLoginId(kakaoId);
+        if (existing.isPresent()) {
+            return existing.get(); // 있으면 그대로 반환 (신규 insert 안 함)
+        }
+
+        // ✅ User 생성
+        User user = User.builder()
+                .loginId(kakaoId)
+                .email(email)
+                .name(nickname)
+                .birthDate(dto.getBirthDate())
+                .gender(dto.getGender() != null ? Gender.valueOf(dto.getGender()) : null)
+                .phone(dto.getPhone())
+                .isAdmin(false)
+                .status(Status.ACTIVE)
+                .membershipLevel(defaultLevel)
+                .password(encodedPassword)
+                .build();
+
+        // 주소
+        UserAddress address = UserAddress.builder()
+                .user(user)
+                .zip(dto.getZip())
+                .roadAddr(dto.getRoadAddr())
+                .jibunAddr(dto.getJibunAddr())
+                .addrDetail(dto.getAddrDetail())
+                .defaultShipping(true)
+                .build();
+        user.getUserAddresses().add(address);
+
+        // 약관 동의
+        if (dto.getConsents() != null) {
+            for (UserConsentDto consentDto : dto.getConsents()) {
+                UserConsent consent = UserConsent.builder()
+                        .user(user)
+                        .policyCode(PolicyCode.valueOf(consentDto.getPolicyCode()))
+                        .isAgreed(consentDto.isAgreed())
+                        .build();
+                user.getUserConsents().add(consent);
+            }
+        }
+
+        // 알림 설정
+        UserNotification notification = UserNotification.builder()
+                .user(user)
+                .emailEnabled(Boolean.TRUE.equals(dto.getEmailEnabled()))
+                .smsEnabled(Boolean.TRUE.equals(dto.getSmsEnabled()))
+                .pushEnabled(Boolean.TRUE.equals(dto.getPushEnabled()))
+                .build();
+        user.addUserNotification(notification);
+
+        // 포인트 초기화
+        UserPoint userPoint = UserPoint.builder()
+                .user(user)
+                .balance(0)
+                .build();
+        user.initUserPoint(userPoint);
+
+        return userRepository.save(user);
     }
 
     // 1년이상 로그인 안 할 시 휴면계정으로 전환

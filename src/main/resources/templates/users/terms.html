@@ -140,6 +140,10 @@
         });
         sessionStorage.setItem("consents", JSON.stringify(consents));
 
+        // 소셜 여부 확인
+        const params = new URLSearchParams(window.location.search);
+        const isSocial = params.get("social") === "true";
+
         // 세션에 약관 동의 여부 저장
         fetch('/api/users/terms/agree', {
             method: 'POST',
@@ -148,7 +152,11 @@
         })
             .then(res => {
                 if (res.ok) {
-                    window.location.href = "/users/register";
+                    if (isSocial) {
+                        window.location.href = "/users/oauth2/register?social=true";
+                    } else {
+                        window.location.href = "/users/register";
+                    }
                 } else {
                     return res.json().then(err => { throw new Error(err.message); });
                 }

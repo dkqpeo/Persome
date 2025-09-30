@@ -115,7 +115,6 @@
 <body>
 <!-- 헤더 불러오기 -->
 <div id="header"></div>
-
 <div id="alertMessage" class="alert"></div>
 
 <!-- 로그인 폼 -->
@@ -136,7 +135,7 @@
     </form>
 
     <div class="alt-login">
-        <button class="kakao-btn">카카오로 로그인</button>
+        <button type="button" class="kakao-btn" id="kakaoLoginBtn">카카오로 로그인</button>
     </div>
 
     <div class="extra-links">
@@ -150,7 +149,6 @@
     const loginIdInput = document.getElementById("loginId");
     const passwordInput = document.getElementById("password");
     const rememberIdCheckbox = document.getElementById("rememberId");
-    const alertMessage = document.getElementById("alertMessage");
 
     // ✅ 저장된 아이디 불러오기 (항상 DOM 준비 후 실행)
     document.addEventListener("DOMContentLoaded", () => {
@@ -173,6 +171,7 @@
         }
     });
 
+    // 일반 로그인
     document.getElementById("loginForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -213,6 +212,11 @@
         } catch (err) {
             alert("로그인 중 오류가 발생했습니다.");
         }
+    });
+
+    // ✅ 카카오 로그인
+    document.getElementById("kakaoLoginBtn").addEventListener("click", () => {
+        window.location.href = "/oauth2/authorization/kakao";
     });
 </script>
 </body>
