@@ -12,6 +12,6 @@ public class AdminViewController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public String adminHome() {
-        return "redirect:/admin/index.html";
+        return "/admin/index";
     }
 }
