@@ -24,10 +24,12 @@ spring:
 
   config:
     import: "optional:classpath:application-secret.yml"
-
 server:
   port: 8080
   base:
     url: http://localhost:8080
+app:
+  upload:
+    dir: ./event-images
 
 
