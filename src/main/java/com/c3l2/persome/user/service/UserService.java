@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -129,45 +128,6 @@ public class UserService {
     }
 
     // 소셜 로그인용 회원가입
-    @Transactional
-    public User registerSocialUser(String loginId, String email, String nickname) {
-        // 기본 멤버십 = BABY
-        MembershipLevel defaultLevel = membershipLevelRepository.findByName(Name.BABY)
-                .orElseThrow(() -> new BusinessException(ErrorCode.DEFAULT_MEMBERSHIP_NOT_FOUND));
-
-        // 랜덤 패스워드 생성 (소셜 로그인 계정용)
-        String randomPassword = UUID.randomUUID().toString();
-        String encodedPassword = passwordEncoder.encode(randomPassword);
-
-        User user = User.builder()
-                .loginId(loginId)
-                .email(email)
-                .name(nickname)
-                .isAdmin(false)
-                .status(Status.ACTIVE)
-                .membershipLevel(defaultLevel)
-                .password(encodedPassword) // ✅ 반드시 채워줘야 함
-                .build();
-
-        // 알림 설정 (기본값: 모두 false)
-        UserNotification notification = UserNotification.builder()
-                .user(user)
-                .emailEnabled(false)
-                .smsEnabled(false)
-                .pushEnabled(false)
-                .build();
-        user.addUserNotification(notification);
-
-        // 포인트 초기화
-        UserPoint userPoint = UserPoint.builder()
-                .user(user)
-                .balance(0)
-                .build();
-        user.initUserPoint(userPoint);
-
-        return userRepository.save(user);
-    }
-
     @Transactional
     public User registerSocialUserWithDetails(String kakaoId, String email, String nickname, Oauth2RegistrationDto dto) {
         MembershipLevel defaultLevel = membershipLevelRepository.findByName(Name.BABY)

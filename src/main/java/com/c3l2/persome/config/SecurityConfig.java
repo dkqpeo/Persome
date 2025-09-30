@@ -1,13 +1,10 @@
 package com.c3l2.persome.config;
 
-import com.c3l2.persome.user.repository.UserRepository;
 import com.c3l2.persome.user.security.CustomOAuth2UserService;
 import com.c3l2.persome.user.security.CustomUserDetailsService;
 import com.c3l2.persome.user.security.OAuth2LoginSuccessHandler;
-import com.c3l2.persome.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -108,10 +104,6 @@ public class SecurityConfig {
                         .loginPage("/users/login")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) // ✅ 주입받은 Bean 사용
                         .successHandler(oauth2LoginSuccessHandler)
-//                        .successHandler((request, response, authentication) -> {
-//                            log.info("카카오 로그인 성공: {}", authentication.getName());
-//                            response.sendRedirect("/");
-//                        })
                         .failureHandler((request, response, exception) -> {
                             log.error("카카오 로그인 실패: {}", exception.getMessage(), exception);
                             response.sendRedirect("/users/login?error");
