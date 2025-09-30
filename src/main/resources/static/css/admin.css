@@ -420,6 +420,14 @@ button.danger:hover {
     white-space: pre-wrap;
     font-size: 13px;
 }
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.card-header span {
+    font-weight: bold;
+}
 
 @media (max-width: 768px) {
     .form-inline {

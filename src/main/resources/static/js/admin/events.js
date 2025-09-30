@@ -13,8 +13,11 @@ const formDeleteBox = document.getElementById('event-form-delete');
 const btnCreateOpen = document.getElementById('btn-event-create-open');
 
 function setFeedback(message, isError = false) {
-    feedback.textContent = message;
-    feedback.classList.toggle('error', Boolean(isError));
+    if (isError) {
+        alert("❌ " + message);
+    } else {
+        alert("✅ " + message);
+    }
 }
 
 async function extractErrorMessage(response) {
@@ -44,7 +47,7 @@ function hideAllForms() {
 
 async function loadEvents() {
     try {
-        const res = await fetch('/api/events/admin', { credentials: 'include' });
+        const res = await fetch('/api/events/admin', {credentials: 'include'});
         await ensureSuccess(res, '이벤트 목록 불러오기 실패');
         const payload = await res.json();
         const events = payload?.data || [];
@@ -56,7 +59,7 @@ async function loadEvents() {
         <td>${ev.id}</td>
         <td>${ev.name}</td>
         <td>${ev.status}</td>
-        <td>${ev.startDate?.slice(0,10)} ~ ${ev.endDate?.slice(0,10)}</td>
+        <td>${ev.startDate?.slice(0, 10)} ~ ${ev.endDate?.slice(0, 10)}</td>
         <td>
           <button class="small" data-action="edit" data-id="${ev.id}">수정</button>
           <button class="small danger" data-action="delete" data-id="${ev.id}">삭제</button>
@@ -89,8 +92,23 @@ async function loadEventDetail(eventId) {
         // 썸네일 표시
         renderExistingThumbnail(data.thumbnailUrl);
 
+        // 기존 썸네일 dataset에 저장
+        updateForm.dataset.existingThumbnail = data.thumbnailUrl || "";
+
         // 이미지 표시
         renderExistingImages(data.images);
+
+        //기존 이미지 JSON으로 저장
+        updateForm.dataset.existingImages = JSON.stringify(
+            (data.images || []).map((img, idx) => {
+                if (typeof img === "string") {
+                    return { url: img, order: idx + 1 };
+                } else if (img && img.url) {
+                    return { url: img.url, order: img.order ?? (idx + 1) };
+                }
+                return null;
+            }).filter(Boolean)
+        );
 
         // 프로모션 표시
         renderExistingPromotionInfo(data.promotions);
@@ -114,6 +132,10 @@ if (eventIdInput) {
     });
 }
 
+// ---------- 생성용 이미지 상태 ----------
+let createImagesState = [];
+
+// 이벤트 생성
 async function createEvent(e) {
     e.preventDefault();
     try {
@@ -125,9 +147,13 @@ async function createEvent(e) {
             thumbnailUrl = await uploadFile(createForm.thumbnail.files[0]);
         }
 
-        // 이미지 업로드
-        if (createForm.images && createForm.images.files.length > 0) {
-            images = await uploadFiles(Array.from(createForm.images.files));
+        // 이미지 업로드 (상태 배열 기준)
+        if (createImagesState.length > 0) {
+            const uploadedUrls = await uploadFiles(createImagesState);
+            images = uploadedUrls.map((url, idx) => ({
+                url,
+                order: idx + 1
+            }));
         }
 
         const payload = {
@@ -141,13 +167,16 @@ async function createEvent(e) {
         };
         const res = await fetch('/api/events/admin', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             credentials: 'include',
             body: JSON.stringify(payload)
         });
         await ensureSuccess(res, '이벤트 등록 실패');
         setFeedback('이벤트 등록 성공');
         createForm.reset();
+        createImagesState = []; // 상태 초기화
+        document.getElementById("create-event-thumbnail-preview").innerHTML = "";
+        document.getElementById("create-event-images-preview").innerHTML = "";
         hideAllForms();
         loadEvents();
     } catch (err) {
@@ -161,17 +190,29 @@ async function updateEvent(e) {
         const id = updateForm.eventId.value.trim();
         if (!id) return setFeedback('이벤트 ID를 입력하세요.', true);
 
-        let thumbnailUrl = null;
+        let thumbnailUrl = updateForm.dataset.existingThumbnail || null;
         let images = [];
+
+        // 기존 이미지 유지
+        if (updateForm.dataset.existingImages) {
+            images = JSON.parse(updateForm.dataset.existingImages);
+        }
 
         // 썸네일 업로드
         if (updateForm.thumbnail && updateForm.thumbnail.files.length > 0) {
             thumbnailUrl = await uploadFile(updateForm.thumbnail.files[0]);
         }
 
-        // 이미지 업로드
+        // 새로 업로드한 이미지 추가
         if (updateForm.images && updateForm.images.files.length > 0) {
-            images = await uploadFiles(Array.from(updateForm.images.files));
+            const uploadedUrls = await uploadFiles(Array.from(updateForm.images.files));
+            const startOrder = images.length + 1;
+            uploadedUrls.forEach((url, i) => {
+                images.push({
+                    url,
+                    order: startOrder + i
+                });
+            });
         }
 
         const payload = {
@@ -186,7 +227,7 @@ async function updateEvent(e) {
 
         const res = await fetch(`/api/events/admin/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             credentials: 'include',
             body: JSON.stringify(payload)
         });
@@ -199,7 +240,6 @@ async function updateEvent(e) {
         setFeedback(err.message, true);
     }
 }
-
 async function deleteEvent(e) {
     e.preventDefault();
     try {
@@ -230,9 +270,6 @@ function handleTableClick(e) {
         hideAllForms();
         formUpdateBox.style.display = 'block';
         updateForm.eventId.value = id;
-        setFeedback(`${id}번 이벤트 수정`);
-
-        // 이벤트 상세 정보 로딩 추가
         loadEventDetail(id);
     }
 
@@ -240,7 +277,6 @@ function handleTableClick(e) {
         hideAllForms();
         formDeleteBox.style.display = 'block';
         deleteForm.eventId.value = id;
-        setFeedback(`${id}번 이벤트 삭제`);
     }
 }
 
@@ -257,7 +293,40 @@ export function initEventPanel() {
         hideAllForms();
         formCreateBox.style.display = 'block';
     });
+    createForm.thumbnail.addEventListener("change", (e) => {
+        renderCreateThumbnailPreview(e.target.files[0]);
+    });
+
+    createForm.images.addEventListener("change", (e) => {
+        createImagesState.push(...Array.from(e.target.files));
+        renderCreateImagesPreview();
+        e.target.value = ""; // input 초기화
+    });
+
+    //썸네일 삭제
+    document.getElementById("btn-delete-thumbnail")?.addEventListener("click", () => {
+        updateForm.dataset.existingThumbnail = "";
+        renderExistingThumbnail("");
+    });
+
+    //취소 버튼 동작
+    document.getElementById("btn-cancel-update")?.addEventListener("click", () => {
+        updateForm.reset();
+        hideAllForms();
+    });
+    document.getElementById("btn-cancel-delete")?.addEventListener("click", () => {
+        deleteForm.reset();
+        hideAllForms();
+    });
+    document.getElementById("btn-cancel-create")?.addEventListener("click", () => {
+        createForm.reset();
+        createImagesState = [];
+        document.getElementById("create-event-thumbnail-preview").innerHTML = "";
+        document.getElementById("create-event-images-preview").innerHTML = "";
+        hideAllForms();
+    });
 }
+
 async function uploadFile(file) {
     const formData = new FormData();
     formData.append("file", file);
@@ -289,7 +358,6 @@ async function uploadFiles(files) {
 function formatDateForInput(dateStr) {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return '';
-    // datetime-local 은 "YYYY-MM-DDTHH:MM"
     return d.toISOString().slice(0, 16);
 }
 
@@ -303,28 +371,69 @@ function clearPreview(containerId) {
 function renderExistingThumbnail(url) {
     const container = document.getElementById("update-event-thumbnail-existing");
     if (!container) return;
-    container.innerHTML = url
-        ? `<img src="${url}" alt="썸네일" style="max-width:150px; border:1px solid #ddd; border-radius:6px;">`
-        : `<span>등록된 썸네일 없음</span>`;
+
+    if (url) {
+        container.innerHTML = `
+            <img src="${url}" alt="썸네일" style="max-width:150px; border:1px solid #ddd; border-radius:6px;">
+        `;
+        updateForm.dataset.existingThumbnail = url;
+    } else {
+        container.innerHTML = `<span>등록된 썸네일 없음</span>`;
+        updateForm.dataset.existingThumbnail = "";
+    }
 }
 
 function renderExistingImages(images) {
     const container = document.getElementById("update-event-images-existing");
     if (!container) return;
     container.innerHTML = "";
+
     if (images && images.length > 0) {
-        images.forEach(src => {
-            const img = document.createElement("img");
-            img.src = src;
-            img.alt = "이벤트 이미지";
-            img.style.maxWidth = "120px";
-            img.style.marginRight = "8px";
-            img.style.border = "1px solid #ddd";
-            img.style.borderRadius = "4px";
-            container.appendChild(img);
+        images.forEach((img, idx) => {
+            const url = typeof img === "string" ? img : img.url;
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "inline-block";
+            wrapper.style.position = "relative";
+            wrapper.style.marginRight = "8px";
+
+            const imageEl = document.createElement("img");
+            imageEl.src = url;
+            imageEl.alt = "이벤트 이미지";
+            imageEl.style.maxWidth = "120px";
+            imageEl.style.border = "1px solid #ddd";
+            imageEl.style.borderRadius = "4px";
+
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "X";
+            delBtn.style.position = "absolute";
+            delBtn.style.top = "2px";
+            delBtn.style.right = "2px";
+            delBtn.style.background = "rgba(0,0,0,0.6)";
+            delBtn.style.color = "#fff";
+            delBtn.style.border = "none";
+            delBtn.style.borderRadius = "50%";
+            delBtn.style.cursor = "pointer";
+            delBtn.onclick = () => {
+                let current = JSON.parse(updateForm.dataset.existingImages || "[]");
+                current = current.filter(item => item.url !== url);
+                updateForm.dataset.existingImages = JSON.stringify(current);
+                renderExistingImages(current);
+            };
+
+            wrapper.appendChild(imageEl);
+            wrapper.appendChild(delBtn);
+            container.appendChild(wrapper);
         });
+
+        updateForm.dataset.existingImages = JSON.stringify(
+            images.map((img, idx) => ({
+                url: typeof img === "string" ? img : img.url,
+                order: idx + 1
+            }))
+        );
     } else {
         container.textContent = "등록된 추가 이미지 없음";
+        updateForm.dataset.existingImages = "[]";
     }
 }
 
@@ -337,10 +446,87 @@ function renderExistingPromotionInfo(promotions) {
             const div = document.createElement("div");
             div.classList.add("promotion-item");
             div.textContent =
-                `[${p.discountType}] ${p.discountValue} | ${p.startDate.slice(0,10)} ~ ${p.endDate.slice(0,10)}`;
+                `[${p.discountType}] ${p.discountValue} | ${p.startDate.slice(0, 10)} ~ ${p.endDate.slice(0, 10)}`;
             container.appendChild(div);
         });
     } else {
         container.textContent = "연결된 프로모션 없음";
     }
+}
+
+// 파일 미리보기 (생성용)
+function renderCreateThumbnailPreview(file) {
+    const container = document.getElementById("create-event-thumbnail-preview");
+    container.innerHTML = "";
+
+    if (!file) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "relative";
+    wrapper.style.display = "inline-block";
+
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.style.maxWidth = "150px";
+    img.style.border = "1px solid #ddd";
+    img.style.borderRadius = "6px";
+
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "X";
+    delBtn.style.position = "absolute";
+    delBtn.style.top = "2px";
+    delBtn.style.right = "2px";
+    delBtn.style.background = "rgba(0,0,0,0.6)";
+    delBtn.style.color = "#fff";
+    delBtn.style.border = "none";
+    delBtn.style.borderRadius = "50%";
+    delBtn.style.cursor = "pointer";
+
+    delBtn.onclick = () => {
+        container.innerHTML = "";
+        createForm.thumbnail.value = "";
+    };
+
+    wrapper.appendChild(img);
+    wrapper.appendChild(delBtn);
+    container.appendChild(wrapper);
+}
+
+// 여러 장 이미지 미리보기 (생성용)
+function renderCreateImagesPreview() {
+    const container = document.getElementById("create-event-images-preview");
+    container.innerHTML = "";
+
+    createImagesState.forEach((file, idx) => {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.display = "inline-block";
+        wrapper.style.marginRight = "8px";
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.maxWidth = "120px";
+        img.style.border = "1px solid #ddd";
+        img.style.borderRadius = "4px";
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "X";
+        delBtn.style.position = "absolute";
+        delBtn.style.top = "2px";
+        delBtn.style.right = "2px";
+        delBtn.style.background = "rgba(0,0,0,0.6)";
+        delBtn.style.color = "#fff";
+        delBtn.style.border = "none";
+        delBtn.style.borderRadius = "50%";
+        delBtn.style.cursor = "pointer";
+
+        delBtn.onclick = () => {
+            createImagesState.splice(idx, 1);
+            renderCreateImagesPreview();
+        };
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(delBtn);
+        container.appendChild(wrapper);
+    });
 }

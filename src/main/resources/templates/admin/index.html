@@ -228,7 +228,25 @@
                         <option value="INACTIVE">INACTIVE</option>
                     </select>
                 </label>
-                <button type="submit" class="primary">등록</button>
+
+                <!-- 썸네일 업로드 -->
+                <div class="form-group">
+                    <label>썸네일 업로드</label>
+                    <input type="file" name="thumbnail" accept="image/*" />
+                    <div id="create-event-thumbnail-preview"></div>
+                </div>
+
+                <!-- 추가 이미지 업로드 -->
+                <div class="form-group">
+                    <label>추가 이미지 업로드</label>
+                    <input type="file" name="images" accept="image/*" multiple />
+                    <div id="create-event-images-preview"></div>
+                </div>
+
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="primary">등록</button>
+                    <button type="button" id="btn-cancel-create" class="secondary">취소</button>
+                </div>
             </form>
         </div>
 
@@ -255,6 +273,7 @@
                 <div class="form-group">
                     <label>기존 썸네일</label>
                     <div id="update-event-thumbnail-existing"></div>
+                    <button type="button" id="btn-delete-thumbnail">썸네일 삭제</button>
                 </div>
 
                 <!-- 새 썸네일 업로드 + 미리보기 -->
@@ -283,7 +302,10 @@
                     <div id="update-event-promotions-existing"></div>
                 </div>
 
-                <button type="submit" class="primary">수정</button>
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="primary">수정</button>
+                    <button type="button" id="btn-cancel-update" class="secondary">취소</button>
+                </div>
             </form>
         </div>
 
@@ -292,7 +314,10 @@
             <div class="card-header">이벤트 삭제</div>
             <form id="form-event-delete" class="card-body form-grid">
                 <label>이벤트 ID<input type="number" name="eventId" required></label>
-                <button type="submit" class="danger">삭제</button>
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="danger">삭제</button>
+                    <button type="button" id="btn-cancel-delete" class="secondary">취소</button>
+                </div>
             </form>
         </div>
 
