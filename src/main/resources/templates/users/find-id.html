@@ -156,10 +156,10 @@
                 if (!res.ok) {
                     return res.json().then(err => { throw new Error(err.message); });
                 }
-                return res.text();
+                return res.json();
             })
             .then(data => {
-                document.getElementById("resultMessage").innerText = "아이디는 " + data + " 입니다.";
+                document.getElementById("resultMessage").innerText = "아이디는 " + data.data + " 입니다.";
             })
             .catch(err => {
                 document.getElementById("errorMessage").innerText = err.message;
