@@ -14,7 +14,7 @@ const btnCreateOpen = document.getElementById('btn-event-create-open');
 
 function setFeedback(message, isError = false) {
     if (isError) {
-        alert("❌ " + message);
+        alert("❌ 오류가 발생했습니다. ");
     } else {
         alert("✅ " + message);
     }
