@@ -90,9 +90,9 @@
             if (!res.ok) throw new Error('API 호출 실패: ' + res.status);
             const json = await res.json(); // PageProductAllResponse
 
-            renderCount(json);
-            renderProducts(json.products || []);
-            renderPagination(json);
+            renderCount(json.data);
+            renderProducts(json.data.products || []);
+            renderPagination(json.data);
         } catch (err) {
             console.error(err);
             $grid.innerHTML = '<p>상품을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</p>';

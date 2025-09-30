@@ -48,7 +48,7 @@ async function loadProductData(productId) {
         }
 
         productData = await response.json();
-        renderProductData(productData);
+        renderProductData(productData.data);
 
         // 위시리스트 상태 확인
         await checkWishlistStatus(productId);
