@@ -1,6 +1,5 @@
 package com.c3l2.persome.order.service;
 
-import com.c3l2.persome.cart.service.CartService;
 import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.coupon.service.UserCouponService;
@@ -24,11 +23,8 @@ import com.c3l2.persome.payment.service.PaymentService;
 import com.c3l2.persome.point.dto.PointChangeRequestDto;
 import com.c3l2.persome.point.dto.PointChangeResponseDto;
 import com.c3l2.persome.point.entity.TransactionType;
-import com.c3l2.persome.point.service.UserPointService;
-import com.c3l2.persome.product.entity.Inventory;
 import com.c3l2.persome.product.entity.Product;
 import com.c3l2.persome.product.entity.ProductOption;
-import com.c3l2.persome.product.service.InventoryService;
 import com.c3l2.persome.product.service.ProductOptionService;
 import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.user.service.UserService;
@@ -51,7 +47,6 @@ public class OrderCreateService {
     private final OrderService orderService;
 
     private final UserService userService;
-    private final UserPointService userPointService;
     private final UserCouponService userCouponService;
 
     private final ProductOptionService productOptionService;
@@ -60,9 +55,7 @@ public class OrderCreateService {
     private final PaymentService paymentService;
     private final KakaoPaymentService kakaoPaymentService;
 
-    private final CartService cartService;
-
-    private final InventoryService inventoryService;
+    private final OrderPostProcessService orderPostProcessService;
 
     public OrderResponseDto createOrder(Long userId, OrderRequestDto request, HttpServletRequest httpRequest) {
 
@@ -81,15 +74,8 @@ public class OrderCreateService {
         // 4. 결제 처리
         PaymentProcessResult paymentResult = processPayment(savedOrder, request, httpRequest);
         
-        // 5. 포인트 적립
-        processPointEarning(user, finalAmount, savedOrder);
-
-        // 7. 장바구니에 구매한 상품이 있을 경우 삭제
-        if(request.getCartItemIds() != null)
-            deleteCartItem(userId, request.getCartItemIds());
-
-        // 8. 재고 반영
-        updateInventoryQuantity(savedOrder.getOrderItems());
+        // 5. 주문 완료 후처리 (포인트 적립, 장바구니 삭제, 재고 반영)
+        orderPostProcessService.processOrderCompletion(savedOrder, request.getCartItemIds(), user, finalAmount);
         
         // 9. 응답 생성
         return buildOrderResponse(savedOrder, paymentResult);
@@ -156,13 +142,7 @@ public class OrderCreateService {
 
         // 포인트 할인 적용
         if (request.getUsePointAmount() != null && request.getUsePointAmount() > 0) {
-            PointChangeRequestDto useDto = PointChangeRequestDto.builder()
-                    .orderId(savedOrder.getId())
-                    .amount(request.getUsePointAmount())
-                    .type(TransactionType.USE)
-                    .build();
-
-            PointChangeResponseDto pointResponse = userPointService.changePoints(user.getId(), useDto);
+            PointChangeResponseDto pointResponse = orderPostProcessService.usePoints(user.getId(), savedOrder.getId(), request.getUsePointAmount());
 
             if (!pointResponse.isSuccess()) {
                 throw new BusinessException(ErrorCode.ORDER_POINT_USE_FAILED);
@@ -253,22 +233,6 @@ public class OrderCreateService {
     }
 
     /**
-     * 포인트 적립을 처리합니다.
-     */
-    private void processPointEarning(User user, BigDecimal finalAmount, Order savedOrder) {
-        int earnAmount = finalAmount.multiply(BigDecimal.valueOf(0.005)) // 0.5% 적립
-                .intValue();
-        if (earnAmount > 0) {
-            PointChangeRequestDto earnDto = PointChangeRequestDto.builder()
-                    .orderId(savedOrder.getId())
-                    .amount(earnAmount)
-                    .type(TransactionType.EARN)
-                    .build();
-            userPointService.changePoints(user.getId(), earnDto);
-        }
-    }
-
-    /**
      * 주문 응답 DTO를 생성합니다.
      */
     private OrderResponseDto buildOrderResponse(Order savedOrder, PaymentProcessResult paymentResult) {
@@ -297,24 +261,6 @@ public class OrderCreateService {
 
         return baseResponse;
     }
-
-    // 장바구니 아이템 삭제.
-
-    private void deleteCartItem(Long userId, List<Long> cartItemIds) {
-
-        cartItemIds.forEach(cartItemId -> cartService.removeItem(userId, cartItemId));
-    }
-
-    // 상품 재고 최신화
-    private void updateInventoryQuantity(List<OrderItem> orderItems) {
-
-        orderItems.forEach(orderItem -> {
-            Inventory productOption = inventoryService.findByProductOption(orderItem.getProductOption());
-
-            productOption.updateQuantity(productOption.getQuantity() - orderItem.getQuantity());
-        });
-    }
-
 
     //배송비 계산
     private int calculateShippingFee(BigDecimal itemsTotal, ReceiveType receiveType) {
