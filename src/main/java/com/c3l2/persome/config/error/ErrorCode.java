@@ -123,6 +123,9 @@ public enum ErrorCode {
     // 카테고리
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "C-001", "카테고리를 찾을 수 없습니다."),
 
+    // OAuth2 / 세션
+    SESSION_EXPIRED(HttpStatus.UNAUTHORIZED, "O-001","세션이 만료되었습니다. 다시 로그인해주세요."),
+
     // 파일/서버
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S-001", "서버 내부 오류가 발생했습니다."),
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S-002", "파일 업로드에 실패했습니다.");

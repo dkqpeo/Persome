@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -36,6 +38,31 @@ public class UserViewController {
             // 약관 동의 안 했으면 /users/terms로 돌려보냄
             return "redirect:/users/terms";
         }
+        return "users/register";
+    }
+
+    // 소셜 회원가입
+    // 회원가입 페이지(폼)
+    @GetMapping("/oauth2/register")
+    public String oauth2RegisterForm(HttpSession session, Model model) {
+        Map<String,Object> attrs = (Map<String,Object>) session.getAttribute("OAUTH2_ATTRS");
+        if (attrs == null) {
+            return "redirect:/users/login"; // 세션 만료 등 대비
+        }
+
+        // 카카오 기본 정보
+        Map<String,Object> kakaoAccount = (Map<String,Object>) attrs.get("kakao_account");
+        Map<String,Object> profile = kakaoAccount != null ? (Map<String,Object>) kakaoAccount.get("profile") : null;
+
+        String loginId = String.valueOf(attrs.get("id"));
+        String email = kakaoAccount != null ? (String) kakaoAccount.get("email") : "";
+        String nickname = profile != null ? (String) profile.get("nickname") : "";
+
+        model.addAttribute("loginId", loginId);
+        model.addAttribute("email", email);
+        model.addAttribute("nickname", nickname);
+
+        // ⚡ 기존 register.html 사용
         return "users/register";
     }
 

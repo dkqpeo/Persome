@@ -291,6 +291,9 @@
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="/js/header.js"></script>
 <script>
+    let isIdChecked = false;
+    let isSocial = false;
+
     function openDaumPostcode() {
         new daum.Postcode({
             oncomplete: function(data) {
@@ -321,8 +324,6 @@
             document.getElementById("consentsData").value = consents;
         }
     });
-
-    let isIdChecked = false; // ✅ 아이디 중복확인 여부 저장
 
     // 아이디 중복 확인
     document.getElementById("checkIdButton").addEventListener("click", async () => {
@@ -355,13 +356,13 @@
         }
     });
 
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         // 기존 에러 메시지 초기화
         clearErrors();
 
-        if (!isIdChecked) {  // ✅ 중복확인 안 했으면 막기
+        if (!isSocial && !isIdChecked) {  // ✅ 중복확인 안 했으면 막기
             alert("아이디 중복확인은 필수입니다.");
             return;
         }
@@ -388,42 +389,28 @@
         submitButton.disabled = true;
         submitButton.innerHTML = '<span class="loading"></span>처리 중...';
 
-        // AJAX 요청
-        fetch('/api/users/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then(async response => {
-                if (response.ok) {
-                    return response.text(); // 성공은 단순 문자열
-                } else {
-                    // ❌ 실패 시 JSON 응답을 파싱해서 message만 꺼냄
-                    const error = await response.json().catch(() => null);
-                    const msg = error && error.message ? error.message : '회원가입 중 오류가 발생했습니다.';
-                    throw new Error(msg);
-                }
-            })
-            .then(data => {
-                alert('회원가입이 완료되었습니다!');
+        try {
+            let url = '/api/users/register';
+            if (isSocial) url = '/api/users/oauth2/register';
 
-                // 폼 초기화
-                document.getElementById('registerForm').reset();
-
-                window.location.href = '/users/login';
-            })
-            .catch(error => {
-                // 여기서 에러는 항상 Error(message) 형태라 message만 출력됨
-                alert(error.message);
-            })
-            .finally(() => {
-                // 버튼 복구
-                submitButton.disabled = false;
-                submitButton.innerHTML = '회원가입';
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(data)
             });
+
+            const result = await res.json().catch(() => null);
+
+            if (!res.ok) throw new Error(result?.message || "회원가입 실패");
+
+            alert(result?.message || "회원가입이 완료되었습니다!");
+            window.location.href = result?.data || "/users/login";
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = '회원가입';
+        }
     });
 
     // 에러 메시지 초기화
@@ -485,6 +472,77 @@
             value = value.replace(/(\d{3})(\d{4})(\d+)/, '$1-$2-$3');
         }
         this.value = value;
+    });
+
+    // 소셜 로그인용 회원가입
+    document.addEventListener("DOMContentLoaded", async () => {
+        const params = new URLSearchParams(window.location.search);
+        isSocial = params.get("social") === "true";
+
+        if (isSocial) {
+            try {
+                const res = await fetch("/api/users/oauth2/pre-register", { credentials: "include" });
+                const result = await res.json();
+
+                if (!res.ok || !result.data) {
+                    alert(result.message || "소셜 로그인 데이터 불러오기 실패");
+                    return;
+                }
+
+                const { loginId, email, nickname } = result.data;
+
+                // 필드 채우고 잠그기
+                document.getElementById("loginId").value = loginId;
+                document.getElementById("email").value = email;
+                document.getElementById("name").value = nickname;
+
+                document.getElementById("loginId").readOnly = true;
+                document.getElementById("email").readOnly = true;
+                document.getElementById("password").disabled = true;
+                document.getElementById("confirmPassword").disabled = true;
+                document.getElementById("checkIdButton").style.display = "none";
+
+                // ✅ 회원가입 submit → 소셜 API 호출
+                const form = document.getElementById("registerForm");
+                form.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const data = {
+                        birthDate: document.getElementById("birthDate").value,
+                        gender: document.getElementById("gender").value,
+                        phone: document.getElementById("phone").value,
+                        zip: document.getElementById("zip").value,
+                        roadAddr: document.getElementById("roadAddr").value,
+                        jibunAddr: document.getElementById("jibunAddr").value,
+                        addrDetail: document.getElementById("addrDetail").value,
+                        emailEnabled: document.getElementById("emailEnabled").checked,
+                        smsEnabled: document.getElementById("smsEnabled").checked,
+                        pushEnabled: document.getElementById("pushEnabled").checked,
+                        consents: JSON.parse(document.getElementById("consentsData").value || "[]")
+                    };
+
+                    try {
+                        const res = await fetch("/api/users/oauth2/register", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(data)
+                        });
+
+                        const result = await res.json();
+
+                        if (!res.ok) throw new Error(result.message || "회원가입 실패");
+
+                        alert(result.message || "회원가입 완료");
+                        window.location.href = result.data || "/"; // ✅ 백엔드에서 "/" 내려줌
+                    } catch (err) {
+                        alert(err.message);
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+                alert("소셜 회원가입 데이터를 불러오지 못했습니다.");
+            }
+        }
     });
 </script>
 

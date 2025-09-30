@@ -2,7 +2,6 @@ package com.c3l2.persome.user.controller;
 
 import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.user.dto.*;
-import com.c3l2.persome.user.entity.User;
 import com.c3l2.persome.user.security.CustomUserDetails;
 import com.c3l2.persome.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
