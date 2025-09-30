@@ -175,8 +175,6 @@
     if (!res.ok) throw new Error('API 호출 실패: ' + res.status);
     const json = await res.json(); // PageProductAllResponse
 
-    console.log("resp data : ", json);
-
     renderCount(json);
     renderProducts(json.products || []);
     renderPagination(json);
