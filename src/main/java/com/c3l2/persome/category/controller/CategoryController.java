@@ -2,6 +2,7 @@ package com.c3l2.persome.category.controller;
 
 import com.c3l2.persome.category.dto.CategoryResponseDto;
 import com.c3l2.persome.category.service.CategoryService;
+import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.product.entity.Category;
 import com.c3l2.persome.product.dto.OrderSearchDto;
 import com.c3l2.persome.product.dto.PageProductAllResponse;
@@ -9,7 +10,6 @@ import com.c3l2.persome.product.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,11 +34,12 @@ public class CategoryController {
      * @return List<CategoryResponseDto>
      */
     @GetMapping
-    private ResponseEntity<List<CategoryResponseDto>> getAllCategories() {
+    private ResponseEntity<ApiResponse<List<CategoryResponseDto>>> getAllCategories() {
 
         List<CategoryResponseDto> responseDto = categoryService.getList();
 
-        return new ResponseEntity<> (responseDto,HttpStatus.OK);
+        //return new ResponseEntity<> (responseDto,HttpStatus.OK);
+        return ApiResponse.ok("전체 카테고리 리스트", responseDto);
     }
 
     /**
@@ -47,11 +48,12 @@ public class CategoryController {
      * @return ResponseEntity<CategoryResponseDto>
      */
     @GetMapping("/getThirdCategory")
-    public ResponseEntity<CategoryResponseDto> getCategoryList(@RequestParam String secondCategory) {
+    public ResponseEntity<ApiResponse<CategoryResponseDto>> getCategoryList(@RequestParam String secondCategory) {
 
         CategoryResponseDto thirdCategory = categoryService.getThirdCategory(secondCategory);
 
-        return new ResponseEntity<>(thirdCategory, HttpStatus.OK);
+        //return new ResponseEntity<>(thirdCategory, HttpStatus.OK);
+        return ApiResponse.ok("2차 카테고리와 하위 카테고리 리스트", thirdCategory);
     }
 
     /**
@@ -72,8 +74,6 @@ public class CategoryController {
                                                         @RequestParam(defaultValue = "24") int size) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info("getProductForCategory {}", auth.getName());
-        log.info("req uri {}", req.getRequestURI());
 
         // 페이지 크기 검증 (30, 50, 100만 허용)
         if(size != 24 && size != 36) {
@@ -84,10 +84,6 @@ public class CategoryController {
                 .page(page)
                 .size(size)
                 .build();
-
-        System.out.println("firstCategory: " + firstCategory);
-        System.out.println("secondCategory: " + secondCategory);
-        System.out.println("thirdCategory: " + thirdCategory);
 
         // 1차이거나 2차 카테고리 엔티티 반환.
         Category requestCategory = categoryService.getCategory(firstCategory, secondCategory, thirdCategory);

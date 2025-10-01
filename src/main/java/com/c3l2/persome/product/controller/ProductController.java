@@ -4,11 +4,9 @@ import com.c3l2.persome.common.ApiResponse;
 import com.c3l2.persome.product.dto.OrderSearchDto;
 import com.c3l2.persome.product.dto.PageProductAllResponse;
 import com.c3l2.persome.product.dto.ProductDetailResponse;
-import com.c3l2.persome.product.dto.ProductListByBrandResponse;
 import com.c3l2.persome.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +19,10 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDetailResponse> getProductDetail(@PathVariable("id") Long productId) {
-        log.info("상품 상세 조회 API 호출 productId = {}", productId);
-        return ResponseEntity.ok(productService.getProductDetail(productId));
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductDetail(@PathVariable("id") Long productId) {
+
+        //return ResponseEntity.ok(productService.getProductDetail(productId));
+        return ApiResponse.ok("상품 상세조회", productService.getProductDetail(productId));
     }
 
     /**
@@ -33,28 +32,28 @@ public class ProductController {
      * @return ResponseEntity<PageProductAllResponse>
      */
     @GetMapping()
-    public ResponseEntity<PageProductAllResponse> getAllProducts(@RequestParam(defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "24") int size) {
+    public ResponseEntity<ApiResponse<PageProductAllResponse>> getAllProducts(@RequestParam(defaultValue = "0") int page,
+                                                                              @RequestParam(defaultValue = "24") int size) {
 
         OrderSearchDto searchDto = getSearchDto(page, size);
 
 
         PageProductAllResponse allProducts = productService.getAllProducts(searchDto);
 
-        return new ResponseEntity<>(allProducts, HttpStatus.OK);
-
+        //return new ResponseEntity<>(allProducts, HttpStatus.OK);
+        return ApiResponse.ok("전체 카테고리 상품 리스트", allProducts);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PageProductAllResponse> searchProducts(@RequestParam String keyword,
-                                                                 @RequestParam(defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "24") int size) {
+    public ResponseEntity<ApiResponse<PageProductAllResponse>> searchProducts(@RequestParam String keyword,
+                                                                              @RequestParam(defaultValue = "0") int page,
+                                                                              @RequestParam(defaultValue = "24") int size) {
 
         OrderSearchDto searchDto = getSearchDto(page, size);
         PageProductAllResponse allProducts = productService.findKeyword(keyword, searchDto);
 
-        return new ResponseEntity<>(allProducts, HttpStatus.OK);
-
+        //return new ResponseEntity<>(allProducts, HttpStatus.OK);
+        return ApiResponse.ok("상품 검색 결과", allProducts);
     }
 
     @GetMapping("/brand")
