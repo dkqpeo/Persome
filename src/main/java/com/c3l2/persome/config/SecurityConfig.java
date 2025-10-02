@@ -128,7 +128,7 @@ public class SecurityConfig {
                                     String redirect = uri + (query != null ? "?" + query : "");
                                     response.sendRedirect("/users/login?redirect=" + redirect);
                                 },
-                                request -> request.getRequestURI().startsWith("/users")
+                                request -> !request.getRequestURI().startsWith("/api")
                         )
 
                         // REST 요청 → 401 JSON 응답
