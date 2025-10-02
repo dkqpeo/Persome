@@ -92,6 +92,10 @@ public enum ErrorCode {
     COUPON_MIN_ORDER_PRICE_NOT_MET(HttpStatus.BAD_REQUEST, "C-008", "쿠폰 적용을 위한 최소 주문 금액에 미달합니다."),
     COUPON_APPLY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-009", "쿠폰 적용에 실패했습니다."),
     COUPON_RESTORE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-010", "쿠폰 복구에 실패했습니다."),
+    COUPON_STATUS_INVALID(HttpStatus.BAD_REQUEST, "C-011", "유효하지 않은 쿠폰 상태입니다."),
+    COUPON_DISCOUNT_TYPE_INVALID(HttpStatus.BAD_REQUEST, "C-012", "유효하지 않은 쿠폰 할인 유형입니다."),
+    COUPON_LIMIT_INVALID(HttpStatus.BAD_REQUEST, "C-013", "쿠폰 발급 한도는 1 이상이어야 합니다."),
+    COUPON_PERIOD_INVALID(HttpStatus.BAD_REQUEST, "C-014", "쿠폰 기간 설정이 올바르지 않습니다."),
 
     // 상품
     PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-001", "해당 상품을 찾을 수 없습니다."),
