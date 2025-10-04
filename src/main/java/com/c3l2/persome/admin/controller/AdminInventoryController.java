@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/inventories")
+@RequestMapping("/api/admin/inventories")
 public class AdminInventoryController {
 
     private final AdminInventoryService adminInventoryService;

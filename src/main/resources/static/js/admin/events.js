@@ -314,7 +314,7 @@ async function createPromotionForEvent(e) {
             targets: buildPromotionTargets(formData.get('targetType'), formData.get('targetIds'))
         };
 
-        const res = await fetch('/admin/promotions', {
+        const res = await fetch('/api/admin/promotions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -365,7 +365,7 @@ async function createCouponForEvent(e) {
             eventId
         };
 
-        const res = await fetch('/admin/coupons', {
+        const res = await fetch('/api/admin/coupons', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',

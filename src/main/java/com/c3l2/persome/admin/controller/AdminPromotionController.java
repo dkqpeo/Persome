@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/promotions")
+@RequestMapping("/api/admin/promotions")
 public class AdminPromotionController {
 
     private final AdminPromotionService adminPromotionService;

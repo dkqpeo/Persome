@@ -42,12 +42,17 @@ body {
 }
 
 .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     border: 1px solid var(--border);
     background: #fff;
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
+    text-decoration: none;
+    color: inherit;
     transition: all .2s ease;
 }
 
@@ -75,6 +80,12 @@ main {
 .admin-panel.active {
     display: flex;
     flex-direction: column;
+}
+
+.admin-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .card {

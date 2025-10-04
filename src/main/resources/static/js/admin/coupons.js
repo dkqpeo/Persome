@@ -165,7 +165,7 @@ async function fetchCoupons(page = 0) {
     try {
         couponPagination.textContent = '';
         couponTableBody.innerHTML = '<tr><td colspan="8">불러오는 중...</td></tr>';
-        const res = await fetch(`/admin/coupons?${params.toString()}`, {
+        const res = await fetch(`/api/admin/coupons?${params.toString()}`, {
             credentials: 'include'
         });
         if (!res.ok) {
@@ -242,7 +242,7 @@ async function fetchIssued(page = 0) {
     try {
         issuedPagination.textContent = '';
         issuedTableBody.innerHTML = '<tr><td colspan="7">불러오는 중...</td></tr>';
-        const res = await fetch(`/admin/coupons/issued?${params.toString()}`, {
+        const res = await fetch(`/api/admin/coupons/issued?${params.toString()}`, {
             credentials: 'include'
         });
         if (!res.ok) {
@@ -287,7 +287,7 @@ async function handleCreateCoupon(event) {
     }
 
     try {
-        const res = await fetch('/admin/coupons', {
+        const res = await fetch('/api/admin/coupons', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -332,7 +332,7 @@ async function handleIssueCoupon(event) {
     };
 
     try {
-        const res = await fetch('/admin/coupons/issue', {
+        const res = await fetch('/api/admin/coupons/issue', {
             method: 'POST',
             credentials: 'include',
             headers: {

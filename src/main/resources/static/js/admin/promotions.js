@@ -63,7 +63,7 @@ async function createPromotion(event) {
             targets: buildTargetsFromInputs(createTargetTypeSelect, createTargetIdsInput)
         };
 
-        const res = await fetch('/admin/promotions', {
+        const res = await fetch('/api/admin/promotions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -98,7 +98,7 @@ async function updatePromotion(event) {
             targets: buildTargetsFromInputs(updateTargetTypeSelect, updateTargetIdsInput)
         };
 
-        const res = await fetch(`/admin/promotions/${promotionId}`, {
+        const res = await fetch(`/api/admin/promotions/${promotionId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -124,7 +124,7 @@ async function deletePromotion(event) {
     if (!confirm(`프로모션 ${promotionId}을(를) 삭제하시겠습니까?`)) return;
 
     try {
-        const res = await fetch(`/admin/promotions/${promotionId}`, {
+        const res = await fetch(`/api/admin/promotions/${promotionId}`, {
             method: 'DELETE',
             credentials: 'include'
         });
@@ -150,7 +150,7 @@ async function updatePromotionProducts(event) {
         .filter(id => !Number.isNaN(id));
 
     try {
-        const res = await fetch(`/admin/promotions/${promotionId}/products`, {
+        const res = await fetch(`/api/admin/promotions/${promotionId}/products`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -238,7 +238,7 @@ function hidePromotionForms() {
 async function loadPromotions() {
     if (!promotionTableBody) return;
     try {
-        const res = await fetch('/admin/promotions', { credentials: 'include' });
+        const res = await fetch('/api/admin/promotions', { credentials: 'include' });
         if (!res.ok) throw new Error('프로모션 목록을 불러오지 못했습니다.');
 
         const payload = await res.json();

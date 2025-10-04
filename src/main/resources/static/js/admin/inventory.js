@@ -63,7 +63,7 @@ async function fetchInventories(page = 0) {
         showFeedback('');
         pagination.textContent = '';
         tableBody.innerHTML = '<tr><td colspan="8">불러오는 중...</td></tr>';
-        const res = await fetch(`/admin/inventories?${params.toString()}`, {
+        const res = await fetch(`/api/admin/inventories?${params.toString()}`, {
             credentials: 'include'
         });
         if (!res.ok) {
@@ -143,7 +143,7 @@ function renderPagination(data) {
 
 async function handleUpdate(inventoryId, quantity, stockStatus) {
     const payload = { quantity, stockStatus };
-    const res = await fetch(`/admin/inventories/${inventoryId}`, {
+    const res = await fetch(`/api/admin/inventories/${inventoryId}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: {
