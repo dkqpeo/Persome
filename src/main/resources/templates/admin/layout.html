@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, activeMenu, content, scripts)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title th:text="${title} ?: 'Persome Admin Console'">Persome Admin Console</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+<header class="admin-header">
+    <h1>Persome Admin Console</h1>
+    <nav class="admin-nav">
+        <a th:href="@{/admin/console/users}" class="nav-btn" th:classappend="${activeMenu} == 'users' ? ' active'">
+            회원 관리
+        </a>
+        <a th:href="@{/admin/console/products}" class="nav-btn" th:classappend="${activeMenu} == 'products' ? ' active'">
+            상품 관리
+        </a>
+        <a th:href="@{/admin/console/inventories}" class="nav-btn" th:classappend="${activeMenu} == 'inventories' ? ' active'">
+            재고 관리
+        </a>
+        <a th:href="@{/admin/console/orders}" class="nav-btn" th:classappend="${activeMenu} == 'orders' ? ' active'">
+            주문 조회
+        </a>
+        <a th:href="@{/admin/console/events}" class="nav-btn" th:classappend="${activeMenu} == 'events' ? ' active'">
+            이벤트 관리
+        </a>
+        <a th:href="@{/admin/console/promotions}" class="nav-btn" th:classappend="${activeMenu} == 'promotions' ? ' active'">
+            프로모션 관리
+        </a>
+        <a th:href="@{/admin/console/coupons}" class="nav-btn" th:classappend="${activeMenu} == 'coupons' ? ' active'">
+            쿠폰 관리
+        </a>
+    </nav>
+</header>
+<main th:replace="${content}"></main>
+<th:block th:if="${scripts != null}" th:replace="${scripts}"></th:block>
+</body>
+</html>

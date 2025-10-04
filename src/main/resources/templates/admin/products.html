@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="admin/layout :: layout('상품 관리', 'products', ~{::main}, ~{::scripts})">
+<head>
+    <title>상품 관리</title>
+</head>
+<body>
+<main>
+    <section id="panel-products" class="admin-section">
+        <h2>상품 관리</h2>
+        <div class="card">
+            <div class="card-header">상품 조회</div>
+            <div class="card-body">
+                <form id="form-product-load" class="form-inline">
+                    <label>상품명
+                        <input type="text" name="productName" placeholder="상품명을 입력하세요" required>
+                    </label>
+                    <button type="submit" class="primary">검색</button>
+                </form>
+                <pre id="product-preview" class="preview"></pre>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">상품 수정</div>
+            <form id="form-product-update" class="card-body form-grid">
+                <label>상품 ID<input type="text" name="productId" readonly required></label>
+                <label>상품명<input type="text" name="name" required></label>
+                <label>설명<textarea name="description" rows="4" required></textarea></label>
+                <label>카테고리 ID<input type="number" name="categoryId" required></label>
+                <label>브랜드 ID<input type="number" name="brandId" required></label>
+                <button type="submit" class="primary">저장</button>
+            </form>
+        </div>
+        <div class="card grid-2">
+            <div>
+                <div class="card-header">상품 상태 변경</div>
+                <form id="form-product-status" class="card-body form-grid">
+                    <label>상품 ID<input type="text" name="productId" readonly required></label>
+                    <label>상태
+                        <select name="status" required>
+                            <option value="판매중">판매중</option>
+                            <option value="품절">품절</option>
+                            <option value="일시품절">일시품절</option>
+                            <option value="입고예정">입고예정</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="primary">변경</button>
+                </form>
+            </div>
+            <div>
+                <div class="card-header">상품 삭제</div>
+                <form id="form-product-delete" class="card-body form-grid">
+                    <label>상품 ID<input type="text" name="productId" readonly required></label>
+                    <button type="submit" class="danger">삭제</button>
+                </form>
+            </div>
+        </div>
+        <div id="product-feedback" class="feedback"></div>
+    </section>
+</main>
+
+<th:block th:fragment="scripts">
+    <script type="module">
+        import { initProductPanel } from '/js/admin/products.js';
+        initProductPanel();
+    </script>
+</th:block>
+</body>
+</html>

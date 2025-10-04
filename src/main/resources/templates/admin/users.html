@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="admin/layout :: layout('회원 관리', 'users', ~{::main}, ~{::scripts})">
+<head>
+    <title>회원 관리</title>
+</head>
+<body>
+<main>
+    <section id="panel-users" class="admin-section">
+        <h2>회원 관리</h2>
+        <div class="card">
+            <div class="card-header">회원 목록</div>
+            <div class="card-body">
+                <div class="toolbar">
+                    <label for="user-status-filter">상태 필터</label>
+                    <select id="user-status-filter">
+                        <option value="">전체</option>
+                        <option value="ACTIVE">활성</option>
+                        <option value="DORMANT">휴면</option>
+                        <option value="WITHDRAWN">탈퇴</option>
+                    </select>
+                    <button id="btn-user-refresh" class="primary">새로고침</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="user-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>로그인ID</th>
+                            <th>이름</th>
+                            <th>등급</th>
+                            <th>상태</th>
+                            <th>관리자</th>
+                            <th>가입일</th>
+                            <th>최근 로그인</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card grid-2">
+            <div>
+                <div class="card-header">회원 등급 변경</div>
+                <form id="form-user-grade" class="card-body form-grid">
+                    <label>로그인 ID
+                        <input type="text" name="loginId" required>
+                    </label>
+                    <label>멤버십 등급
+                        <select name="membershipLevel" required>
+                            <option value="BABY">BABY</option>
+                            <option value="PINK">PINK</option>
+                            <option value="GREEN">GREEN</option>
+                            <option value="BLACK">BLACK</option>
+                            <option value="GOLD">GOLD</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="primary">적용</button>
+                </form>
+            </div>
+            <div>
+                <div class="card-header">관리자 권한</div>
+                <form id="form-user-role" class="card-body form-grid">
+                    <label>로그인 ID
+                        <input type="text" name="loginId" required>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="admin">
+                        관리자 권한 부여
+                    </label>
+                    <button type="submit" class="primary">적용</button>
+                </form>
+            </div>
+        </div>
+        <div id="user-feedback" class="feedback"></div>
+    </section>
+</main>
+
+<th:block th:fragment="scripts">
+    <script type="module">
+        import { initUserPanel } from '/js/admin/users.js';
+        initUserPanel();
+    </script>
+</th:block>
+</body>
+</html>

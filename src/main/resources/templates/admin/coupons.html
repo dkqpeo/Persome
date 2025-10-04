@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="admin/layout :: layout('쿠폰 관리', 'coupons', ~{::main}, ~{::scripts})">
+<head>
+    <title>쿠폰 관리</title>
+</head>
+<body>
+<main>
+    <section id="panel-coupons" class="admin-section">
+        <h2>쿠폰 관리</h2>
+        <div class="card">
+            <div class="card-header">쿠폰 등록</div>
+            <form id="coupon-create-form" class="card-body form-grid">
+                <label>쿠폰명
+                    <input type="text" name="name" required>
+                </label>
+                <label>코드
+                    <input type="text" name="code" required>
+                </label>
+                <label>할인 유형
+                    <select name="discountType" required>
+                        <option value="RATE">RATE (퍼센트)</option>
+                        <option value="FIXED">FIXED (고정금액)</option>
+                    </select>
+                </label>
+                <label>할인 값
+                    <input type="number" step="0.01" min="0" name="discountValue" required>
+                </label>
+                <label>최소 주문금액
+                    <input type="number" step="0.01" min="0" name="minOrderPrice" required>
+                </label>
+                <label>최대 할인금액
+                    <input type="number" step="0.01" min="0" name="maxDiscountPrice" required>
+                </label>
+                <label>발급 한도
+                    <input type="number" min="1" name="limitIssueCount" required>
+                </label>
+                <label>시작일시
+                    <input type="datetime-local" name="startDate" required>
+                </label>
+                <label>종료일시
+                    <input type="datetime-local" name="endDate" required>
+                </label>
+                <label>상태
+                    <select name="status" required>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+                <label>이벤트 ID (선택)
+                    <input type="number" name="eventId" min="1">
+                </label>
+                <button type="submit" class="primary">등록</button>
+            </form>
+            <div id="coupon-create-feedback" class="feedback"></div>
+        </div>
+        <div class="card">
+            <div class="card-header">쿠폰 발급</div>
+            <form id="coupon-issue-form" class="card-body form-grid">
+                <label>쿠폰 ID
+                    <input type="number" name="couponId" min="1" required>
+                </label>
+                <label>회원 로그인 ID
+                    <input type="text" name="loginId" required>
+                </label>
+                <button type="submit" class="primary">발급</button>
+            </form>
+            <div id="coupon-issue-feedback" class="feedback"></div>
+        </div>
+        <div class="card">
+            <div class="card-header">쿠폰 목록</div>
+            <div class="card-body">
+                <div class="toolbar">
+                    <form id="coupon-filter-form" class="form-inline">
+                        <label>검색어
+                            <input type="text" id="coupon-filter-keyword" name="keyword" placeholder="쿠폰명, 코드, 이벤트명">
+                        </label>
+                        <label>상태
+                            <select id="coupon-filter-status" name="status">
+                                <option value="">전체</option>
+                                <option value="ACTIVE">ACTIVE</option>
+                                <option value="INACTIVE">INACTIVE</option>
+                            </select>
+                        </label>
+                        <button type="submit" class="primary">조회</button>
+                        <button type="reset">초기화</button>
+                    </form>
+                    <label>페이지 크기
+                        <select id="coupon-page-size">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="table-wrapper">
+                    <table id="coupon-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>쿠폰명</th>
+                            <th>코드</th>
+                            <th>상태</th>
+                            <th>할인</th>
+                            <th>발급/한도</th>
+                            <th>기간</th>
+                            <th>이벤트</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="coupon-pagination"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">발급 내역</div>
+            <div class="card-body">
+                <div class="toolbar">
+                    <form id="issued-filter-form" class="form-inline">
+                        <label>회원
+                            <input type="text" id="issued-filter-member" name="member" placeholder="로그인ID, 이름, ID">
+                        </label>
+                        <label>쿠폰
+                            <input type="text" id="issued-filter-coupon" name="coupon" placeholder="쿠폰명, 코드, ID">
+                        </label>
+                        <label>상태
+                            <select id="issued-filter-status" name="status">
+                                <option value="">전체</option>
+                                <option value="ISSUED">ISSUED</option>
+                                <option value="USED">USED</option>
+                                <option value="EXPIRED">EXPIRED</option>
+                            </select>
+                        </label>
+                        <button type="submit" class="primary">조회</button>
+                        <button type="reset">초기화</button>
+                    </form>
+                    <label>페이지 크기
+                        <select id="issued-page-size">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="table-wrapper">
+                    <table id="issued-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>회원</th>
+                            <th>쿠폰</th>
+                            <th>상태</th>
+                            <th>발급일</th>
+                            <th>만료일</th>
+                            <th>사용일</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="issued-pagination"></div>
+                <div id="issued-feedback" class="feedback"></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<th:block th:fragment="scripts">
+    <script type="module">
+        import { initCouponPanel } from '/js/admin/coupons.js';
+        initCouponPanel();
+    </script>
+</th:block>
+</body>
+</html>
