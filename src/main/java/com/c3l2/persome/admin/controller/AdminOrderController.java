@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/admin/orders")
+@RequestMapping(path = "/api/admin/orders")
 public class AdminOrderController {
 
     private final AdminOrderService adminOrderService;
