@@ -38,12 +38,17 @@ function updateWishlistButton() {
 
 // 위시리스트 토글
 async function toggleWishlist() {
-    if (!productData) return;
+    // URL에서 productId 추출
+    const productId = getProductIdFromUrl();
+    if (!productId) {
+        alert('상품 정보를 찾을 수 없습니다.');
+        return;
+    }
 
     try {
         if (isWishlisted) {
             // 위시리스트에서 제거
-            const response = await fetch(`/api/users/me/wishlist/${productData.product_id}`, {
+            const response = await fetch(`/api/users/me/wishlist/${productId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -65,7 +70,7 @@ async function toggleWishlist() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    productId: productData.product_id
+                    productId: parseInt(productId)
                 }),
                 credentials: 'include'
             });

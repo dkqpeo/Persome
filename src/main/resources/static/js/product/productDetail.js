@@ -112,19 +112,55 @@ function showTab(tabName) {
     event.target.classList.add('active');
 }
 
-// 바로구매
-function buyNow() {
+// 장바구니 추가
+function addToCart() {
     const selectedOption = getSelectedOption();
     if (!validateSelection(selectedOption)) return;
 
-    //const productName = document.getElementById('product-title');
-    const productOptionId = selectedOption.optionId;
+    const productOptionId = parseInt(selectedOption.optionId);  // 숫자로 변환
     const quantity = parseInt(document.getElementById('quantity').value) || 1;
 
-    // 쿼리 파라미터로 주문 페이지로 이동 productName=${productName}&
-    const orderUrl = `/orders?productOptionId=${productOptionId}&quantity=${quantity}`;
+    fetch('/api/users/me/cart/items', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+            productOptionId: productOptionId,
+            quantity: quantity
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            showToast('장바구니에 추가되었습니다.');
+        } else {
+            return response.text().then(text => {
+                throw new Error(text || '장바구니 추가에 실패했습니다.');
+            });
+        }
+    })
+    .catch(error => {
+        console.error('장바구니 추가 오류:', error);
+        alert(error.message || '장바구니 추가 중 오류가 발생했습니다.');
+    });
+}
+
+// 찜 토글 함수는 wishlist.js에서 정의됨 - 중복 제거
+
+// 바로구매
+function buyNow() {
+    const selectedOption = getSelectedOption();
     
-    console.log('바로구매 - 이동할 URL:', orderUrl);
+    if (!validateSelection(selectedOption)) {
+        return;
+    }
+
+    const productOptionId = parseInt(selectedOption.optionId);
+    const quantity = parseInt(document.getElementById('quantity').value);
+
+    // 쿼리 파라미터로 주문 페이지 이동
+    const orderUrl = `/orders?productOptionId=${productOptionId}&quantity=${quantity}`;
     window.location.href = orderUrl;
 }
 
@@ -179,20 +215,36 @@ function getSelectedOption() {
 
     return {
         optionId: selectedOptionId,
-        hasOption: productData && productData.options && productData.options.length > 0
+        hasOption: productData && productData.data && productData.data.options && productData.data.options.length > 0
     };
 }
 
 // 선택 검증
 function validateSelection(selectedOption) {
+    // productData가 없으면 기본 검증만 수행
+    if (!productData || !productData.data) {
+        // 옵션 선택 요소가 있는지 확인
+        const optionSelect = document.getElementById('optionSelect');
+        
+        if (optionSelect && optionSelect.options.length > 1) {
+            // 옵션이 있는 상품인데 선택하지 않은 경우
+            if (!selectedOption.optionId) {
+                alert('옵션을 선택해 주세요.');
+                return false;
+            }
+        }
+        return true; // 옵션이 없거나 선택되어 있으면 통과
+    }
+    
+    // 옵션이 있는 상품인데 선택하지 않은 경우
     if (selectedOption.hasOption && !selectedOption.optionId) {
         alert('옵션을 선택해 주세요.');
         return false;
     }
 
     // 재고 확인
-    if (selectedOption.optionId) {
-        const option = productData.options.find(opt => opt.option_id == selectedOption.optionId);
+    if (selectedOption.optionId && productData.data.options) {
+        const option = productData.data.options.find(opt => opt.option_id == selectedOption.optionId);
         if (option && option.inventories && option.inventories.length > 0) {
             const inventory = option.inventories[0];
             if (inventory.stockStatus === 'OUT_OF_STOCK' || inventory.quantity === 0) {

@@ -254,6 +254,43 @@
             color: #666;
         }
 
+        /* 개인화 추천 섹션 스타일 */
+        .personalized-title {
+            color: #4C3579;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .personalized-title::before {
+            font-size: 1.2em;
+        }
+
+        .recommendation-reason {
+            font-size: 0.85em;
+            color: #7C4DFF;
+            background: rgba(124, 77, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #4C3579;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
     </style>
 </head>
 <body>
@@ -273,6 +310,16 @@
                 <div id="eventIndicators" class="event-indicators" hidden></div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- 개인화 추천 상품 (로그인 시에만 표시) -->
+<div id="personalizedSection" class="section" style="display: none;">
+    <h2 class="personalized-title">최근 구매내역 기반 추천 상품</h2>
+    <p style="color: #666; margin-bottom: 20px;">고객님의 구매 패턴을 분석하여 맞춤 상품을 추천드립니다.</p>
+    <div id="personalizedProducts" class="product-list">
+        <div class="loading-spinner"></div>
+        <span style="margin-left: 10px;">추천 상품을 불러오는 중...</span>
     </div>
 </div>
 
@@ -301,7 +348,103 @@
             window.Persome.loadHomeProducts();
             window.Persome.updateHeaderCartCount();
         }
+        
+        // 개인화 추천 로드
+        loadPersonalizedRecommendations();
     });
+
+    // 개인화 추천 상품 로드 함수
+    async function loadPersonalizedRecommendations() {
+        try {
+            // 직접 로그인 상태 API 호출
+            const userResponse = await fetch("/api/users/me", { credentials: "include" });
+            
+            if (!userResponse.ok) {
+                // 로그인 상태가 아니면 섹션 숨김
+                document.getElementById('personalizedSection').style.display = 'none';
+                return;
+            }
+            
+            // 로그인 상태라면 섹션 표시하고 추천 API 호출
+            document.getElementById('personalizedSection').style.display = 'block';
+            
+            const response = await fetch('/api/recommendations/personalized?limit=8');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('추천 API 응답:', data); // 디버깅용 로그 추가
+            
+            // 다양한 응답 구조 처리
+            let products = null;
+            if (data.success && data.result) {
+                products = data.result;
+            } else if (data.data) {
+                products = data.data;
+            } else if (Array.isArray(data)) {
+                products = data;
+            }
+            
+            console.log('파싱된 products:', products); // 디버깅용 로그 추가
+            
+            if (products && products.length > 0) {
+                displayPersonalizedProducts(products);
+            } else {
+                showNoRecommendationsMessage();
+            }
+            
+        } catch (error) {
+            console.error('개인화 추천 로드 실패:', error);
+            // 로그인 상태가 아니거나 오류 발생 시 섹션 숨김
+            document.getElementById('personalizedSection').style.display = 'none';
+        }
+    }
+
+    // 개인화 추천 상품 표시 함수
+    function displayPersonalizedProducts(products) {
+        const container = document.getElementById('personalizedProducts');
+        if (!container) {
+            return;
+        }
+        
+        if (!products || products.length === 0) {
+            showNoRecommendationsMessage();
+            return;
+        }
+        
+        const productCards = products.map(product => {
+            const productId = product.productId || '';
+            const name = product.name || '상품명 없음';
+            const brand = product.brand || '브랜드 없음';
+            const price = product.price ? Number(product.price).toLocaleString() : '0';
+            const imageUrl = product.imageUrl || '/images/no-image.jpg';
+            const reason = product.recommendationReason || 'AI 추천';
+            
+            return `
+                <div class="product" onclick="location.href='/products/${productId}'" style="cursor: pointer;">
+                    <img src="${imageUrl}" alt="${name}" onerror="this.src='/images/no-image.jpg'">
+                    <h3>${name}</h3>
+                    <p><strong>${brand}</strong></p>
+                    <p>${price}원</p>
+                    <div class="recommendation-reason">${reason}</div>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = productCards;
+    }
+
+    // 추천 상품이 없을 때 메시지 표시
+    function showNoRecommendationsMessage() {
+        const container = document.getElementById('personalizedProducts');
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <p>구매 내역을 바탕으로 상품을 추천해드릴 예정입니다.</p>
+                <p>첫 구매 후 개인 맞춤 추천을 만나보세요!</p>
+            </div>
+        `;
+    }
 </script>
 </body>
 
