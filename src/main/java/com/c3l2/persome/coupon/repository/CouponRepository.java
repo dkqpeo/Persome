@@ -2,12 +2,13 @@ package com.c3l2.persome.coupon.repository;
 
 import com.c3l2.persome.coupon.entity.Coupon;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface CouponRepository extends JpaRepository<Coupon, Long> {
+public interface CouponRepository extends JpaRepository<Coupon, Long>, JpaSpecificationExecutor<Coupon> {
     List<Coupon> findByEventId(Long eventId); //이벤트 아이디로 쿠폰 찾기
     List<Coupon> findByNameContaining(String keyword); //등급별 쿠폰 조회(키워드 검색)
 }

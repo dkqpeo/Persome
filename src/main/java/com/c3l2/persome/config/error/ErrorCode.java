@@ -92,6 +92,11 @@ public enum ErrorCode {
     COUPON_MIN_ORDER_PRICE_NOT_MET(HttpStatus.BAD_REQUEST, "C-008", "쿠폰 적용을 위한 최소 주문 금액에 미달합니다."),
     COUPON_APPLY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-009", "쿠폰 적용에 실패했습니다."),
     COUPON_RESTORE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-010", "쿠폰 복구에 실패했습니다."),
+    COUPON_STATUS_INVALID(HttpStatus.BAD_REQUEST, "C-011", "유효하지 않은 쿠폰 상태입니다."),
+    COUPON_DISCOUNT_TYPE_INVALID(HttpStatus.BAD_REQUEST, "C-012", "유효하지 않은 쿠폰 할인 유형입니다."),
+    COUPON_LIMIT_INVALID(HttpStatus.BAD_REQUEST, "C-013", "쿠폰 발급 한도는 1 이상이어야 합니다."),
+    COUPON_PERIOD_INVALID(HttpStatus.BAD_REQUEST, "C-014", "쿠폰 기간 설정이 올바르지 않습니다."),
+    USER_COUPON_STATUS_INVALID(HttpStatus.BAD_REQUEST, "C-015", "유효하지 않은 사용자 쿠폰 상태입니다."),
 
     // 상품
     PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-001", "해당 상품을 찾을 수 없습니다."),
@@ -108,6 +113,8 @@ public enum ErrorCode {
     PRODUCT_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P-012", "상품 삭제에 실패했습니다."),
     PRODUCT_PRICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-013", "상품 가격을 찾을 수 없습니다."),
     PRODUCT_STATUS_INVALID(HttpStatus.BAD_REQUEST, "P-014", "유효하지 않은 상품 상태입니다."),
+    INVENTORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "P-015", "재고 정보를 찾을 수 없습니다."),
+    INVENTORY_STATUS_INVALID(HttpStatus.BAD_REQUEST, "P-016", "유효하지 않은 재고 상태입니다."),
 
     // 리뷰
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R-001", "해당 리뷰가 존재하지 않습니다."),

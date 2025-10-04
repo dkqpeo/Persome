@@ -7,6 +7,8 @@ import com.c3l2.persome.promotion.entity.PromotionStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +26,9 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     List<Promotion> findActivePromotionsWithTargets(PromotionStatus status, LocalDateTime now);
 
     List<Promotion> findByEventId(Long eventId); //이벤트 아이디로 프로모션 찾기
+
+    @EntityGraph(attributePaths = {"event", "promotionTarget"})
+    List<Promotion> findAll(Sort sort);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update Promotion p set p.status = :status, p.discountType = :discountType, p.discountValue = :discountValue, p.startDate = :startDate, p.endDate = :endDate, p.event = :event where p.id = :id")

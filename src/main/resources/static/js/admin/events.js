@@ -8,6 +8,14 @@ const eventTableBody = document.querySelector('#event-table tbody');
 const formCreateBox = document.getElementById('event-form-create');
 const formUpdateBox = document.getElementById('event-form-update');
 const formDeleteBox = document.getElementById('event-form-delete');
+const promotionCreateCard = document.getElementById('event-promotion-create');
+const promotionCreateForm = document.getElementById('form-event-promotion-create');
+const couponCreateCard = document.getElementById('event-coupon-create');
+const couponCreateForm = document.getElementById('form-event-coupon-create');
+const promotionTargetTypeSelect = promotionCreateForm?.querySelector('select[name="targetType"]');
+const promotionTargetIdsInput = promotionCreateForm?.querySelector('input[name="targetIds"]');
+
+let activeEventDetail = null;
 
 // 버튼
 const btnCreateOpen = document.getElementById('btn-event-create-open');
@@ -43,6 +51,13 @@ function hideAllForms() {
     formCreateBox.style.display = 'none';
     formUpdateBox.style.display = 'none';
     formDeleteBox.style.display = 'none';
+    if (promotionCreateCard) promotionCreateCard.style.display = 'none';
+    if (couponCreateCard) couponCreateCard.style.display = 'none';
+}
+
+function showLinkedEventForms() {
+    if (promotionCreateCard) promotionCreateCard.style.display = 'block';
+    if (couponCreateCard) couponCreateCard.style.display = 'block';
 }
 
 async function loadEvents() {
@@ -74,12 +89,26 @@ async function loadEvents() {
 
 async function loadEventDetail(eventId) {
     try {
+        promotionCreateForm?.reset();
+        couponCreateForm?.reset();
+        handleTargetTypeChange();
+
         const response = await fetch(`/api/events/admin/${eventId}/details`, {
             credentials: "include"
         });
         if (!response.ok) throw new Error("이벤트 정보를 불러올 수 없습니다.");
         const payload = await response.json();
         const data = payload.data;
+
+        activeEventDetail = {
+            id: Number(eventId),
+            name: data.name || '',
+            startDate: data.startDate || null,
+            endDate: data.endDate || null,
+            status: data.status || 'DRAFT'
+        };
+        applyLinkedEventDefaults();
+        showLinkedEventForms();
 
         // 기본 값 채우기
         updateForm.querySelector('input[name="eventId"]').value = eventId;
@@ -112,12 +141,14 @@ async function loadEventDetail(eventId) {
 
         // 프로모션 표시
         renderExistingPromotionInfo(data.promotions);
+        renderExistingCouponInfo(data.coupons);
 
         clearPreview("update-event-thumbnail-preview");
         clearPreview("update-event-images-preview");
     } catch (err) {
         console.error(err);
         setFeedback(err.message, true);
+        activeEventDetail = null;
     }
 }
 
@@ -261,6 +292,96 @@ async function deleteEvent(e) {
     }
 }
 
+async function createPromotionForEvent(e) {
+    e.preventDefault();
+    if (!promotionCreateForm) return;
+
+    const formData = new FormData(promotionCreateForm);
+
+    try {
+        const eventIdRaw = formData.get('eventId');
+        if (!eventIdRaw) {
+            throw new Error('이벤트가 선택되지 않았습니다.');
+        }
+        const eventId = Number(eventIdRaw);
+        const payload = {
+            status: formData.get('status'),
+            discountType: formData.get('discountType'),
+            discountValue: parseNumberInput(formData.get('discountValue'), '할인 값', { positive: true }),
+            startDate: toISOStringOrThrow(formData.get('startDate'), '시작일'),
+            endDate: toISOStringOrThrow(formData.get('endDate'), '종료일'),
+            eventId,
+            targets: buildPromotionTargets(formData.get('targetType'), formData.get('targetIds'))
+        };
+
+        const res = await fetch('/api/admin/promotions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+        await ensureSuccess(res, '프로모션 등록 실패');
+        setFeedback('프로모션 등록 성공');
+        promotionCreateForm.reset();
+        applyLinkedEventDefaults();
+        handleTargetTypeChange();
+        loadEventDetail(eventId);
+    } catch (err) {
+        console.error(err);
+        setFeedback(err.message, true);
+    }
+}
+
+async function createCouponForEvent(e) {
+    e.preventDefault();
+    if (!couponCreateForm) return;
+
+    const formData = new FormData(couponCreateForm);
+
+    try {
+        const eventIdRaw = formData.get('eventId');
+        if (!eventIdRaw) {
+            throw new Error('이벤트가 선택되지 않았습니다.');
+        }
+        const eventId = Number(eventIdRaw);
+        const name = (formData.get('name') || '').trim();
+        const code = (formData.get('code') || '').trim();
+        const status = formData.get('status');
+        if (!name) throw new Error('쿠폰 이름을 입력하세요.');
+        if (!code) throw new Error('쿠폰 코드를 입력하세요.');
+        if (!status) throw new Error('쿠폰 상태를 선택하세요.');
+
+        const payload = {
+            name,
+            code,
+            discountType: formData.get('discountType'),
+            discountValue: parseNumberInput(formData.get('discountValue'), '할인 값', { positive: true }),
+            minOrderPrice: parseNumberInput(formData.get('minOrderPrice'), '최소 주문 금액', { min: 0 }),
+            maxDiscountPrice: parseNumberInput(formData.get('maxDiscountPrice'), '최대 할인 금액', { min: 0, positive: false }),
+            limitIssueCount: parseIntegerInput(formData.get('limitIssueCount'), '발급 한도', { min: 1 }),
+            startDate: toISOStringOrThrow(formData.get('startDate'), '시작일'),
+            endDate: toISOStringOrThrow(formData.get('endDate'), '종료일'),
+            status,
+            eventId
+        };
+
+        const res = await fetch('/api/admin/coupons', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+        await ensureSuccess(res, '쿠폰 등록 실패');
+        setFeedback('쿠폰 등록 성공');
+        couponCreateForm.reset();
+        applyLinkedEventDefaults();
+        loadEventDetail(eventId);
+    } catch (err) {
+        console.error(err);
+        setFeedback(err.message, true);
+    }
+}
+
 function handleTableClick(e) {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
@@ -269,6 +390,7 @@ function handleTableClick(e) {
     if (btn.dataset.action === 'edit') {
         hideAllForms();
         formUpdateBox.style.display = 'block';
+        showLinkedEventForms();
         updateForm.eventId.value = id;
         loadEventDetail(id);
     }
@@ -286,6 +408,8 @@ export function initEventPanel() {
     if (createForm) createForm.addEventListener('submit', createEvent);
     if (updateForm) updateForm.addEventListener('submit', updateEvent);
     if (deleteForm) deleteForm.addEventListener('submit', deleteEvent);
+    if (promotionCreateForm) promotionCreateForm.addEventListener('submit', createPromotionForEvent);
+    if (couponCreateForm) couponCreateForm.addEventListener('submit', createCouponForEvent);
 
     eventTableBody.addEventListener('click', handleTableClick);
 
@@ -325,6 +449,11 @@ export function initEventPanel() {
         document.getElementById("create-event-images-preview").innerHTML = "";
         hideAllForms();
     });
+
+    if (promotionTargetTypeSelect) {
+        promotionTargetTypeSelect.addEventListener('change', handleTargetTypeChange);
+        handleTargetTypeChange();
+    }
 }
 
 async function uploadFile(file) {
@@ -454,6 +583,26 @@ function renderExistingPromotionInfo(promotions) {
     }
 }
 
+function renderExistingCouponInfo(coupons) {
+    const container = document.getElementById("update-event-coupons-existing");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (coupons && coupons.length > 0) {
+        coupons.forEach(coupon => {
+            const div = document.createElement("div");
+            div.classList.add("coupon-item");
+            const period = coupon.startDate && coupon.endDate
+                ? `${coupon.startDate.slice(0, 10)} ~ ${coupon.endDate.slice(0, 10)}`
+                : "기간 정보 없음";
+            div.textContent = `${coupon.name} (${coupon.code}) • ${coupon.discountType} ${coupon.discountValue} | ${period} | 상태 ${coupon.status}`;
+            container.appendChild(div);
+        });
+    } else {
+        container.textContent = "연결된 쿠폰 없음";
+    }
+}
+
 // 파일 미리보기 (생성용)
 function renderCreateThumbnailPreview(file) {
     const container = document.getElementById("create-event-thumbnail-preview");
@@ -529,4 +678,149 @@ function renderCreateImagesPreview() {
         wrapper.appendChild(delBtn);
         container.appendChild(wrapper);
     });
+}
+
+function applyLinkedEventDefaults() {
+    if (!activeEventDetail) return;
+    hydratePromotionFormFromEvent(activeEventDetail);
+    hydrateCouponFormFromEvent(activeEventDetail);
+}
+
+function hydratePromotionFormFromEvent(detail) {
+    if (!promotionCreateForm) return;
+    const eventIdInput = promotionCreateForm.querySelector('input[name="eventId"]');
+    if (eventIdInput) {
+        eventIdInput.value = detail.id ?? '';
+    }
+    const summaryInput = promotionCreateForm.querySelector('[data-field="selected-event"]');
+    if (summaryInput) {
+        summaryInput.value = detail.id ? `#${detail.id} ${detail.name || ''}`.trim() : '';
+    }
+    const statusSelect = promotionCreateForm.querySelector('select[name="status"]');
+    if (statusSelect) {
+        const available = Array.from(statusSelect.options).map(opt => opt.value);
+        const preferred = available.includes(detail.status) ? detail.status : (available[0] || 'DRAFT');
+        statusSelect.value = preferred;
+    }
+    setDateInputValue(promotionCreateForm.querySelector('input[name="startDate"]'), detail.startDate);
+    setDateInputValue(promotionCreateForm.querySelector('input[name="endDate"]'), detail.endDate);
+    if (promotionTargetTypeSelect) {
+        promotionTargetTypeSelect.value = 'ALL';
+    }
+    handleTargetTypeChange();
+}
+
+function hydrateCouponFormFromEvent(detail) {
+    if (!couponCreateForm) return;
+    const eventIdInput = couponCreateForm.querySelector('input[name="eventId"]');
+    if (eventIdInput) {
+        eventIdInput.value = detail.id ?? '';
+    }
+    const summaryInput = couponCreateForm.querySelector('[data-field="selected-event"]');
+    if (summaryInput) {
+        summaryInput.value = detail.id ? `#${detail.id} ${detail.name || ''}`.trim() : '';
+    }
+    const statusSelect = couponCreateForm.querySelector('select[name="status"]');
+    if (statusSelect) {
+        const available = Array.from(statusSelect.options).map(opt => opt.value);
+        const defaultStatus = detail.status === 'ENDED'
+            ? (available.includes('INACTIVE') ? 'INACTIVE' : available[0])
+            : (available.includes('ACTIVE') ? 'ACTIVE' : available[0]);
+        if (defaultStatus) {
+            statusSelect.value = defaultStatus;
+        }
+    }
+    setDateInputValue(couponCreateForm.querySelector('input[name="startDate"]'), detail.startDate);
+    setDateInputValue(couponCreateForm.querySelector('input[name="endDate"]'), detail.endDate);
+}
+
+function setDateInputValue(input, isoString) {
+    if (!input) return;
+    input.value = isoString ? formatDateForInput(isoString) : '';
+}
+
+function toISOStringOrThrow(value, label) {
+    if (!value) {
+        throw new Error(`${label}을(를) 입력하세요.`);
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        throw new Error(`${label} 형식이 올바르지 않습니다.`);
+    }
+    return date.toISOString();
+}
+
+function parseNumberInput(raw, label, options = {}) {
+    const { min = null, positive = false } = options;
+    const text = typeof raw === 'string' ? raw.trim() : '';
+    if (!text) {
+        throw new Error(`${label}을(를) 입력하세요.`);
+    }
+    const value = Number(text);
+    if (!Number.isFinite(value)) {
+        throw new Error(`${label}은(는) 숫자여야 합니다.`);
+    }
+    if (positive && value <= 0) {
+        throw new Error(`${label}은(는) 0보다 커야 합니다.`);
+    }
+    if (min !== null && value < min) {
+        throw new Error(`${label}은(는) ${min} 이상이어야 합니다.`);
+    }
+    return value;
+}
+
+function parseIntegerInput(raw, label, options = {}) {
+    const { min = null } = options;
+    const text = typeof raw === 'string' ? raw.trim() : '';
+    if (!text) {
+        throw new Error(`${label}을(를) 입력하세요.`);
+    }
+    const value = Number.parseInt(text, 10);
+    if (Number.isNaN(value)) {
+        throw new Error(`${label}은(는) 정수여야 합니다.`);
+    }
+    if (min !== null && value < min) {
+        throw new Error(`${label}은(는) ${min} 이상이어야 합니다.`);
+    }
+    return value;
+}
+
+function buildPromotionTargets(type, idsRaw) {
+    if (!type) {
+        return null;
+    }
+    const normalizedType = type.trim().toUpperCase();
+    if (normalizedType === 'ALL') {
+        return [{ targetType: normalizedType, targetId: 0 }];
+    }
+
+    const idsText = typeof idsRaw === 'string' ? idsRaw : '';
+    const idList = idsText.split(',')
+        .map(part => part.trim())
+        .filter(Boolean);
+
+    if (idList.length === 0) {
+        throw new Error('타겟 ID를 입력하세요.');
+    }
+
+    return idList.map(part => {
+        const id = Number(part);
+        if (!Number.isFinite(id)) {
+            throw new Error('타겟 ID는 숫자여야 합니다.');
+        }
+        return { targetType: normalizedType, targetId: id };
+    });
+}
+
+function handleTargetTypeChange() {
+    if (!promotionTargetTypeSelect || !promotionTargetIdsInput) return;
+    const type = promotionTargetTypeSelect.value;
+    if (!type || type === 'ALL') {
+        promotionTargetIdsInput.value = '';
+        promotionTargetIdsInput.disabled = true;
+        promotionTargetIdsInput.placeholder = '전체 적용';
+    } else {
+        promotionTargetIdsInput.disabled = false;
+        promotionTargetIdsInput.placeholder = 'ID를 콤마로 구분해 입력하세요';
+    }
 }

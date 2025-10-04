@@ -3,7 +3,6 @@ const productPreview = document.getElementById('product-preview');
 const updateForm = document.getElementById('form-product-update');
 const statusForm = document.getElementById('form-product-status');
 const deleteForm = document.getElementById('form-product-delete');
-const optionForm = document.getElementById('form-product-options');
 const feedback = document.getElementById('product-feedback');
 
 function setFeedback(message, isError = false) {
@@ -16,8 +15,15 @@ async function fetchProductDetail(productId, displayName) {
     try {
         const res = await fetch(`/api/products/${productId}`, { credentials: 'include' });
         if (!res.ok) throw new Error('상품 정보를 가져오지 못했습니다.');
-        const data = await res.json();
-        productPreview.textContent = JSON.stringify(data, null, 2);
+        const body = await res.json();
+        const data = body?.data ?? body;
+
+        if (!data || typeof data !== 'object') {
+            throw new Error('상품 상세 데이터가 올바르지 않습니다.');
+        }
+
+        const detailText = JSON.stringify(data, null, 2);
+        productPreview.textContent = detailText;
 
         updateForm.productId.value = productId;
         updateForm.name.value = data.name ?? '';
@@ -25,7 +31,6 @@ async function fetchProductDetail(productId, displayName) {
 
         statusForm.productId.value = productId;
         deleteForm.productId.value = productId;
-        optionForm.productId.value = productId;
 
         const label = displayName ?? data.name ?? productId;
         setFeedback(`"${label}" 상세 정보를 불러왔습니다.`);
@@ -35,7 +40,6 @@ async function fetchProductDetail(productId, displayName) {
         updateForm.reset();
         statusForm.reset();
         deleteForm.reset();
-        optionForm.reset();
         setFeedback(err.message, true);
     }
 }
@@ -56,8 +60,9 @@ async function searchProductByName(productName) {
         });
         if (!res.ok) throw new Error('상품 검색에 실패했습니다.');
 
-        const data = await res.json();
-        const products = Array.isArray(data.products) ? data.products : [];
+        const body = await res.json();
+        const payload = body?.data ?? body;
+        const products = Array.isArray(payload?.products) ? payload.products : [];
         if (products.length === 0) {
             setFeedback('일치하는 상품이 없습니다.', true);
             return;
@@ -77,7 +82,8 @@ async function searchProductByName(productName) {
             const summary = products
                 .map(item => `• ${item.name} (ID: ${item.product_id})`)
                 .join('\n');
-            productPreview.textContent = `검색 결과 (${products.length}건)\n${summary}\n\n선택된 상품 상세\n${productPreview.textContent}`;
+            const detailText = productPreview.textContent;
+            productPreview.textContent = `검색 결과 (${products.length}건)\n${summary}\n\n선택된 상품 상세\n${detailText}`;
             setFeedback(`"${keyword}" 검색 결과 ${products.length}건 중 "${target.name}"(ID: ${target.product_id})을 불러왔습니다.`, false);
         }
     } catch (err) {
@@ -154,38 +160,7 @@ async function submitDelete(event) {
         productPreview.textContent = '';
         updateForm.reset();
         statusForm.reset();
-        optionForm.reset();
-    } catch (err) {
-        console.error(err);
-        setFeedback(err.message, true);
-    }
-}
-
-async function submitOptions(event) {
-    event.preventDefault();
-    const formData = new FormData(optionForm);
-    const productId = formData.get('productId');
-    const raw = formData.get('options');
-    let options;
-    try {
-        options = JSON.parse(raw);
-    } catch (err) {
-        setFeedback('옵션 JSON 형식이 올바르지 않습니다.', true);
-        return;
-    }
-    if (!Array.isArray(options)) {
-        setFeedback('옵션 JSON은 배열이어야 합니다.', true);
-        return;
-    }
-    try {
-        const res = await fetch(`/admin/products/${productId}/options`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ options })
-        });
-        if (!res.ok) throw new Error('상품 옵션 수정에 실패했습니다.');
-        setFeedback('상품 옵션이 수정되었습니다.');
+        deleteForm.reset();
     } catch (err) {
         console.error(err);
         setFeedback(err.message, true);
@@ -197,5 +172,4 @@ export function initProductPanel() {
     updateForm.addEventListener('submit', submitUpdate);
     statusForm.addEventListener('submit', submitStatus);
     deleteForm.addEventListener('submit', submitDelete);
-    optionForm.addEventListener('submit', submitOptions);
 }

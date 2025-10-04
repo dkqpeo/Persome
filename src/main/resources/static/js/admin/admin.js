@@ -1,15 +1,19 @@
 import { initUserPanel } from './users.js';
 import { initProductPanel } from './products.js';
+import { initInventoryPanel } from './inventory.js';
 import { initOrderPanel } from './orders.js';
 import { initEventPanel } from './events.js';
 import { initPromotionPanel } from './promotions.js';
+import { initCouponPanel } from './coupons.js';
 
 const panelInitializers = {
     users: initUserPanel,
     products: initProductPanel,
+    inventories: initInventoryPanel,
     orders: initOrderPanel,
     events: initEventPanel,
-    promotions: initPromotionPanel
+    promotions: initPromotionPanel,
+    coupons: initCouponPanel
 };
 
 const initializedPanels = new Set();

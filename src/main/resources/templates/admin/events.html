@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="admin/layout :: layout('이벤트 관리', 'events', ~{::main}, ~{::scripts})">
+<head>
+    <title>이벤트 관리</title>
+</head>
+<body>
+<main>
+    <section id="panel-events" class="admin-section">
+        <h2>이벤트 관리</h2>
+
+        <!-- 이벤트 목록 -->
+        <div class="card">
+            <div class="card-header">
+                이벤트 목록
+                <button id="btn-event-create-open" class="primary small">+ 이벤트 생성</button>
+            </div>
+            <div class="card-body">
+                <div class="table-wrapper">
+                    <table id="event-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>이름</th>
+                            <th>상태</th>
+                            <th>기간</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 생성 폼 -->
+        <div id="event-form-create" class="card" style="display:none; margin-top:16px;">
+            <div class="card-header">이벤트 생성</div>
+            <form id="form-event-create" class="card-body form-grid">
+                <label>이름<input type="text" name="name" required></label>
+                <label>설명<textarea name="description" rows="3" required></textarea></label>
+                <label>시작일<input type="datetime-local" name="startDate" required></label>
+                <label>종료일<input type="datetime-local" name="endDate" required></label>
+                <label>상태
+                    <select name="status" required>
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="ENDED">ENDED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+
+                <!-- 썸네일 업로드 -->
+                <div class="form-group">
+                    <label>썸네일 업로드</label>
+                    <input type="file" name="thumbnail" accept="image/*" />
+                    <div id="create-event-thumbnail-preview"></div>
+                </div>
+
+                <!-- 추가 이미지 업로드 -->
+                <div class="form-group">
+                    <label>추가 이미지 업로드</label>
+                    <input type="file" name="images" accept="image/*" multiple />
+                    <div id="create-event-images-preview"></div>
+                </div>
+
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="primary">등록</button>
+                    <button type="button" id="btn-cancel-create" class="secondary">취소</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 수정 폼 -->
+        <div id="event-form-update" class="card" style="display:none; margin-top:16px;">
+            <div class="card-header">이벤트 수정</div>
+            <form id="form-event-update" class="card-body form-grid">
+                <label>이벤트 ID<input type="number" name="eventId" required></label>
+                <label>이름<input type="text" name="name" required></label>
+                <label>설명<textarea name="description" rows="3" required></textarea></label>
+                <label>시작일<input type="datetime-local" name="startDate" required></label>
+                <label>종료일<input type="datetime-local" name="endDate" required></label>
+                <label>상태
+                    <select name="status" required>
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="ENDED">ENDED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+
+                <!-- 기존 썸네일 -->
+                <div class="form-group">
+                    <label>기존 썸네일</label>
+                    <div id="update-event-thumbnail-existing"></div>
+                    <button type="button" id="btn-delete-thumbnail">썸네일 삭제</button>
+                </div>
+
+                <!-- 새 썸네일 업로드 + 미리보기 -->
+                <div class="form-group">
+                    <label>새 썸네일 업로드</label>
+                    <input type="file" name="thumbnail" accept="image/*" />
+                    <div id="update-event-thumbnail-preview"></div>
+                </div>
+
+                <!-- 기존 이미지 -->
+                <div class="form-group">
+                    <label>기존 이미지</label>
+                    <div id="update-event-images-existing"></div>
+                </div>
+
+                <!-- 새 이미지 업로드 + 미리보기 -->
+                <div class="form-group">
+                    <label>새 이미지 업로드</label>
+                    <input type="file" name="images" accept="image/*" multiple />
+                    <div id="update-event-images-preview"></div>
+                </div>
+
+                <!-- 기존 프로모션 -->
+                <div class="form-group">
+                    <label>기존 프로모션</label>
+                    <div id="update-event-promotions-existing"></div>
+                </div>
+
+                <!-- 기존 쿠폰 -->
+                <div class="form-group">
+                    <label>기존 쿠폰</label>
+                    <div id="update-event-coupons-existing"></div>
+                </div>
+
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="primary">수정</button>
+                    <button type="button" id="btn-cancel-update" class="secondary">취소</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 삭제 폼 -->
+        <div id="event-form-delete" class="card" style="display:none; margin-top:16px;">
+            <div class="card-header">이벤트 삭제</div>
+            <form id="form-event-delete" class="card-body form-grid">
+                <label>이벤트 ID<input type="number" name="eventId" required></label>
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="danger">삭제</button>
+                    <button type="button" id="btn-cancel-delete" class="secondary">취소</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="event-promotion-create" class="card" style="display:none; margin-top:16px;">
+            <div class="card-header">선택 이벤트 프로모션 등록</div>
+            <form id="form-event-promotion-create" class="card-body form-grid">
+                <input type="hidden" name="eventId">
+                <label>선택된 이벤트
+                    <input type="text" data-field="selected-event" readonly>
+                </label>
+                <label>상태
+                    <select name="status" required>
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="ACTIVE" selected>ACTIVE</option>
+                        <option value="ENDED">ENDED</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+                <label>할인 타입
+                    <select name="discountType" required>
+                        <option value="FIXED">FIXED</option>
+                        <option value="RATE">RATE</option>
+                    </select>
+                </label>
+                <label>할인 값
+                    <input type="number" name="discountValue" step="0.01" min="0" placeholder="예) 10" required>
+                </label>
+                <label>시작일
+                    <input type="datetime-local" name="startDate" required>
+                </label>
+                <label>종료일
+                    <input type="datetime-local" name="endDate" required>
+                </label>
+                <label>타겟 유형
+                    <select name="targetType">
+                        <option value="ALL" selected>전체</option>
+                        <option value="PRODUCT">상품</option>
+                        <option value="CATEGORY">카테고리</option>
+                        <option value="BRAND">브랜드</option>
+                    </select>
+                </label>
+                <label>타겟 ID 목록 (콤마 구분)
+                    <input type="text" name="targetIds" placeholder="전체 적용" disabled>
+                </label>
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="primary">프로모션 등록</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="event-coupon-create" class="card" style="display:none; margin-top:16px;">
+            <div class="card-header">선택 이벤트 쿠폰 등록</div>
+            <form id="form-event-coupon-create" class="card-body form-grid">
+                <input type="hidden" name="eventId">
+                <label>선택된 이벤트
+                    <input type="text" data-field="selected-event" readonly>
+                </label>
+                <label>쿠폰 이름<input type="text" name="name" placeholder="예) 신규회원 10%" required></label>
+                <label>쿠폰 코드<input type="text" name="code" placeholder="예) NEW10" required></label>
+                <label>할인 타입
+                    <select name="discountType" required>
+                        <option value="RATE">RATE</option>
+                        <option value="FIXED">FIXED</option>
+                    </select>
+                </label>
+                <label>할인 값<input type="number" name="discountValue" step="0.01" min="0" placeholder="예) 10" required></label>
+                <label>최소 주문 금액<input type="number" name="minOrderPrice" step="0.01" min="0" placeholder="0" required></label>
+                <label>최대 할인 금액<input type="number" name="maxDiscountPrice" step="0.01" min="0" placeholder="0" required></label>
+                <label>발급 한도<input type="number" name="limitIssueCount" min="1" step="1" placeholder="예) 100" required></label>
+                <label>시작일<input type="datetime-local" name="startDate" required></label>
+                <label>종료일<input type="datetime-local" name="endDate" required></label>
+                <label>상태
+                    <select name="status" required>
+                        <option value="ACTIVE" selected>ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </label>
+                <div class="form-actions" style="display:flex; gap:8px;">
+                    <button type="submit" class="primary">쿠폰 등록</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="event-feedback" class="feedback"></div>
+    </section>
+</main>
+
+<th:block th:fragment="scripts">
+    <script type="module">
+        import { initEventPanel } from '/js/admin/events.js';
+        initEventPanel();
+    </script>
+</th:block>
+</body>
+</html>
