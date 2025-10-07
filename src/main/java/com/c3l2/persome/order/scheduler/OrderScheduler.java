@@ -17,8 +17,8 @@ public class OrderScheduler {
 
     private final OrderRepository orderRepository;
 
-    //매일 새벽 3시에 바꿈.
-    @Scheduled(cron = "0 0 3 * * *")
+    //30분 마다
+    @Scheduled(cron = "0 0/30 * * * *")
     @Transactional
     public void updateOrders() {
         LocalDateTime now = LocalDateTime.now();
