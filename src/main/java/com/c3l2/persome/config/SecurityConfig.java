@@ -72,6 +72,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recommendations/popular").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recommendations/similar/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/help/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/membership/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/coupons/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -133,7 +136,7 @@ public class SecurityConfig {
                                     String redirect = uri + (query != null ? "?" + query : "");
                                     response.sendRedirect("/users/login?redirect=" + redirect);
                                 },
-                                request -> request.getRequestURI().startsWith("/users")
+                                request -> !request.getRequestURI().startsWith("/api")
                         )
 
                         // REST 요청 → 401 JSON 응답
