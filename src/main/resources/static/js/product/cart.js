@@ -32,9 +32,9 @@ async function addToCart() {
                 updateCartCount();
             }
         } else if (response.status === 401) {
-            alert('로그인이 필요합니다.');
-            // 로그인 페이지로 이동할 수 있음
-            // window.location.href = '/users/login';
+            // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로 전달)
+            const currentUrl = encodeURIComponent(window.location.pathname);
+            window.location.href = `/users/login?redirect=${currentUrl}`;
         } else if (response.status === 400) {
             const errorData = await response.json();
             alert('잘못된 요청입니다: ' + (errorData.message || '옵션을 확인해주세요.'));

@@ -149,19 +149,37 @@ function addToCart() {
 // 찜 토글 함수는 wishlist.js에서 정의됨 - 중복 제거
 
 // 바로구매
-function buyNow() {
+async function buyNow() {
     const selectedOption = getSelectedOption();
-    
+
     if (!validateSelection(selectedOption)) {
         return;
     }
 
-    const productOptionId = parseInt(selectedOption.optionId);
-    const quantity = parseInt(document.getElementById('quantity').value);
+    // 로그인 상태 확인
+    try {
+        const response = await fetch('/api/users/me', {
+            credentials: 'include'
+        });
 
-    // 쿼리 파라미터로 주문 페이지 이동
-    const orderUrl = `/orders?productOptionId=${productOptionId}&quantity=${quantity}`;
-    window.location.href = orderUrl;
+        if (response.status === 401) {
+            // 비로그인 상태: 로그인 페이지로 리다이렉트
+            const currentUrl = encodeURIComponent(window.location.pathname);
+            window.location.href = `/users/login?redirect=${currentUrl}`;
+            return;
+        }
+
+        // 로그인 상태: 주문 페이지로 이동
+        const productOptionId = parseInt(selectedOption.optionId);
+        const quantity = parseInt(document.getElementById('quantity').value);
+
+        const orderUrl = `/orders?productOptionId=${productOptionId}&quantity=${quantity}`;
+        window.location.href = orderUrl;
+
+    } catch (error) {
+        console.error('로그인 상태 확인 실패:', error);
+        alert('오류가 발생했습니다. 다시 시도해 주세요.');
+    }
 }
 
 // 토스트 메시지 표시 (간단한 알림)
