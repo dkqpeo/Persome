@@ -12,7 +12,7 @@ function setFeedback(message, isError = false) {
 
 async function fetchUsers() {
     const status = statusFilter.value;
-    let url = '/admin/users';
+    let url = '/api/admin/users';
     if (status) {
         url += `?status=${encodeURIComponent(status)}`;
     }
@@ -63,7 +63,7 @@ async function submitGrade(event) {
     }
     const membershipLevel = formData.get('membershipLevel');
     try {
-        const res = await fetch(`/admin/users/${encodeURIComponent(loginId)}/grade`, {
+        const res = await fetch(`/api/admin/users/${encodeURIComponent(loginId)}/grade`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -89,7 +89,7 @@ async function submitRole(event) {
     }
     const admin = formData.get('admin') === 'on';
     try {
-        const res = await fetch(`/admin/users/${encodeURIComponent(loginId)}/role`, {
+        const res = await fetch(`/api/admin/users/${encodeURIComponent(loginId)}/role`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
