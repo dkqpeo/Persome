@@ -54,4 +54,8 @@ public class Inventory {
         this.quantity = quantity;
     }
 
+    public void updateStockStatus(StockStatus stockStatus) {
+        this.stockStatus = stockStatus;
+    }
+
 }

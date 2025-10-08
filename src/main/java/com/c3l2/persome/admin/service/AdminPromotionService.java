@@ -2,6 +2,7 @@ package com.c3l2.persome.admin.service;
 
 import com.c3l2.persome.admin.dto.AdminPromotionProductUpdateRequest;
 import com.c3l2.persome.admin.dto.AdminPromotionRequest;
+import com.c3l2.persome.admin.dto.AdminPromotionSummaryDto;
 import com.c3l2.persome.config.error.ErrorCode;
 import com.c3l2.persome.config.error.exceprion.BusinessException;
 import com.c3l2.persome.event.entity.Event;
@@ -17,6 +18,7 @@ import com.c3l2.persome.category.repository.CategoryRepository;
 import com.c3l2.persome.product.repository.ProductRepository;
 import com.c3l2.persome.promotion.repository.PromotionTargetRepository;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,6 +82,12 @@ public class AdminPromotionService {
             promotionTargetRepository.deleteByPromotionId(promotionId);
             saveTargets(promotion, request.targets());
         }
+    }
+
+    public List<AdminPromotionSummaryDto> getPromotions() {
+        return promotionRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+                .map(AdminPromotionSummaryDto::from)
+                .toList();
     }
 
     @Transactional

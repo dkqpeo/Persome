@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="admin/layout :: layout('재고 관리', 'inventories', ~{::main}, ~{::scripts})">
+<head>
+    <title>재고 관리</title>
+</head>
+<body>
+<main>
+    <section id="panel-inventories" class="admin-section">
+        <h2>재고 관리</h2>
+        <div class="card">
+            <div class="card-header">재고 목록</div>
+            <div class="card-body">
+                <div class="toolbar">
+                    <form id="inventory-filter-form" class="form-inline">
+                        <label>상품
+                            <input type="text" id="inventory-product-keyword" name="product" placeholder="상품명 또는 ID">
+                        </label>
+                        <label>옵션
+                            <input type="text" id="inventory-option-keyword" name="option" placeholder="옵션명 또는 ID">
+                        </label>
+                        <label>매장 ID
+                            <input type="number" id="inventory-store-id" name="storeId" min="1" placeholder="숫자 입력">
+                        </label>
+                        <label>상태
+                            <select id="inventory-status" name="status">
+                                <option value="">전체</option>
+                                <option value="SELLING">판매중</option>
+                                <option value="LOW_STOCK">재고부족</option>
+                                <option value="OUT_OF_STOCK">품절</option>
+                                <option value="INCOMMING">입고예정</option>
+                                <option value="DISCONTINUED">단종</option>
+                            </select>
+                        </label>
+                        <button type="submit" class="primary">조회</button>
+                        <button type="reset">초기화</button>
+                    </form>
+                    <label>페이지 크기
+                        <select id="inventory-page-size">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="table-wrapper">
+                    <table id="inventory-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>상품</th>
+                            <th>옵션</th>
+                            <th>매장</th>
+                            <th>수량</th>
+                            <th>상태</th>
+                            <th>수정일</th>
+                            <th>작업</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="inventory-pagination"></div>
+                <div id="inventory-feedback" class="feedback"></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<th:block th:fragment="scripts">
+    <script type="module">
+        import { initInventoryPanel } from '/js/admin/inventory.js';
+        initInventoryPanel();
+    </script>
+</th:block>
+</body>
+</html>

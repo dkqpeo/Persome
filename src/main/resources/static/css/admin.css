@@ -42,12 +42,17 @@ body {
 }
 
 .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     border: 1px solid var(--border);
     background: #fff;
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
+    text-decoration: none;
+    color: inherit;
     transition: all .2s ease;
 }
 
@@ -75,6 +80,12 @@ main {
 .admin-panel.active {
     display: flex;
     flex-direction: column;
+}
+
+.admin-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .card {
@@ -106,6 +117,14 @@ table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+}
+
+#order-table tbody tr {
+    cursor: pointer;
+}
+
+#order-table tbody tr.selected-order {
+    background: #eef2ff;
 }
 
 th, td {
@@ -400,6 +419,84 @@ button.danger:hover {
     background: var(--primary);
     color: #fff;
     border-color: var(--primary);
+}
+
+.order-detail-container {
+    gap: 0;
+}
+
+.order-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.order-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.order-detail-section {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    background: #fdfdff;
+}
+
+.order-detail-section h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+}
+
+.order-detail-section dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 6px 12px;
+    font-size: 13px;
+}
+
+.order-detail-section dt {
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.order-detail-section dd {
+    margin: 0;
+    color: #1f2937;
+    word-break: break-word;
+}
+
+.order-detail-items {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.order-detail-items th,
+.order-detail-items td {
+    border-bottom: 1px solid var(--border);
+    padding: 8px 10px;
+}
+
+.order-detail-items th {
+    background: #f1f4ff;
+    font-weight: 600;
+}
+
+.order-detail-items th.amount,
+.order-detail-items td.amount {
+    text-align: right;
+}
+
+.order-detail-placeholder {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.order-detail-placeholder.error {
+    color: #e53935;
 }
 
 .feedback {
