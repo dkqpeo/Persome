@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (productId) {
         loadProductData(productId);
     } else {
-        console.error('상품 ID를 찾을 수 없습니다.');
+        showError('상품 ID를 찾을 수 없습니다.');
     }
 });
 
@@ -55,7 +55,6 @@ async function loadProductData(productId) {
         showLoading(false);
 
     } catch (error) {
-        console.error('상품 데이터 로드 실패:', error);
         showError('상품 정보를 불러오는데 실패했습니다.');
         showLoading(false);
     }

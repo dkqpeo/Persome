@@ -22,4 +22,5 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     Page<Order> findByUserIdAndOrderDateAfter(Long userId, LocalDateTime fromDate, Pageable pageable); //기간별 조회
 
     List<Order> findByUserIdAndOrderDateBetween(Long userId, LocalDateTime fromDate, LocalDateTime toDate); //기간별 조회 페이징x
+    List<Order> findByUserIdOrderByOrderDateDesc(Long userId); //사용자 주문 내역 최신순
 }

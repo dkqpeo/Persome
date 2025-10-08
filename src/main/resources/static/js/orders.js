@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let data;
     try {
         if (productOptionId && quantity) {
-            // 직접 주문
+            // 직접 주문 API 호출
             const res = await fetch('/api/orders/prepare-direct', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const result = await res.json();
             data = result.data;
         } else {
-            // 장바구니 기반 주문
+            // 장바구니 기반 주문 API 호출
             const res = await fetch(`/api/orders/prepare?cartItemIds=${cartItemIds}`);
             if (!res.ok) throw new Error("주문 준비 중 오류가 발생했습니다.");
             const result = await res.json();

@@ -134,4 +134,21 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     int updateProductStatus(@Param("id") Long id,
                             @Param("status") ProductStatus status,
                             @Param("updatedAt") LocalDateTime updatedAt);
+
+    // 추천 시스템용 메소드들
+    List<Product> findTop20ByStatusOrderByCreatedAtDesc(ProductStatus status);
+
+    List<Product> findByStatus(ProductStatus status);
+
+    @Query("SELECT p FROM Product p WHERE p.category.name IN :categoryNames AND p.status = :status ORDER BY p.createdAt DESC")
+    List<Product> findByCategoryNameInAndStatusOrderByCreatedAtDesc(@Param("categoryNames") List<String> categoryNames, @Param("status") ProductStatus status);
+
+    // 추천 시스템용 - 랜덤 정렬 (매번 다른 상품 추천)
+    @Query("SELECT p FROM Product p WHERE p.category.name IN :categoryNames AND p.status = :status AND p.id NOT IN :excludeIds ORDER BY function('RAND')")
+    List<Product> findByCategoryNameInAndStatusRandomExcluding(
+        @Param("categoryNames") List<String> categoryNames,
+        @Param("status") ProductStatus status,
+        @Param("excludeIds") List<Long> excludeIds);
+
+    List<Product> findByCategoryAndStatusAndIdNot(Category category, ProductStatus status, Long excludeId);
 }
