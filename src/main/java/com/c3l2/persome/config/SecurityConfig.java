@@ -43,7 +43,8 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/actuator/**"  // Actuator 엔드포인트 허용
                         ).permitAll()
 
                         // 뷰 컨트롤러 (GET 요청만)
@@ -67,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/products/popular", "/products/new").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ranking/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recommendations/popular").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recommendations/similar/**").permitAll()
