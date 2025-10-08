@@ -58,7 +58,9 @@ async function toggleWishlist() {
                 updateWishlistButton();
                 showToast('찜 목록에서 제거되었습니다.');
             } else if (response.status === 401) {
-                alert('로그인이 필요합니다.');
+                // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로 전달)
+                const currentUrl = encodeURIComponent(window.location.pathname);
+                window.location.href = `/users/login?redirect=${currentUrl}`;
             } else {
                 alert('오류가 발생했습니다. 다시 시도해 주세요.');
             }
@@ -80,7 +82,9 @@ async function toggleWishlist() {
                 updateWishlistButton();
                 showToast('찜 목록에 추가되었습니다.');
             } else if (response.status === 401) {
-                alert('로그인이 필요합니다.');
+                // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로 전달)
+                const currentUrl = encodeURIComponent(window.location.pathname);
+                window.location.href = `/users/login?redirect=${currentUrl}`;
             } else {
                 alert('오류가 발생했습니다. 다시 시도해 주세요.');
             }
