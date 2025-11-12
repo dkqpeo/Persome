@@ -11,6 +11,8 @@
 - **기술 스택**: Spring Boot 3.5.5, Java 21, MySQL, Thymeleaf, Spring Security, Spring AI
 - **개발 기간**: 2025.09 ~ 2025.10
 - **주요 기능**: 개인화 쇼핑, AI 상품 추천, 멤버십/쿠폰 시스템, 통합 포인트 관리
+- **팀 구성** : 5명
+- **개인 기여도** : 60% (백엔드 개발, 데이터 크롤링)
 
 ### 기술 스택
 
@@ -41,15 +43,11 @@
 - Micrometer (Application Metrics)
 
 **Frontend**
-- Thymeleaf Template Engine
-- Thymeleaf Extras Spring Security 6
+- HTML5, CSS, JavaScript
 
 **Documentation**
 - SpringDoc OpenAPI 3.0 (Swagger UI)
 
-**Others**
-- Lombok
-- Spring Boot DevTools
 
 ### 프로젝트 규모
 
@@ -57,6 +55,9 @@
 - **API 엔드포인트**: 50개 이상
 - **데이터베이스 테이블**: 20개 이상
 - **테스트 코드**: 6개 이상 (Service Layer 중심)
+
+## ERD
+![ERD](ERD.png)
 
 ## 문제 정의 및 배경
 
@@ -120,8 +121,6 @@
 
 - **결제 시스템**:
     - 카카오페이 결제 연동 (`KakaoPaymentService`)
-    - 결제 준비(Ready) → 사용자 승인 → 결제 승인(Approve) 전체 플로우 구현
-    - 결제 상태 관리 및 주문 동기화
 
 - **리뷰 시스템**:
     - 리뷰 CRUD 전체 구현 (작성/수정/삭제)
@@ -161,25 +160,14 @@
 
 **해결**
 - **6개의 전용 서비스로 세분화하여 책임 분리**
-    - `OrderCreateService`: 주문 생성 전체 오케스트레이션 (5단계 프로세스 관리)
-    - `PricingService`: 가격 계산 전용 (프로모션 적용, 세일 가격 처리)
-    - `OrderPostProcessService`: 주문 후처리 (재고 차감, 장바구니 삭제, 포인트 적립)
-    - `PaymentService`: 결제 정보 저장 및 관리
-    - `PaymentCreateService`: 결제 생성 로직
-    - `KakaoPaymentService`: 카카오페이 외부 API 연동
-
 - **5단계 주문 프로세스 구조화**
     1. `createOrderWithItems()`: 주문 및 주문 상품 생성, 프로모션 할인 계산
     2. `applyAllDiscounts()`: 쿠폰, 배송비, 포인트 순차 적용
     3. `processDeliveryIfNeeded()`: 배송 정보 처리
     4. `processPayment()`: 결제 방법에 따른 분기 처리
     5. `processOrderCompletion()`: 재고 업데이트, 장바구니 삭제, 포인트 적립
-
 - **가격 계산 정확도 개선**
-    - 2,500원으로 잘못 계산되던 최종 금액 버그 수정
-    - 프로모션 할인 → 쿠폰 할인 → 포인트 사용 순서로 명확한 할인 적용 순서 정립
-    - 각 단계별 금액 추적 가능하도록 `PriceCalculationResult` DTO 도입
-
+    
 **성과**
 - 200줄 단일 메서드 → 각 20~50줄의 6개 서비스로 분리
 - 테스트 커버리지 향상 (각 서비스별 독립 테스트 가능)
@@ -194,19 +182,9 @@
 
 **해결**
 - **KakaoPaymentService 구현**
-    - `kakaoPayReady()`: 결제 준비 요청 및 TID 발급
-    - `kakaoPayApprove()`: PG Token 기반 최종 결제 승인
-    - RestTemplate 활용한 HTTP 통신 및 에러 핸들링
-
 - **결제 상태 관리**
-    - `PaymentStatus.PENDING`: 카카오페이 결제 대기 중
-    - `PaymentStatus.PAID`: 결제 완료
-    - 결제 승인 후 `Order.paid()` 호출로 주문 상태 동기화
-
 - **결제 URL 리다이렉션**
-    - 세션에 `kakao_order_id` 저장하여 결제 완료 후 주문 매칭
-    - 결제 성공/실패/취소 각각의 Callback URL 처리
-
+    
 **성과**
 - 카카오페이 실시간 결제 연동 완료
 - 결제 프로세스 안정성 확보 (실패 시 자동 롤백)
@@ -220,19 +198,11 @@
 
 **해결**
 - **Spring AI + OpenAI GPT-3.5-turbo 통합**
-    - `RecommendationService`: 사용자 구매 패턴 분석 및 AI 추천 요청
-    - `UserPurchaseProfile`: 선호 카테고리, 브랜드, 평균 가격대, 최근 구매 상품 분석
-    - ChatClient를 통한 프롬프트 엔지니어링으로 카테고리 추천 유도
-
 - **하이브리드 추천 전략**
     - AI 추천: 구매 패턴 기반 3개 카테고리 추천
     - 규칙 기반 Fallback: AI API 실패 시 선호 카테고리 기반 추천
     - 중복 방지: 이미 구매한 상품 자동 제외
-
 - **추천 정확도 향상**
-    - 카테고리 빈도, 브랜드 선호도, 가격대 분석으로 프로필 생성
-    - 최근 7개 구매 상품 우선 고려
-    - DB에서 랜덤 정렬로 매번 다른 상품 추천
 
 **성과**
 - AI 기반 개인화 추천 정확도 체감 향상
@@ -250,18 +220,11 @@
     - `registerReview()`: 리뷰 등록 + 이미지 업로드
     - `updateReview()`: 리뷰 수정 (기존 이미지 삭제 후 새 이미지 추가)
     - `deleteReview()`: 리뷰 삭제 + 상품 평점 재계산
-
 - **중복 리뷰 검증**
-    - 동일 주문 아이템에 대한 중복 리뷰 방지
-    - 동일 사용자 + 동일 상품 옵션 중복 리뷰 방지
-
 - **파일 관리**
     - `FileStorageUtil`을 활용한 이미지 저장
     - `ReviewMedia` 엔티티로 이미지 메타데이터 관리
-
 - **평점 자동 업데이트**
-    - `ReviewRatingService`: 리뷰 작성/수정/삭제 시 상품 평점 자동 재계산
-    - 평점 업데이트 실패 시에도 리뷰 작업은 정상 완료 (로그만 기록)
 
 **성과**
 - 완전한 리뷰 CRUD 기능 구현
@@ -310,18 +273,6 @@
 - `SecurityConfig`에서 `AuthenticationEntryPoint` 커스터마이징
 - 요청 URI 패턴 기반 분기 처리 (`/api/*` vs 나머지)
 - API 요청은 SavedRequest 캐싱 제외하여 리다이렉트 문제 해결
-
-```java
-.requestCache(cache -> cache.requestCache(new HttpSessionRequestCache() {
-    @Override
-    public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getRequestURI().startsWith("/api")) {
-            return; // API 요청은 저장하지 않음
-        }
-        super.saveRequest(request, response);
-    }
-}))
-```
 
 **성과**
 - API와 View 요청에 대한 일관된 인증 처리
@@ -425,152 +376,6 @@ SecurityContextPersistenceFilter
 - Console: Enabled
 - Scheduling: Disabled
 
-## 핵심 기능
-
-### 1. 사용자 관리
-
-**회원가입/로그인**
-- 이메일 기반 회원가입 (BCrypt 암호화)
-- Kakao OAuth2.0 소셜 로그인
-- 세션 기반 인증 (최대 동시 세션 1개)
-
-**사용자 정보 관리**
-- 프로필 조회 및 수정
-- 배송지 관리
-- 주문 이력 조회
-
-**권한 관리**
-- `USER`: 일반 사용자
-- `ADMIN`: 관리자 (전체 데이터 관리)
-
-### 2. 상품 관리
-
-**상품 조회**
-- 카테고리별 상품 목록
-- 브랜드별 필터링
-- 상품 상세 정보 (이미지, 설명, 가격, 재고)
-
-**상품 검색**
-- 키워드 기반 검색
-- 가격대 필터링
-- 인기순/최신순 정렬
-
-**AI 추천**
-- OpenAI 기반 개인화 추천 (`/api/recommendations/popular`)
-- 유사 상품 추천 (`/api/recommendations/similar/{productId}`)
-
-### 3. 주문 및 결제
-
-**장바구니**
-- 상품 추가/삭제/수량 변경
-- 쿠폰 적용 미리보기
-- 포인트 사용 시뮬레이션
-
-**주문 처리**
-- `PricingService`를 통한 정확한 가격 계산
-    - 상품 금액
-    - 할인율 적용
-    - 쿠폰 할인
-    - 포인트 사용
-    - 배송비 계산
-- 주문 상태 관리 (주문 완료 → 배송 중 → 배송 완료)
-
-**결제 연동**
-- 결제 정보 저장
-- 결제 상태 추적
-- 환불 처리
-
-### 4. 혜택 시스템
-
-**쿠폰 관리**
-- 쿠폰 발급 및 만료 관리
-- 사용 조건 검증 (최소 주문 금액, 사용 기한)
-- 장바구니/주문 시 자동 적용
-
-**멤버십 등급**
-- 구매 금액 기반 자동 등급 산정
-- 등급별 혜택 차등 제공
-- 등급 유지 조건 관리
-
-**포인트 시스템**
-- 구매 시 자동 적립
-- 포인트 사용 및 차감
-- 포인트 소멸 예정 알림 (스케줄러)
-
-### 5. 리뷰 시스템
-
-**리뷰 작성**
-- 구매 확정 후 리뷰 작성 가능
-- 이미지 업로드 지원
-- 별점 및 텍스트 리뷰
-
-**리뷰 조회**
-- 상품별 리뷰 목록
-- 평점 통계
-- 최신순/평점순 정렬
-
-### 6. 프로모션 및 이벤트
-
-**이벤트 관리**
-- 시즌 이벤트 등록
-- 이벤트 이미지 업로드 (`./event-images`)
-- 이벤트 기간 설정
-
-**할인 프로모션**
-- 상품별 할인율 설정
-- 기간 한정 세일
-- 타임딜 관리
-
-### 7. 고객 지원
-
-**FAQ 시스템**
-- 카테고리별 FAQ
-- 키워드 검색
-
-**공지사항**
-- 중요 공지사항 게시
-- 팝업 공지 지원
-
-### 8. 관리자 기능
-
-**상품 관리**
-- 상품 등록/수정/삭제
-- 재고 관리
-- 카테고리/브랜드 관리
-
-**주문 관리**
-- 전체 주문 조회
-- 주문 상태 변경
-- 환불 승인
-
-**사용자 관리**
-- 사용자 목록 조회
-- 권한 변경
-- 탈퇴 회원 관리
-
-**통계 및 분석**
-- 매출 통계
-- 상품별 판매 현황
-- 회원 가입 추이
-
-## 인증 및 보안
-
-### Spring Security 설정
-
-**인증 방식**
-- Session-based Authentication (Stateful)
-- `JSESSIONID` 쿠키 기반 세션 관리
-- 최대 동시 세션: 1개 (이전 세션 무효화)
-
-**비밀번호 암호화**
-- BCrypt 해시 알고리즘
-- Salt 자동 생성
-
-**OAuth2.0 통합**
-- Kakao 소셜 로그인
-- Custom Success Handler로 자동 회원가입 처리
-
-
 ## 데이터베이스 구조
 
 ### 주요 테이블
@@ -615,33 +420,6 @@ SecurityContextPersistenceFilter
 - `faq`: FAQ
 - `notice`: 공지사항
 - `inquiry`: 1:1 문의
-
-## 모니터링 및 관찰성
-
-### Prometheus + Grafana 통합
-
-**메트릭 수집**
-- Application: `persome`
-- Scrape Interval: 15초
-- Retention: 15일
-
-**주요 메트릭**
-- **HTTP 요청**: 요청 수, 응답 시간, 상태 코드 분포
-- **JVM**: 힙 메모리, 스레드 수, GC 통계
-- **시스템**: CPU 사용률, 메모리 사용률
-- **데이터베이스**: HikariCP 커넥션 풀 상태
-
-### Grafana 대시보드
-
-**추천 대시보드**
-- JVM Micrometer Dashboard (ID: 4701)
-- Spring Boot Statistics (ID: 11378)
-
-**커스텀 패널**
-- API 응답 시간 (P50, P95, P99)
-- 에러율 추이
-- 활성 사용자 세션
-- 데이터베이스 쿼리 성능
 
 ## 프로젝트 영향
 
