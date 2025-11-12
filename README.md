@@ -263,6 +263,8 @@
 
 <br>
 
+---
+
 ## 아키텍처
 
 ### Layered Architecture
@@ -315,17 +317,7 @@ com.c3l2.persome/
     └── util/               # 유틸리티
 ```
 
-### 보안 아키텍처
-
-#### Spring Security Filter Chain
-
-```
-SecurityContextPersistenceFilter
-→ JwtAuthenticationFilter (미사용, OAuth2 기반)
-→ UsernamePasswordAuthenticationFilter
-→ OAuth2LoginAuthenticationFilter
-→ FilterSecurityInterceptor
-```
+<br>
 
 #### 인증 흐름
 
@@ -347,19 +339,9 @@ SecurityContextPersistenceFilter
     - `/api/users/**`: 인증 필요 (일부 제외)
     - `/`: 공개 접근
 
-### 데이터베이스 아키텍처
+<br>
 
-#### 개발 환경 (MySQL)
-- Database: `persome`
-- Port: `3306`
-- Timezone: `Asia/Seoul`
-- DDL: `update` (자동 스키마 업데이트)
-
-#### 테스트 환경 (H2)
-- Mode: In-Memory with MySQL compatibility
-- DDL: `create-drop`
-- Console: Enabled
-- Scheduling: Disabled
+---
 
 ## 데이터베이스 구조
 
@@ -406,7 +388,9 @@ SecurityContextPersistenceFilter
 - `notice`: 공지사항
 - `inquiry`: 1:1 문의
 
-## 프로젝트 영향
+---
+
+## 기대 효과
 
 ### 기술적 성과
 
@@ -427,6 +411,8 @@ SecurityContextPersistenceFilter
 - **API 문서 자동화**: Swagger UI로 프론트엔드 협업 효율 향상
 - **환경 분리**: 개발(MySQL), 테스트(H2) 환경 명확히 분리
 - **자동 초기화**: 관리자 계정 및 기본 데이터 자동 생성
+
+---
 
 ## 프로젝트를 통해 배운 점
 
@@ -499,6 +485,8 @@ SecurityContextPersistenceFilter
 - 리뷰 서비스 테스트 작성 (`ReviewServiceTest`)
 - Service Layer 중심 단위 테스트 작성
 - H2 In-Memory Database 활용한 테스트 환경 구축
+
+---
 
 ## 향후 개선 계획
 
